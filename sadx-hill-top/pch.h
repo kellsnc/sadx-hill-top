@@ -4,5 +4,8 @@
 #include "framework.h"
 
 #include "SADXModLoader.h"
+#include "LandTableInfo.h"
+#include "ModelInfo.h"
+#include "AnimationFile.h"
 
 #endif
