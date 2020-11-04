@@ -1,7 +1,10 @@
 #include "pch.h"
 
-NJS_TEXNAME HillTopObj_TexNames[24];
-NJS_TEXLIST HillTopObj_TexList = { arrayptrandlength(HillTopObj_TexNames) };
+NJS_TEXNAME HillTopOBJ_TexNames[9];
+NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
+
+NJS_TEXNAME HillTopBG_TexNames[2];
+NJS_TEXLIST HillTopBG_TexList = { arrayptrandlength(HillTopBG_TexNames) };
 
 ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 0, 360000, 0, Ring_Main, "RING   " },
@@ -56,7 +59,8 @@ ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int)
 
 PVMEntry HillTopObjectTextures[] = {
 	{ "OBJ_MOUNTAIN", (TexList*)0x24208A8 },
-	{ "OBJ_HILLTOP", &HillTopObj_TexList },
+	{ "OBJ_HILLTOP", &HillTopOBJ_TexList },
+	{ "BG_HILLTOP", &HillTopBG_TexList },
 	
 	{ "E_BOMB", (TexList*)0x96B464 },
 	{ "E_SARU", (TexList*)0x962560 },

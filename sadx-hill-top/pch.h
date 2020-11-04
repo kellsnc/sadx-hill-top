@@ -8,4 +8,6 @@
 #include "ModelInfo.h"
 #include "AnimationFile.h"
 
+#include "pointers.h"
+
 #endif
