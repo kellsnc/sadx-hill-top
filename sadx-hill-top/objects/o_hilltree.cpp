@@ -3,7 +3,7 @@
 
 ModelInfo* ht_tree = nullptr;
 
-CollisionData HillTree_Col = { 0, CollisionShape_Cylinder, 0x77, 0, 0, {0, 25.0f, 0}, 12.0f, 25.0f, 0, 0, 0, 0, 0 };
+CollisionData HillTree_Col = { 0, CollisionShape_Capsule2, 0x77, 0, 0, {0, 25.0f, 0}, 6.0f, 25.0f, 0, 0, 0, 0, 0 };
 
 void __cdecl HillTree_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
@@ -11,7 +11,8 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 
 		njSetTexture(LevelObjTexlists[1]);
 		njPushMatrixEx();
-		njTranslateEx(&Camera_Data1->Position);
+		njTranslateEx(&data->Position);
+		njRotateEx((Angle*)&data->Rotation, false);
 		njDrawModel_SADX(data->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
