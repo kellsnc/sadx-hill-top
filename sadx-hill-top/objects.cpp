@@ -1,10 +1,9 @@
 #include "pch.h"
 
+#include "objects/o_htskybox.h"
+
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
-
-NJS_TEXNAME HillTopBG_TexNames[2];
-NJS_TEXLIST HillTopBG_TexList = { arrayptrandlength(HillTopBG_TexNames) };
 
 ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 0, 360000, 0, Ring_Main, "RING   " },
@@ -89,4 +88,8 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	ObjLists[LevelIDs_RedMountain * 8] = &HillTopObjectList;
 	ObjLists[LevelIDs_RedMountain * 8 + 1] = &HillTopObjectList;
 	ObjLists[LevelIDs_RedMountain * 8 + 2] = &HillTopObjectList;
+
+	SkyboxObjects[LevelIDs_RedMountain] = HillTopZone_SkyBox;
+
+	LoadModel(&ht_skybox, "ht_skybox", ModelFormat_Basic);
 }

@@ -39,6 +39,9 @@
     <ClInclude Include="objects\o_htskybox.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="object-utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -64,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="objects\o_htskybox.cpp">
       <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="object-utils.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -2,14 +2,12 @@
 
 #include "paths.h"
 #include "deathzones.h"
-#include "objects/o_htskybox.h"
 
 NJS_TEXNAME HillTop_TexNames[5];
 NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 
 StartPosition StartPoses[] = {
 	{ LevelIDs_RedMountain, 0, { 0, 0, 0 }, 0 }, // Sonic Act 1
-	{ LevelIDs_RedMountain, 0, { 0, 0, 0 }, 0 }, // Gamma Act 1
 	{ LevelIDs_RedMountain, 1, { 0, 0, 0 }, 0 }, // Sonic Act 2
 	{ LevelIDs_RedMountain, 1, { 0, 0, 0 }, 0 }, // Gamma Act 2
 	{ LevelIDs_RedMountain, 2, { 0, 0, 0 }, 0 }  // Knuckles Act 3
@@ -21,7 +19,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 
 void __cdecl HillTopZone_Init(ObjectMaster* obj) {
 
-	// This initialize the music after the timer in InvulnerableTime is elpased 
+	// This initializes the music after the timer in InvulnerableTime is elpased 
 	// and no event is running
 	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
 	
@@ -48,14 +46,12 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	helperFunctions.RegisterPathList(hilltop1_pathdata);
 	helperFunctions.RegisterPathList(hilltop2_pathdata);
 
-	helperFunctions.RegisterStartPosition(Characters_Sonic, StartPoses[0]);
-	helperFunctions.RegisterStartPosition(Characters_Gamma, StartPoses[1]);
-	helperFunctions.RegisterStartPosition(Characters_Sonic, StartPoses[2]);
-	helperFunctions.RegisterStartPosition(Characters_Gamma, StartPoses[3]);
-	helperFunctions.RegisterStartPosition(Characters_Knuckles, StartPoses[4]);
+	SonicStartArray[11] = StartPoses[0];
+	SonicStartArray[12] = StartPoses[1];
+	GammaStartArray[3]	= StartPoses[2];
+	KnucklesStartArray[1] = StartPoses[3];
 
 	LevelObjects[LevelIDs_RedMountain] = HillTopZone_Init;
-	SkyboxObjects[LevelIDs_RedMountain] = HillTopZone_SkyBox;
 
 	DeathZoneList[LevelIDs_RedMountain][0] = hilltope0_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][1] = hilltope1_deathzones;
