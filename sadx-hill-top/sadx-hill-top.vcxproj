@@ -95,6 +95,7 @@
     <ClInclude Include="deathzones.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="object-utils.h" />
+    <ClInclude Include="objects\o_hilltree.h" />
     <ClInclude Include="objects\o_htskybox.h" />
     <ClInclude Include="paths.h" />
     <ClInclude Include="pch.h" />
@@ -107,6 +108,7 @@
     <ClCompile Include="level.cpp" />
     <ClCompile Include="object-utils.cpp" />
     <ClCompile Include="objects.cpp" />
+    <ClCompile Include="objects\o_hilltree.cpp" />
     <ClCompile Include="objects\o_htskybox.cpp" />
     <ClCompile Include="paths.cpp" />
     <ClCompile Include="pch.cpp">

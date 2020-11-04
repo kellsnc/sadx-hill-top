@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "objects/o_htskybox.h"
+#include "objects/o_hilltree.h"
 
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
@@ -52,6 +53,8 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 0, 0, Magmacnt_Main, "MagmaCnt" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow_Main, "O BLOW" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
+
+	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -92,4 +95,5 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	SkyboxObjects[LevelIDs_RedMountain] = HillTopZone_SkyBox;
 
 	LoadModel(&ht_skybox, "ht_skybox", ModelFormat_Basic);
+	LoadModel(&ht_tree, "ht_tree", ModelFormat_Basic);
 }

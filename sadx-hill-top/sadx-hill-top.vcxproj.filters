@@ -42,6 +42,9 @@
     <ClInclude Include="object-utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="objects\o_hilltree.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -70,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="object-utils.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objects\o_hilltree.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
