@@ -3,6 +3,8 @@
 #include "paths.h"
 #include "deathzones.h"
 
+Angle HT_WindDirection = 0;
+
 NJS_TEXNAME HillTop_TexNames[5];
 NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 
@@ -18,7 +20,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 }
 
 void __cdecl HillTopZone_Init(ObjectMaster* obj) {
-
+	
 	// This initializes the music after the timer in InvulnerableTime is elpased 
 	// and no event is running
 	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);

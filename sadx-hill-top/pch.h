@@ -9,6 +9,7 @@
 #include "AnimationFile.h"
 
 #include "pointers.h"
+#include "ninja-utils.h"
 #include "object-utils.h"
 
 #endif
