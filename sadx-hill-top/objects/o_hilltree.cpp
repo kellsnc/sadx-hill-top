@@ -17,7 +17,15 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
 		njScale(nullptr, data->Scale.x, data->Scale.x + data->Scale.y, data->Scale.x);
-		DrawObject(data->Object);
+		njDrawModel_SADX(data->Object->basicdxmodel);
+
+		NJS_OBJECT* branch = data->Object->child;
+
+		while (branch->sibling) {
+			DrawObjectRoot(branch);
+			branch = branch->sibling;
+		}
+
 		njPopMatrixEx();
 	}
 }
@@ -33,7 +41,7 @@ void __cdecl HillTree_Main(ObjectMaster* obj) {
 
 void __cdecl HillTree(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
-
+	
 	// Choose the model and collison based on set information
 	if (data->Scale.z == 1) {
 		data->Object = ht_tree->getmodel()->child->sibling;
