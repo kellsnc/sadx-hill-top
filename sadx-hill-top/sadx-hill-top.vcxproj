@@ -98,6 +98,7 @@
     <ClInclude Include="object-utils.h" />
     <ClInclude Include="objects\o_hilltree.h" />
     <ClInclude Include="objects\o_htskybox.h" />
+    <ClInclude Include="objects\o_transporter.h" />
     <ClInclude Include="paths.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pointers.h" />
@@ -112,6 +113,7 @@
     <ClCompile Include="objects.cpp" />
     <ClCompile Include="objects\o_hilltree.cpp" />
     <ClCompile Include="objects\o_htskybox.cpp" />
+    <ClCompile Include="objects\o_transporter.cpp" />
     <ClCompile Include="paths.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

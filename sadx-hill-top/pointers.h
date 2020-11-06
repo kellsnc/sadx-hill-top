@@ -1,5 +1,7 @@
 #pragma once
 
+static constexpr int MaxPlayers = 4;
+
 extern HelperFunctions HelperFunctionsGlobal;
 
 FunctionPointer(void, DrawObject, (NJS_OBJECT*), 0x408530);

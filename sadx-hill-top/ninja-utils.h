@@ -20,3 +20,4 @@ void njScalef(float f);
 void njRotateX_(Angle x);
 void njRotateY_(Angle x);
 void njRotateZ_(Angle x);
+void njLookAt(NJS_VECTOR* from, NJS_VECTOR* to, Angle* outx, Angle* outy);

@@ -48,6 +48,9 @@
     <ClInclude Include="ninja-utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="objects\o_transporter.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -82,6 +85,9 @@
     </ClCompile>
     <ClCompile Include="ninja-utils.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objects\o_transporter.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

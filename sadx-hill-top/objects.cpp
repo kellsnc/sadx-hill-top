@@ -2,6 +2,7 @@
 
 #include "objects/o_htskybox.h"
 #include "objects/o_hilltree.h"
+#include "objects/o_transporter.h"
 
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
@@ -54,7 +55,8 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow_Main, "O BLOW" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
 
-	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" }
+	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" },
+	{ LoadObj_Data1, 3, 1, 1000000, 0, HillTransporter, "O TRANSPORTER" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -96,4 +98,6 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 
 	LoadModel(&ht_skybox, "ht_skybox", ModelFormat_Basic);
 	LoadModel(&ht_tree, "ht_tree", ModelFormat_Basic);
+	LoadModel(&ht_transporter, "ht_transporter", ModelFormat_Basic);
+	LoadModel(&ht_vine, "ht_vine", ModelFormat_Chunk);
 }
