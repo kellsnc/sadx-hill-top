@@ -6,8 +6,8 @@ ModelInfo* ht_transportercol = nullptr;
 ModelInfo* ht_vine = nullptr;
 
 CollisionData HillTransporter_Col[] = {
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {-10, 20.0f, -5.0f}, 3.0f, 20.0f, 0, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {10, 20.0f, -5.0f}, 3.0f, 20.0f, 0, 0, 0, 0, 0 }
+	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {-10, 20.0f, -4.0f}, 3.0f, 20.0f, 0, 0, 0, 0, 0 },
+	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {10, 20.0f, -4.0f}, 3.0f, 20.0f, 0, 0, 0, 0, 0 }
 };
 
 enum class TranspPlatformActs : Uint16 {
@@ -41,6 +41,8 @@ struct TranspPlatformData1 {
 	CollisionInfo* CollisionInfo;
 };
 
+inline void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progress);
+
 void __cdecl MovePlayerOnPlatform(ObjectMaster* obj, EntityData1* player) {
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
 	NJS_VECTOR offset = data->Position;
@@ -57,13 +59,22 @@ void __cdecl TranspPlatform_Delete(ObjectMaster* obj) {
 
 void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
 	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
-	EntityData1* data = obj->Data1;
+	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
 
 	njSetTexture(LevelObjTexlists[1]);
 	njPushMatrixEx();
 	njTranslateEx(&data->Position);
+
 	njRotateY_(data->Rotation.y);
-	njDrawModel_SADX(data->Object->basicdxmodel); // Platform
+
+	njPushMatrixEx(); {
+		if (data->Action == TranspPlatformActs::Fall) {
+			njTranslateY(data->PreviousPosition.y);
+		}
+
+		njDrawModel_SADX(data->Object->basicdxmodel); // Platform
+		njPopMatrixEx();
+	}
 
 	// Draw vines
 	njTranslateY(data->Object->child->pos[1]);
@@ -77,6 +88,7 @@ void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
 void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
+	float bend = 0;
 
 	switch (data->Action) {
 	case TranspPlatformActs::Input:
@@ -90,27 +102,39 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 		pdata->progress = data->progress;
 
 		data->PreviousPosition = data->Position;
-
 		data->Position = GetPositionBetweenPoints(&pdata->Position, &pdata->Destination, data->progress);
-		data->Position.y += data->Object->pos[1];
-
-		if (data->progress >= 1.0f) {
-			data->Action = TranspPlatformActs::Fall;
-		}
 		
+		bend = data->progress;
+		if (bend > 0.5f) bend = fabsf(1.0f - bend);
+
+		data->Position.y += data->Object->pos[1] - ((pdata->VineZ / 10.0f) * bend);
+
 		data->DynCol->pos[0] = data->Position.x;
 		data->DynCol->pos[1] = data->Position.y;
 		data->DynCol->pos[2] = data->Position.z;
 
 		ForEveryPlayerOnDyncol(obj, MovePlayerOnPlatform);
 
+		if (data->progress >= 1.0f || IsPointInsideSphere(&pdata->Destination, &data->Position, 25.0f)) {
+			data->Action = TranspPlatformActs::Fall;
+			data->PreviousPosition.y = 0;
+		}
+
 		break;
 	case TranspPlatformActs::Fall:
-		if (data->timer > 9) {
+		data->timer += 1;
+
+		if (data->timer == 30) {
 			TranspPlatform_Delete(obj); // remove dynamic collision
 		}
-		else {
-			data->timer += 1;
+		else if (data->timer > 30) {
+			data->PreviousPosition.y -= 3.0f;
+
+			if (data->timer > 200) {
+				LoadTranspPlatform(obj->Parent, pdata, 0.0f);
+				DeleteObject_(obj);
+				return;
+			}
 		}
 
 		break;
@@ -162,7 +186,7 @@ void __cdecl EndPoles_Display(ObjectMaster* obj) {
 	njPushMatrixEx();
 	njTranslateEx(&data->Position);
 	njRotateY_(data->Rotation.y);
-	njTranslateZ(-5.0f);
+	njTranslateZ(-4.0f);
 
 	njTranslateX(-10);
 	njDrawModel_SADX(pdata->PoleObject->basicdxmodel);
@@ -195,14 +219,11 @@ inline void DrawVine(TransporterData1* data) {
 
 	njPushMatrixEx();
 
-	//float test = data->progress;
+	float bend = data->progress;
+	if (bend > 0.5f) bend = fabsf(1.0f - bend);
 
-	//if (test > 0.5f) {
-	//	test = fabsf(1 - test);
-	//}
-	//
-	//node->child->pos[1] = data->VineY * data->progress /*- (50 * test)*/;
-	//node->child->pos[2] = data->VineZ * data->progress;
+	node->child->pos[1] = data->VineY * data->progress - (data->VineZ / 10.0f * bend);
+	node->child->pos[2] = data->VineZ * data->progress;
 
 	node->child->sibling->sibling->pos[1] = data->VineY;
 	node->child->sibling->sibling->pos[2] = data->VineZ;
@@ -218,7 +239,7 @@ inline void DrawPole(TransporterData1* data, float offset, bool invert) {
 	njTranslateX(offset);
 
 	njPushMatrixEx();
-	njTranslateZ(-5.0f);
+	njTranslateZ(-4.0f);
 	njDrawModel_SADX(data->PoleObject->basicdxmodel);
 
 	if (invert) {
@@ -228,7 +249,7 @@ inline void DrawPole(TransporterData1* data, float offset, bool invert) {
 	njDrawModel_SADX(data->PoleObject->child->basicdxmodel);
 	njPopMatrixEx();
 	
-	njTranslateY(36.0f);
+	njTranslateY(37.0f);
 	DrawVine(data);
 	
 	njPopMatrixEx();
