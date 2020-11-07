@@ -99,5 +99,6 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	LoadModel(&ht_skybox, "ht_skybox", ModelFormat_Basic);
 	LoadModel(&ht_tree, "ht_tree", ModelFormat_Basic);
 	LoadModel(&ht_transporter, "ht_transporter", ModelFormat_Basic);
+	LoadModel(&ht_transportercol, "ht_transportercol", ModelFormat_Basic);
 	LoadModel(&ht_vine, "ht_vine", ModelFormat_Chunk);
 }

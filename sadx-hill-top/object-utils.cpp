@@ -80,3 +80,25 @@ bool IsSpecificPlayerInSphere(NJS_VECTOR* center, float radius, uint8_t player) 
 bool AreSpheresColliding(NJS_VECTOR* sphereA, float radiusA, NJS_VECTOR* sphereB, float radiusB) {
 	return GetDistance(sphereB, sphereA) < (radiusA + radiusB);
 }
+
+EntityData1* IsPlayerOnDyncol(ObjectMaster* obj) {
+	for (int i = 0; i < MaxPlayers; ++i) {
+		CharObj2* co2 = CharObj2Ptrs[i];
+		
+		if (co2 && co2->field_6C == obj) {
+			return EntityData1Ptrs[i];
+		}
+	}
+
+	return nullptr;
+}
+
+void ForEveryPlayerOnDyncol(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*)) {
+	for (int i = 0; i < MaxPlayers; ++i) {
+		CharObj2* co2 = CharObj2Ptrs[i];
+
+		if (co2 && co2->field_6C == obj) {
+			function(obj, EntityData1Ptrs[i]);
+		}
+	}
+}
