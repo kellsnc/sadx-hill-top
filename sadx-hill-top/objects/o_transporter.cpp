@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "o_transporter.h"
 
+// Complex object using Ninja Chunk format for bending vines
+// And some more complex objet structure
+
 ModelInfo* ht_transporter = nullptr;
 ModelInfo* ht_transportercol = nullptr;
 ModelInfo* ht_vine = nullptr;
@@ -43,7 +46,21 @@ struct TranspPlatformData1 {
 
 inline void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progress);
 
+inline void MovePlatform(TransporterData1* pdata, TranspPlatformData1* data, float progress) {
+	data->PreviousPosition = data->Position; // Store the previous position to move the player later
+	data->Position = GetPositionBetweenPoints(&pdata->Position, &pdata->Destination, data->progress); // Move along the vine
+
+	// Get the bending offset, same code as in the parent display
+	float bend = data->progress;
+	if (bend > 0.5f) bend = fabsf(1.0f - bend);
+
+	// Adjust y position accordingly
+	data->Position.y += data->Object->pos[1] - ((pdata->VineZ / 10.0f) * bend);
+}
+
 void __cdecl MovePlayerOnPlatform(ObjectMaster* obj, EntityData1* player) {
+	// Compares the position from the previous frame to move the player accordingly
+
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
 	NJS_VECTOR offset = data->Position;
 	njSubVector(&offset, &data->PreviousPosition);
@@ -51,6 +68,8 @@ void __cdecl MovePlayerOnPlatform(ObjectMaster* obj, EntityData1* player) {
 }
 
 void __cdecl TranspPlatform_Delete(ObjectMaster* obj) {
+	// Removes the dyncol before deleting the object
+
 	if (obj->Data1->LoopData) {
 		DynamicCOL_DeleteObject(obj);
 		obj->Data1->LoopData = nullptr;
@@ -69,7 +88,7 @@ void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
 
 	njPushMatrixEx(); {
 		if (data->Action == TranspPlatformActs::Fall) {
-			njTranslateY(data->PreviousPosition.y);
+			njTranslateY(data->PreviousPosition.y); // I use this to offset the platform
 		}
 
 		njDrawModel_SADX(data->Object->basicdxmodel); // Platform
@@ -88,33 +107,29 @@ void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
 void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
-	float bend = 0;
 
 	switch (data->Action) {
-	case TranspPlatformActs::Input:
+	case TranspPlatformActs::Input: // If the player is on the dyncol of our object, launch
 		if (IsPlayerOnDyncol(obj)) {
 			data->Action = TranspPlatformActs::Move;
 		}
 
 		break;
 	case TranspPlatformActs::Move:
-		data->progress += 0.001f;
-		pdata->progress = data->progress;
+		data->progress += 0.001f;			// Speed (todo: adjust to size and set parameter)
+		pdata->progress = data->progress;	// Hand that to the parent object to bend the vine
 
-		data->PreviousPosition = data->Position;
-		data->Position = GetPositionBetweenPoints(&pdata->Position, &pdata->Destination, data->progress);
-		
-		bend = data->progress;
-		if (bend > 0.5f) bend = fabsf(1.0f - bend);
+		MovePlatform(pdata, data, data->progress);
 
-		data->Position.y += data->Object->pos[1] - ((pdata->VineZ / 10.0f) * bend);
-
+		// Update the dyncol position
 		data->DynCol->pos[0] = data->Position.x;
 		data->DynCol->pos[1] = data->Position.y;
 		data->DynCol->pos[2] = data->Position.z;
 
+		// Move the player
 		ForEveryPlayerOnDyncol(obj, MovePlayerOnPlatform);
 
+		// Check if we're at the end, sphere check to detach the object a bit sooner
 		if (data->progress >= 1.0f || IsPointInsideSphere(&pdata->Destination, &data->Position, 25.0f)) {
 			data->Action = TranspPlatformActs::Fall;
 			data->PreviousPosition.y = 0;
@@ -130,6 +145,7 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 		else if (data->timer > 30) {
 			data->PreviousPosition.y -= 3.0f;
 
+			// Removes the object after a while, creates a new platform at the beginning
 			if (data->timer > 200) {
 				LoadTranspPlatform(obj->Parent, pdata, 0.0f);
 				DeleteObject_(obj);
@@ -149,11 +165,12 @@ inline void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float 
 
 	child->DisplaySub = TranspPlatform_Display;
 	child->DeleteSub = TranspPlatform_Delete;
-	cdata->progress = progress;
 	cdata->Object = ht_transporter->getmodel()->child;
-	cdata->Position.y += child->Data1->Object->pos[1];
-	cdata->Rotation.y += 0x4000;
-	cdata->PreviousPosition = cdata->Position;
+	cdata->Rotation.y += 0x4000;	// todo: apply rotations in blender
+
+	cdata->progress = progress;	// Set parameter to position the platform manually
+	data->progress = progress;
+	MovePlatform(data, cdata, data->progress);
 
 	// Create the dynamic collision
 	NJS_OBJECT* object = ObjectArray_GetFreeObject();
@@ -175,7 +192,6 @@ inline void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float 
 	DynamicCOL_Add((ColFlags)0x08000001, child, object);
 
 	cdata->DynCol = object;
-	data->progress = progress;
 }
 
 void __cdecl EndPoles_Display(ObjectMaster* obj) {
@@ -188,13 +204,15 @@ void __cdecl EndPoles_Display(ObjectMaster* obj) {
 	njRotateY_(data->Rotation.y);
 	njTranslateZ(-4.0f);
 
+	// Draw poles and vines
+
 	njTranslateX(-10);
 	njDrawModel_SADX(pdata->PoleObject->basicdxmodel);
 	njDrawModel_SADX(pdata->PoleObject->child->basicdxmodel);
 
 	njTranslateX(20);
 	njDrawModel_SADX(pdata->PoleObject->basicdxmodel);
-	njScaleX(-1.0f);
+	njScaleX(-1.0f); // Mirror the second vine
 	njDrawModel_SADX(pdata->PoleObject->child->basicdxmodel);
 
 	njPopMatrixEx();
@@ -219,17 +237,20 @@ inline void DrawVine(TransporterData1* data) {
 
 	njPushMatrixEx();
 
+	// Adjust bending
 	float bend = data->progress;
 	if (bend > 0.5f) bend = fabsf(1.0f - bend);
 
+	// center of vine
 	node->child->pos[1] = data->VineY * data->progress - (data->VineZ / 10.0f * bend);
 	node->child->pos[2] = data->VineZ * data->progress;
 
+	// end of vine
 	node->child->sibling->sibling->pos[1] = data->VineY;
 	node->child->sibling->sibling->pos[2] = data->VineZ;
 	
 	SetupWorldMatrix();
-	DrawChunkObject(node);
+	DrawChunkObject(node); // Draw the vine as chunk model, allows for real time bending
 
 	njPopMatrixEx();
 }
@@ -240,17 +261,17 @@ inline void DrawPole(TransporterData1* data, float offset, bool invert) {
 
 	njPushMatrixEx();
 	njTranslateZ(-4.0f);
-	njDrawModel_SADX(data->PoleObject->basicdxmodel);
+	njDrawModel_SADX(data->PoleObject->basicdxmodel); // Pole model
 
 	if (invert) {
-		njScaleX(-1.0f);
+		njScaleX(-1.0f); // mirror the second pole vine
 	}
 	
-	njDrawModel_SADX(data->PoleObject->child->basicdxmodel);
+	njDrawModel_SADX(data->PoleObject->child->basicdxmodel); // Pole vine model
 	njPopMatrixEx();
 	
 	njTranslateY(37.0f);
-	DrawVine(data);
+	DrawVine(data); // Draw the zipline vine
 	
 	njPopMatrixEx();
 }
@@ -282,6 +303,7 @@ void __cdecl HillTransporter_Main(ObjectMaster* obj) {
 void __cdecl HillTransporter(ObjectMaster* obj) {
 	TransporterData1* data = (TransporterData1*)obj->Data1;
 
+	// Calculates the direction of the zipline vine
 	data->VineY = data->Destination.y - data->Position.y;
 	data->VineZ = sqrtf(powf(data->Destination.x - data->Position.x, 2) + powf(data->Destination.z - data->Position.z, 2));
 
@@ -289,6 +311,7 @@ void __cdecl HillTransporter(ObjectMaster* obj) {
 	data->PoleObject->child->sibling = ht_vine->getmodel();
 	data->PoleObject->child->sibling->child->sibling->pos[2] = 0;
 
+	// Rotate the objet to face the destination
 	njLookAt(&data->Position, &data->Destination, nullptr, &data->Rotation.y);
 
 	Collision_Init(obj, arrayptrandlength(HillTransporter_Col), 4);
@@ -296,8 +319,9 @@ void __cdecl HillTransporter(ObjectMaster* obj) {
 	obj->DisplaySub	= HillTransporter_Display;
 	obj->MainSub	= HillTransporter_Main;
 
-	LoadTranspPlatform(obj, data, static_cast<float>(data->Rotation.x % 100) / 100.0f);
-	LoadEndPoles(obj, data);
+	// Load child objects
+	LoadTranspPlatform(obj, data, static_cast<float>(data->Rotation.x % 100) / 100.0f); // Moving platform
+	LoadEndPoles(obj, data); // Poles at the destination
 
 	data->Rotation.x = 0;
 	data->Rotation.z = 0;
