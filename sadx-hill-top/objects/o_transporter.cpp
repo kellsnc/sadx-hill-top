@@ -6,8 +6,8 @@ ModelInfo* ht_transportercol = nullptr;
 ModelInfo* ht_vine = nullptr;
 
 CollisionData HillTransporter_Col[] = {
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {-10, 15.0f, -5.0f}, 3.0f, 15.0f, 0, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {10, 15.0f, -5.0f}, 3.0f, 15.0f, 0, 0, 0, 0, 0 }
+	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {-10, 20.0f, -5.0f}, 3.0f, 20.0f, 0, 0, 0, 0, 0 },
+	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {10, 20.0f, -5.0f}, 3.0f, 20.0f, 0, 0, 0, 0, 0 }
 };
 
 enum class TranspPlatformActs : Uint16 {
@@ -21,7 +21,7 @@ struct TransporterData1 {
 	Float VineZ;
 	Float VineY;
 	NJS_OBJECT* PoleObject;
-	NJS_OBJECT* VineObject;
+	Float progress;
 	Rotation3 Rotation;
 	NJS_VECTOR Position;
 	NJS_VECTOR Destination;
@@ -87,6 +87,7 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 		break;
 	case TranspPlatformActs::Move:
 		data->progress += 0.001f;
+		pdata->progress = data->progress;
 
 		data->PreviousPosition = data->Position;
 
@@ -150,6 +151,7 @@ inline void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float 
 	DynamicCOL_Add((ColFlags)0x08000001, child, object);
 
 	cdata->DynCol = object;
+	data->progress = progress;
 }
 
 void __cdecl EndPoles_Display(ObjectMaster* obj) {
@@ -168,6 +170,7 @@ void __cdecl EndPoles_Display(ObjectMaster* obj) {
 
 	njTranslateX(20);
 	njDrawModel_SADX(pdata->PoleObject->basicdxmodel);
+	njScaleX(-1.0f);
 	njDrawModel_SADX(pdata->PoleObject->child->basicdxmodel);
 
 	njPopMatrixEx();
@@ -188,13 +191,19 @@ inline void LoadEndPoles(ObjectMaster* obj, TransporterData1* data) {
 }
 
 inline void DrawVine(TransporterData1* data) {
-	NJS_OBJECT* node = data->VineObject;
+	NJS_OBJECT* node = data->PoleObject->child->sibling;
 
 	njPushMatrixEx();
-	
-	node->child->pos[2] = 0;
-	node->child->pos[1] = 0;
-	node->child->sibling->pos[2] = 0;
+
+	//float test = data->progress;
+
+	//if (test > 0.5f) {
+	//	test = fabsf(1 - test);
+	//}
+	//
+	//node->child->pos[1] = data->VineY * data->progress /*- (50 * test)*/;
+	//node->child->pos[2] = data->VineZ * data->progress;
+
 	node->child->sibling->sibling->pos[1] = data->VineY;
 	node->child->sibling->sibling->pos[2] = data->VineZ;
 	
@@ -204,13 +213,18 @@ inline void DrawVine(TransporterData1* data) {
 	njPopMatrixEx();
 }
 
-inline void DrawPole(TransporterData1* data, float offset) {
+inline void DrawPole(TransporterData1* data, float offset, bool invert) {
 	njPushMatrixEx();
 	njTranslateX(offset);
 
 	njPushMatrixEx();
 	njTranslateZ(-5.0f);
 	njDrawModel_SADX(data->PoleObject->basicdxmodel);
+
+	if (invert) {
+		njScaleX(-1.0f);
+	}
+	
 	njDrawModel_SADX(data->PoleObject->child->basicdxmodel);
 	njPopMatrixEx();
 	
@@ -228,8 +242,8 @@ void __cdecl HillTransporter_Display(ObjectMaster* obj) {
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
-		DrawPole(data, -10);
-		DrawPole(data, 10);
+		DrawPole(data, -10, false);
+		DrawPole(data, 10, true);
 		njPopMatrixEx();
 	}
 }
@@ -251,7 +265,8 @@ void __cdecl HillTransporter(ObjectMaster* obj) {
 	data->VineZ = sqrtf(powf(data->Destination.x - data->Position.x, 2) + powf(data->Destination.z - data->Position.z, 2));
 
 	data->PoleObject  = ht_transporter->getmodel()->child->sibling;
-	data->VineObject = ht_vine->getmodel();
+	data->PoleObject->child->sibling = ht_vine->getmodel();
+	data->PoleObject->child->sibling->child->sibling->pos[2] = 0;
 
 	njLookAt(&data->Position, &data->Destination, nullptr, &data->Rotation.y);
 

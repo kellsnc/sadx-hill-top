@@ -60,15 +60,15 @@ void njRotateYXZ(Rotation3* rot) {
 }
 
 void njScaleX(float f) {
-	njScale(nullptr, f, 1, 1);
+	njScale(nullptr, f, 1.0f, 1.0f);
 }
 
 void njScaleY(float f) {
-	njScale(nullptr, 1, f, 1);
+	njScale(nullptr, 1.0f, f, 1.0f);
 }
 
 void njScaleZ(float f) {
-	njScale(nullptr, 1, 1, f);
+	njScale(nullptr, 1.0f, 1.0f, f);
 }
 
 void njScalef(float f) {
