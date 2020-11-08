@@ -20,7 +20,8 @@ enum class TranspPlatformActs : Uint16 {
 };
 
 struct TransporterData1 {
-	Uint32 Action;
+	Uint16 Action;
+	Uint16 SpeedParam;
 	Float VineZ;
 	Float VineY;
 	NJS_OBJECT* PoleObject;
@@ -116,7 +117,7 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 
 		break;
 	case TranspPlatformActs::Move:
-		data->progress += 0.001f;			// Speed (todo: adjust to size and set parameter)
+		data->progress += 0.001f * (static_cast<float>(pdata->SpeedParam) / 100.0f); // Speed
 		pdata->progress = data->progress;	// Hand that to the parent object to bend the vine
 
 		MovePlatform(pdata, data, data->progress);
@@ -322,6 +323,12 @@ void __cdecl HillTransporter(ObjectMaster* obj) {
 	// Load child objects
 	LoadTranspPlatform(obj, data, static_cast<float>(data->Rotation.x % 100) / 100.0f); // Moving platform
 	LoadEndPoles(obj, data); // Poles at the destination
+
+	data->SpeedParam = data->Rotation.z;
+
+	if (data->SpeedParam == 0) {
+		data->SpeedParam = 100;
+	}
 
 	data->Rotation.x = 0;
 	data->Rotation.z = 0;
