@@ -26,7 +26,7 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 		NJS_OBJECT* branch = data->Object->child;
 
 		njScalef(data->Scale.x);
-		njTranslateY(20 * data->Scale.y);
+		njTranslateY(10 * data->Scale.y);
 
 		while (branch->sibling) {
 			DrawObjectRoot(branch);
