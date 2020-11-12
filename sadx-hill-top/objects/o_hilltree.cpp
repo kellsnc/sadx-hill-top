@@ -17,10 +17,16 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
+
+		njPushMatrixEx();
 		njScale(nullptr, data->Scale.x, data->Scale.x + data->Scale.y, data->Scale.x);
 		njDrawModel_SADX(data->Object->basicdxmodel);
+		njPopMatrixEx();
 
 		NJS_OBJECT* branch = data->Object->child;
+
+		njScalef(data->Scale.x);
+		njTranslateY(20 * data->Scale.y);
 
 		while (branch->sibling) {
 			DrawObjectRoot(branch);
@@ -59,6 +65,7 @@ void __cdecl HillTree(ObjectMaster* obj) {
 		break;
 	case 3:
 		data->Object = ht_tree->getmodel()->child->sibling->sibling->sibling;
+		Collision_Init(obj, &HillTree_Col[2], 1, 4);
 		break;
 	case 4:
 		data->Object = ht_tree->getmodel()->child->sibling->sibling->sibling->sibling;
