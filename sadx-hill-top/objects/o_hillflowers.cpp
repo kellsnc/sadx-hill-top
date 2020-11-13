@@ -22,8 +22,9 @@ void __cdecl HillFlowers_Display(ObjectMaster* obj) {
 
 		njScale(nullptr, data->Scale.x, data->Scale.x + data->Scale.y, data->Scale.x);
 
-		if (data->LoopData && IsPlayerInsideSphere_(&data->Position, 500.0f)) {
-			njAction((NJS_ACTION*)data->LoopData, static_cast<float>(FrameCounterUnpaused) / 2.0f);
+		// If there is an animation, only process if visible
+		if (data->LoopData && IsVisible(&data->Position, 30.0f)) {
+			njAction((NJS_ACTION*)data->LoopData, data->Scale.z);
 		}
 		else {
 			DrawObject(data->Object);
@@ -35,6 +36,30 @@ void __cdecl HillFlowers_Display(ObjectMaster* obj) {
 
 void __cdecl HillFlowers_Main(ObjectMaster* obj) {
 	if (!ClipSetObject(obj)) {
+		EntityData1* data = obj->Data1;
+
+		// If there is an animation
+		if (data->LoopData) {
+
+			// Smooth transition between frames
+			if (data->NextAction == 0) {
+				data->Scale.z += 0.5f;
+
+				if (data->Scale.z > 30.0f) {
+					data->Scale.z = 30.0f;
+					data->NextAction = 1;
+				}
+			}
+			else {
+				data->Scale.z -= 0.5f;
+
+				if (data->Scale.z < 0.0f) {
+					data->Scale.z = 0.0f;
+					data->NextAction = 0;
+				}
+			}
+		}
+
 		obj->DisplaySub(obj);
 	}
 }
@@ -56,11 +81,14 @@ void __cdecl HillFlowers(ObjectMaster* obj) {
 		data->Object = ht_flowerpatch->getmodel();
 		break;
 	}
-	
+	data->Scale.x = 1;
 	// If the scale is null, set it to normal
 	if (data->Scale.x == 0) {
 		data->Scale.x = 1;
 	}
+
+	data->Scale.z = rand() % 30; // we'll use that for the animation
+	data->NextAction = rand() % 2; // animation direction
 
 	obj->MainSub = HillFlowers_Main;
 	obj->DisplaySub = HillFlowers_Display;

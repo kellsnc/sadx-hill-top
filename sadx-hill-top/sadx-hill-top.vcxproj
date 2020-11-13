@@ -99,6 +99,7 @@
     <ClInclude Include="objects\o_hillflowers.h" />
     <ClInclude Include="objects\o_hilltree.h" />
     <ClInclude Include="objects\o_htskybox.h" />
+    <ClInclude Include="objects\o_lavafall.h" />
     <ClInclude Include="objects\o_transporter.h" />
     <ClInclude Include="paths.h" />
     <ClInclude Include="pch.h" />
@@ -115,6 +116,7 @@
     <ClCompile Include="objects\o_hillflowers.cpp" />
     <ClCompile Include="objects\o_hilltree.cpp" />
     <ClCompile Include="objects\o_htskybox.cpp" />
+    <ClCompile Include="objects\o_lavafall.cpp" />
     <ClCompile Include="objects\o_transporter.cpp" />
     <ClCompile Include="paths.cpp" />
     <ClCompile Include="pch.cpp">
