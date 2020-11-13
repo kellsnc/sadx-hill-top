@@ -1,6 +1,8 @@
 #pragma once
 
-ModelInfo* LoadModel(ModelInfo** info, const char* name, ModelFormat format);
+void LoadModel(ModelInfo** info, const char* name, ModelFormat format);
+void LoadAnimation(AnimationFile** info, const char* name);
+
 NJS_VECTOR GetPositionBetweenPoints(NJS_VECTOR* orig, NJS_VECTOR* dest, float dist);
 
 float GetLength(NJS_VECTOR* orig, NJS_VECTOR* dest);

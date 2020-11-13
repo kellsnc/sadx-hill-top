@@ -1,5 +1,4 @@
 #pragma once
 
-extern ModelInfo* ht_flowers;
-
+void HillFlowers_LoadModels();
 void __cdecl HillFlowers(ObjectMaster* obj);

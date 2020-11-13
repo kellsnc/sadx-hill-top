@@ -10,7 +10,7 @@ const char* mdlformatfiletypes[] = {
 	".sa2mdl"
 };
 
-ModelInfo* LoadModel(ModelInfo** info, const char* name, ModelFormat format) {
+void LoadModel(ModelInfo** info, const char* name, ModelFormat format) {
 	PrintDebug("[Hill Top] Loading %s model: %s... ", mdlformatstrings[format - 1], name);
 
 	std::string fullPath = "system\\models\\";
@@ -21,13 +21,31 @@ ModelInfo* LoadModel(ModelInfo** info, const char* name, ModelFormat format) {
 	if (mdl->getformat() != format) {
 		PrintDebug("Failed!\n");
 		delete mdl;
-		return nullptr;
+		*info = nullptr;
 	}
+	else {
+		PrintDebug("Done.\n");
+		*info = mdl;
+	}
+}
 
-	*info = mdl;
+void LoadAnimation(AnimationFile** info, const char* name) {
+	PrintDebug("[Hill Top] Loading animation: %s... ", name);
 
-	PrintDebug("Done.\n");
-	return mdl;
+	std::string fullPath = "system\\models\\";
+	fullPath = fullPath + name + ".saanim";
+
+	AnimationFile* anm = new AnimationFile(HelperFunctionsGlobal.GetReplaceablePath(fullPath.c_str()));
+
+	if (anm->getmodelcount() == 0) {
+		PrintDebug("Failed!\n");
+		delete anm;
+		*info = nullptr;
+	}
+	else {
+		PrintDebug("Done.\n");
+		*info = anm;
+	}
 }
 
 NJS_VECTOR GetPositionBetweenPoints(NJS_VECTOR* orig, NJS_VECTOR* dest, float dist) {
