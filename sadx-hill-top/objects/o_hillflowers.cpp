@@ -24,6 +24,9 @@ void __cdecl HillFlowers_Display(ObjectMaster* obj) {
 
 		// If there is an animation, only process if visible
 		if (data->LoopData && IsVisible(&data->Position, 30.0f)) {
+			Float prog = (1.0f - njSin(data->field_A * 2000)) / 50.0f; // make the flowers bounce
+
+			njScaleY(1.0f + prog);
 			njAction((NJS_ACTION*)data->LoopData, data->Scale.z);
 		}
 		else {
@@ -40,6 +43,7 @@ void __cdecl HillFlowers_Main(ObjectMaster* obj) {
 
 		// If there is an animation
 		if (data->LoopData) {
+			data->field_A += 1;
 
 			// Smooth transition between frames
 			if (data->NextAction == 0) {
@@ -89,6 +93,7 @@ void __cdecl HillFlowers(ObjectMaster* obj) {
 
 	data->Scale.z = rand() % 30; // we'll use that for the animation
 	data->NextAction = rand() % 2; // animation direction
+	data->field_A = rand(); // randomize bump speed
 
 	obj->MainSub = HillFlowers_Main;
 	obj->DisplaySub = HillFlowers_Display;

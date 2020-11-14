@@ -25,8 +25,9 @@ void __cdecl LavaFall_Display(ObjectMaster* obj) {
 		njScalef(data->Scale.x);
 
 		SetupWorldMatrix();
+		Direct3D_SetChunkModelRenderState();
 		njCnkAction((NJS_ACTION*)data->LoopData, data->Scale.z);
-		
+		Direct3D_UnsetChunkModelRenderState();
 		njPopMatrixEx();
 	}
 }
@@ -67,6 +68,15 @@ void __cdecl LavaFall(ObjectMaster* obj) {
 	case 0:
 	default:
 		data->LoopData = (Loop*)&LavaFall0_Action;
+		break;
+	case 1:
+		data->LoopData = (Loop*)&LavaFall1_Action;
+		break;
+	case 2:
+		data->LoopData = (Loop*)&LavaFall2_Action;
+		break;
+	case 3:
+		data->LoopData = (Loop*)&LavaFall3_Action;
 		break;
 	}
 
