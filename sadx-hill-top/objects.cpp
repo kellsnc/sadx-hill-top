@@ -68,6 +68,7 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "OBJ_MOUNTAIN", (TexList*)0x24208A8 },
 	{ "OBJ_HILLTOP", &HillTopOBJ_TexList },
 	{ "BG_HILLTOP", &HillTopBG_TexList },
+	{ "LAVAFALL", &LAVAFALL_TexList },
 	
 	{ "E_BOMB", (TexList*)0x96B464 },
 	{ "E_SARU", (TexList*)0x962560 },
