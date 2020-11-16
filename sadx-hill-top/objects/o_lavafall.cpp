@@ -19,6 +19,12 @@ NJS_TEXLIST LAVAFALL_TexList = { arrayptrandlength(LAVAFALL_TexNames) };
 // The actual lava texture we are going to draw
 NJS_TEXLIST CurrentLavaTex = { nullptr, 1 };
 
+CollisionData LavaFall_Col[] = {
+	{ 0, CollisionShape_Cylinder, 0x77, 0x2F /* Hurt flag */, 0, {0, -25.0f, 0}, 8.0f, 25.0f, 0, 0, 0, 0, 0 },
+	{ 0, CollisionShape_Capsule2, 0x77, 0x2F, 0, {0, -14.0f, -13.0f}, 10.0f, 8.0f, 0, 0, 0x2000, 0, 0 },
+	{ 0, CollisionShape_Capsule2, 0x77, 0x2F, 0, {0, -15.0f, -24.0f}, 10.0f, 8.0f, 0, 0, 0x3000, 0, 0 }
+};
+
 void __cdecl LavaFall_Display(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	
@@ -33,7 +39,7 @@ void __cdecl LavaFall_Display(ObjectMaster* obj) {
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
 
-		njScalef(data->Scale.x);
+		njScale(0, data->Scale.x, data->Scale.x + data->Scale.y, data->Scale.x);
 
 		SetupWorldMatrix();
 		Direct3D_SetChunkModelRenderState();
@@ -74,6 +80,7 @@ void __cdecl LavaFall_Main(ObjectMaster* obj) {
 			data->Index = 0;
 		}
 
+		AddToCollisionList(data);
 		obj->DisplaySub(obj);
 	}
 }
@@ -87,20 +94,30 @@ void __cdecl LavaFall(ObjectMaster* obj) {
 	case 0:
 	default:
 		data->LoopData = (Loop*)&LavaFall0_Action;
+		Collision_Init(obj, &LavaFall_Col[0], 1, 4);
 		break;
 	case 1:
 		data->LoopData = (Loop*)&LavaFall1_Action;
+		Collision_Init(obj, &LavaFall_Col[0], 1, 4);
 		break;
 	case 2:
 		data->LoopData = (Loop*)&LavaFall2_Action;
+		Collision_Init(obj, &LavaFall_Col[1], 1, 4);
 		break;
 	case 3:
 		data->LoopData = (Loop*)&LavaFall3_Action;
+		Collision_Init(obj, &LavaFall_Col[2], 1, 4);
 		break;
 	}
 
 	if (data->Scale.x == 0) {
 		data->Scale.x = 1;
+	}
+
+	// Adjust collision size with scale
+	if (data->CollisionInfo) {
+		data->CollisionInfo->CollisionArray[0].a *= data->Scale.x;
+		data->CollisionInfo->CollisionArray[0].b *= data->Scale.x + data->Scale.y;
 	}
 
 	data->Scale.x *= 8;

@@ -4,7 +4,6 @@
 ModelInfo* ht_tree = nullptr;
 
 CollisionData HillTree_Col[] = {
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0, 35.0f, 0}, 5.0f, 35.0f, 0, 0, 0, 0, 0 },
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0, 25.0f, 0}, 5.0f, 25.0f, 0, 0, 0, 0, 0 },
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0, 20.0f, 0}, 1.0f, 20.0f, 0, 0, 0, 0, 0 }
 };
@@ -26,7 +25,7 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 		NJS_OBJECT* branch = data->Object->child;
 
 		njScalef(data->Scale.x);
-		njTranslateY(10 * data->Scale.y);
+		njTranslateY(15.0f * data->Scale.y);
 
 		while (branch->sibling) {
 			DrawObjectRoot(branch);
@@ -50,7 +49,7 @@ void __cdecl HillTree(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	
 	// Choose the model and collison based on set information
-	switch (static_cast<int>(data->Scale.z)) {
+	switch (static_cast<int>(data->Scale.z) % 4) {
 	case 0:
 		data->Object = ht_tree->getmodel()->child;
 		Collision_Init(obj, &HillTree_Col[0], 1, 4);
@@ -61,14 +60,10 @@ void __cdecl HillTree(ObjectMaster* obj) {
 		break;
 	case 2:
 		data->Object = ht_tree->getmodel()->child->sibling->sibling;
-		Collision_Init(obj, &HillTree_Col[2], 1, 4);
+		Collision_Init(obj, &HillTree_Col[1], 1, 4);
 		break;
 	case 3:
 		data->Object = ht_tree->getmodel()->child->sibling->sibling->sibling;
-		Collision_Init(obj, &HillTree_Col[2], 1, 4);
-		break;
-	case 4:
-		data->Object = ht_tree->getmodel()->child->sibling->sibling->sibling->sibling;
 		break;
 	}
 	
