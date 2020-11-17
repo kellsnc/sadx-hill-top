@@ -1,4 +1,4 @@
 #pragma once
 
-void Lantern_LoadModel();
+void Lantern_LoadAssets();
 void __cdecl HillLantern(ObjectMaster* obj);

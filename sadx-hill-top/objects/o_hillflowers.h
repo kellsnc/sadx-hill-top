@@ -1,4 +1,4 @@
 #pragma once
 
-void HillFlowers_LoadModels();
+void HillFlowers_LoadAssets();
 void __cdecl HillFlowers(ObjectMaster* obj);

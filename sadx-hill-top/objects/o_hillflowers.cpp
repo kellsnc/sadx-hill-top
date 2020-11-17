@@ -111,7 +111,7 @@ void __cdecl HillFlowers(ObjectMaster* obj) {
 	obj->DisplaySub = HillFlowers_Display;
 }
 
-void HillFlowers_LoadModels() {
+void HillFlowers_LoadAssets() {
 	LoadModel(&ht_flower0, "ht_flower0", ModelFormat_Basic);
 	LoadModel(&ht_flower1, "ht_flower1", ModelFormat_Basic);
 	LoadModel(&ht_flowerpatch0, "ht_flowerpatch0", ModelFormat_Basic);

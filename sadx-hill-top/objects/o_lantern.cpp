@@ -105,6 +105,6 @@ void __cdecl HillLantern(ObjectMaster* obj) {
 	obj->DisplaySub = Lantern_Display;
 }
 
-void Lantern_LoadModel() {
+void Lantern_LoadAssets() {
 	LoadModel(&ht_lantern, "ht_lantern", ModelFormat_Basic);
 }

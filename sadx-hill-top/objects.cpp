@@ -8,6 +8,7 @@
 #include "objects/o_efflava.h"
 #include "objects/o_hillgrass.h"
 #include "objects/o_lantern.h"
+#include "objects/o_hillbush.h"
 
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
@@ -61,12 +62,13 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
 
 	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" },
-	{ LoadObj_Data1, 3, 1, 1000000, 0, HillTransporter, "O TRANSPORTER" },
+	{ LoadObj_Data1, 3, 1, 1000000, 0, HillBush, "O TRANSPORTER" },
 	{ LoadObj_Data1, 4, 1, 130000, 0, HillFlowers, "O HILLFLOWERS" },
 	{ LoadObj_Data1, 3, 1, 130000, 0, LavaFall, "O LAVAFALL" },
 	{ LoadObj_Data1, 4, 1, 130000, 0, LavaEffect, "O EFFLAVA" },
 	{ LoadObj_Data1, 3, 1, 130000, 0, HillGrass, "O HILLGRASS" },
-	{ LoadObj_Data1, 3, 1, 230000, 0, HillLantern, "O LANTERN" },
+	{ LoadObj_Data1, 3, 1, 230000, 0, HillLantern, "O HILLLANTERN" },
+	{ LoadObj_Data1, 4, 1, 230000, 0, HillBush, "O HILLBUSH" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -113,8 +115,9 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	LoadModel(&ht_transportercol, "ht_transportercol", ModelFormat_Basic);
 	LoadModel(&ht_vine, "ht_vine", ModelFormat_Chunk);
 
-	HillFlowers_LoadModels();
-	LavaFall_LoadModel();
-	HillGrass_LoadModels();
-	Lantern_LoadModel();
+	HillFlowers_LoadAssets();
+	LavaFall_LoadAssets();
+	HillGrass_LoadAssets();
+	Lantern_LoadAssets();
+	HillBush_LoadAssets();
 }

@@ -49,7 +49,7 @@ void __cdecl HillGrass(ObjectMaster* obj) {
 	obj->DisplaySub = HillGrass_Display;
 }
 
-void HillGrass_LoadModels() {
+void HillGrass_LoadAssets() {
 	LoadModel(&ht_grass0, "ht_grass0", ModelFormat_Basic);
 	LoadAnimation(&ht_grass0_anm, "ht_grass0");
 

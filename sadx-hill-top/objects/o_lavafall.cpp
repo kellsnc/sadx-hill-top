@@ -126,7 +126,7 @@ void __cdecl LavaFall(ObjectMaster* obj) {
 	obj->DisplaySub = LavaFall_Display;
 }
 
-void LavaFall_LoadModel() {
+void LavaFall_LoadAssets() {
 	LoadModel(&ht_lavafall, "ht_lavafall", ModelFormat_Chunk);
 
 	LoadAnimation(&ht_lavafall0_anm, "ht_lavafall0");
