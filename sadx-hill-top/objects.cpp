@@ -9,6 +9,7 @@
 #include "objects/o_hillgrass.h"
 #include "objects/o_lantern.h"
 #include "objects/o_hillbush.h"
+#include "objects/o_pickrock.h"
 
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
@@ -62,13 +63,14 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
 
 	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" },
-	{ LoadObj_Data1, 3, 1, 1000000, 0, HillBush, "O TRANSPORTER" },
+	{ LoadObj_Data1, 3, 1, 1000000, 0, PickRock, "O TRANSPORTER" },
 	{ LoadObj_Data1, 4, 1, 130000, 0, HillFlowers, "O HILLFLOWERS" },
 	{ LoadObj_Data1, 3, 1, 130000, 0, LavaFall, "O LAVAFALL" },
 	{ LoadObj_Data1, 4, 1, 130000, 0, LavaEffect, "O EFFLAVA" },
 	{ LoadObj_Data1, 3, 1, 130000, 0, HillGrass, "O HILLGRASS" },
 	{ LoadObj_Data1, 3, 1, 230000, 0, HillLantern, "O HILLLANTERN" },
-	{ LoadObj_Data1, 4, 1, 230000, 0, HillBush, "O HILLBUSH" }
+	{ LoadObj_Data1, 4, 1, 230000, 0, HillBush, "O HILLBUSH" },
+	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, 130000, 0, PickRock, "O PICKROCK" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -120,4 +122,5 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	HillGrass_LoadAssets();
 	Lantern_LoadAssets();
 	HillBush_LoadAssets();
+	PickRock_LoadAssets();
 }
