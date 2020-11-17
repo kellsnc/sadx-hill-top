@@ -28,7 +28,7 @@ void __cdecl HillFlowers_Display(ObjectMaster* obj) {
 		njScaleY(1.0f + (1.0f - njSin(data->field_A * 2000)) / 50.0f); // bouncy animation
 
 		if (data->LoopData) { // If there is an animation,
-			if (IsVisible(&data->Position, 30.0f)) { // Only process if visible
+			if (IsVisible(&data->Position, 45.0f)) { // Only process if visible
 				njAction((NJS_ACTION*)data->LoopData, data->Scale.z);
 			}
 		}

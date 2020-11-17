@@ -96,6 +96,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="ninja-utils.h" />
     <ClInclude Include="object-utils.h" />
+    <ClInclude Include="objects\o_efflava.h" />
     <ClInclude Include="objects\o_hillflowers.h" />
     <ClInclude Include="objects\o_hilltree.h" />
     <ClInclude Include="objects\o_htskybox.h" />
@@ -113,6 +114,7 @@
     <ClCompile Include="ninja-utils.cpp" />
     <ClCompile Include="object-utils.cpp" />
     <ClCompile Include="objects.cpp" />
+    <ClCompile Include="objects\o_efflava.cpp" />
     <ClCompile Include="objects\o_hillflowers.cpp" />
     <ClCompile Include="objects\o_hilltree.cpp" />
     <ClCompile Include="objects\o_htskybox.cpp" />

@@ -9,8 +9,8 @@ ModelInfo* ht_transportercol = nullptr;
 ModelInfo* ht_vine = nullptr;
 
 CollisionData HillTransporter_Col[] = {
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {-10, 20.0f, -4.0f}, 3.0f, 20.0f, 0, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {10, 20.0f, -4.0f}, 3.0f, 20.0f, 0, 0, 0, 0, 0 }
+	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {-10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 },
+	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 }
 };
 
 enum class TranspPlatformActs : Uint16 {
@@ -203,7 +203,7 @@ void __cdecl EndPoles_Display(ObjectMaster* obj) {
 	njPushMatrixEx();
 	njTranslateEx(&data->Position);
 	njRotateY_(data->Rotation.y);
-	njTranslateZ(-4.0f);
+	njTranslateZ(-2.0f);
 
 	// Draw poles and vines
 
@@ -261,7 +261,7 @@ inline void DrawPole(TransporterData1* data, float offset, bool invert) {
 	njTranslateX(offset);
 
 	njPushMatrixEx();
-	njTranslateZ(-4.0f);
+	njTranslateZ(-2.0f);
 	njDrawModel_SADX(data->PoleObject->basicdxmodel); // Pole model
 
 	if (invert) {

@@ -5,6 +5,7 @@
 #include "objects/o_transporter.h"
 #include "objects/o_hillflowers.h"
 #include "objects/o_lavafall.h"
+#include "objects/o_efflava.h"
 
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
@@ -59,7 +60,8 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" },
 	{ LoadObj_Data1, 3, 1, 1000000, 0, HillTransporter, "O TRANSPORTER" },
 	{ LoadObj_Data1, 4, 1, 130000, 0, HillFlowers, "O HILLFLOWERS" },
-	{ LoadObj_Data1, 3, 1, 130000, 0, LavaFall, "O LAVAFALL" }
+	{ LoadObj_Data1, 3, 1, 130000, 0, LavaFall, "O LAVAFALL" },
+	{ LoadObj_Data1, 4, 1, 130000, 0, LavaEffect, "O EFFLAVA" },
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
