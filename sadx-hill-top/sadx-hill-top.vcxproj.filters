@@ -60,6 +60,9 @@
     <ClInclude Include="objects\o_efflava.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="objects\o_hillgrass.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -105,6 +108,9 @@
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
     <ClCompile Include="objects\o_efflava.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="objects\o_hillgrass.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>

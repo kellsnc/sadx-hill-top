@@ -98,8 +98,6 @@ void __cdecl HillFlowers(ObjectMaster* obj) {
 		break;
 	}
 
-	data->Scale.x = 1;
-
 	// If the scale is null, set it to normal
 	if (data->Scale.x == 0) {
 		data->Scale.x = 1;
