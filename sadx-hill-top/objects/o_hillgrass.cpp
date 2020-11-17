@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "o_HillGrass.h"
+#include "o_hillgrass.h"
 
 ModelInfo* ht_grass0 = nullptr;
 

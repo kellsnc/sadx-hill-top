@@ -7,6 +7,7 @@
 #include "objects/o_lavafall.h"
 #include "objects/o_efflava.h"
 #include "objects/o_hillgrass.h"
+#include "objects/o_lantern.h"
 
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
@@ -65,6 +66,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 130000, 0, LavaFall, "O LAVAFALL" },
 	{ LoadObj_Data1, 4, 1, 130000, 0, LavaEffect, "O EFFLAVA" },
 	{ LoadObj_Data1, 3, 1, 130000, 0, HillGrass, "O HILLGRASS" },
+	{ LoadObj_Data1, 3, 1, 230000, 0, HillLantern, "O LANTERN" },
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -114,4 +116,5 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	HillFlowers_LoadModels();
 	LavaFall_LoadModel();
 	HillGrass_LoadModels();
+	Lantern_LoadModel();
 }
