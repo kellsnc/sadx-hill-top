@@ -19,6 +19,12 @@
     <Filter Include="Header Files\Objects">
       <UniqueIdentifier>{c54e215e-fb6a-4106-881d-bfa419869011}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Enemies">
+      <UniqueIdentifier>{faf547ff-6320-4857-8491-62e3e9e4c0b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Enemies">
+      <UniqueIdentifier>{b9e2d1f7-4671-4e92-addc-a72c68a8b9fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -71,6 +77,9 @@
     </ClInclude>
     <ClInclude Include="objects\o_pickrock.h">
       <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="enemies\e_spiker.h">
+      <Filter>Header Files\Enemies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="objects\o_pickrock.cpp">
       <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="enemies\e_spiker.cpp">
+      <Filter>Source Files\Enemies</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

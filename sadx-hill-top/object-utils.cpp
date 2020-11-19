@@ -69,6 +69,18 @@ bool IsPointInsideSphere(NJS_VECTOR* center, NJS_VECTOR* pos, float radius) {
 	return GetDistance(center, pos) <= radius;
 }
 
+int IsPlayerInRange(NJS_VECTOR* center, float range) {
+	for (uint8_t player = 0; player < MaxPlayers; ++player) {
+		if (!EntityData1Ptrs[player]) continue;
+
+		if (ObjectInRange(&EntityData1Ptrs[player]->Position, center->x, center->y, center->z, range)) {
+			return player + 1;
+		}
+	}
+
+	return 0;
+}
+
 int IsPlayerInsideSphere_(NJS_VECTOR* center, float radius) {
 	for (uint8_t player = 0; player < MaxPlayers; ++player) {
 		if (!EntityData1Ptrs[player]) continue;

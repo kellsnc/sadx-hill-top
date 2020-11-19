@@ -11,6 +11,8 @@
 #include "objects/o_hillbush.h"
 #include "objects/o_pickrock.h"
 
+#include "enemies/e_spiker.h"
+
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
 
@@ -52,7 +54,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusB_Main, "E UNI B" },
 	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusC_Main, "E UNI C" },
 	{ LoadObj_Data1, 3, 1, 4000000, 0, E104Enemy_Main, "E E_104" },
-	{ LoadObj_Data1, 3, 4, 0, 0, nullptr, "SPIKER" },
+	{ LoadObj_Data1, 3, 4, 0, 0, Spiker, "SPIKER" },
 	{ LoadObj_Data1, 3, 4, 0, 0, nullptr, "REXON" },
 
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 0, 0, OErupt_Main, "O Erupt" },
@@ -63,7 +65,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
 
 	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" },
-	{ LoadObj_Data1, 3, 1, 1000000, 0, PickRock, "O TRANSPORTER" },
+	{ LoadObj_Data1, 3, 1, 1000000, 0, HillTransporter, "O TRANSPORTER" },
 	{ LoadObj_Data1, 4, 1, 130000, 0, HillFlowers, "O HILLFLOWERS" },
 	{ LoadObj_Data1, 3, 1, 130000, 0, LavaFall, "O LAVAFALL" },
 	{ LoadObj_Data1, 4, 1, 130000, 0, LavaEffect, "O EFFLAVA" },
@@ -80,6 +82,7 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "OBJ_HILLTOP", &HillTopOBJ_TexList },
 	{ "BG_HILLTOP", &HillTopBG_TexList },
 	{ "LAVAFALL", &LAVAFALL_TexList },
+	{ "SPIKER", &SPIKER_TexList },
 	
 	{ "E_BOMB", (TexList*)0x96B464 },
 	{ "E_SARU", (TexList*)0x962560 },
@@ -123,4 +126,5 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	Lantern_LoadAssets();
 	HillBush_LoadAssets();
 	PickRock_LoadAssets();
+	Spiker_LoadAssets();
 }
