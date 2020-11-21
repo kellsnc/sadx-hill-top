@@ -101,7 +101,7 @@ void __cdecl SpikerSpike_Main(ObjectMaster* obj) {
 		if (pdata->SpikeReleased == true) {
 			data->Action = 1;
 			data->NextAction = pdata->AttackType;
-			data->Scale.x = 0.1f;
+			data->Scale.x = 0.2f;
 
 			if (data->NextAction == SpikerAttack_Homing) {
 				njPushMatrix(_nj_unit_matrix_);
@@ -120,6 +120,10 @@ void __cdecl SpikerSpike_Main(ObjectMaster* obj) {
 				njGetTranslation(0, &data->Position);
 				njPopMatrixEx();
 
+				if (pdata->Ceiling == true) {
+					data->Rotation.x += 0x8000;
+				}
+
 				data->CollisionInfo->CollisionArray->center.y = 0.0f;
 				data->CollisionInfo->CollisionArray->a = 10.0f;
 				data->Rotation.z = 0;
@@ -131,7 +135,7 @@ void __cdecl SpikerSpike_Main(ObjectMaster* obj) {
 		}
 	}
 	else {
-		if (++data->field_A > 500 || GetCollidingEntityA(data)) {
+		if (++data->field_A > 400 || GetCollidingEntityA(data)) {
 			LoadEnemyExplosion(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
 			DeleteObject_(obj);
 			return;
@@ -163,7 +167,7 @@ void __cdecl SpikerSpike_Main(ObjectMaster* obj) {
 			break;
 		case SpikerAttack_Vertical:
 			if (data->Scale.x < 3.0f) {
-				data->Scale.x += 0.01f;
+				data->Scale.x += 0.05f;
 			}
 
 			njPushMatrix(_nj_unit_matrix_);
@@ -199,7 +203,7 @@ void LoadSpikerSpike(ObjectMaster* obj, SpikerData1* data) {
 	Collision_Init(spike, &Spike_Col, 1, 3);
 
 	if (data->Ceiling == true) {
-		spike->Data1->CollisionInfo->CollisionArray->center.y = -8.0f;
+		spike->Data1->CollisionInfo->CollisionArray->center.y = -18.0f;
 	}
 }
 
@@ -253,7 +257,7 @@ bool Spiker_RunBoundaries(SpikerData1* data, enemywk* enmwk, float radius) {
 
 void Spiker_ActionStand(SpikerData1* data, enemywk* enmwk) {
 	// Attack if finds player in range
-	if (Spiker_CanAttack(data) == true && IsPlayerInsideSphere_(&data->Position, data->AttackRadius)) {
+	if (Spiker_CanAttack(data) == true && IsPlayerInGlobalCylinder(&data->Position, data->AttackRadius, 200.0f)) {
 		enmwk->old_mode = static_cast<int>(SpikerActs::Stand); // go back to stand action when attack is finished
 		data->Action = SpikerActs::Attack;
 	}
@@ -265,9 +269,15 @@ void Spiker_ActionWalk(SpikerData1* data, enemywk* enmwk) {
 	Spiker_RunBoundaries(data, enmwk, data->WalkRadius);
 
 	// Attack if finds player in range
-	if (IsPlayerInsideSphere_(&data->Position, data->AttackRadius)) {
+	if (IsPlayerInGlobalCylinder(&data->Position, data->AttackRadius, 200.0f)) {
 		enmwk->old_mode = static_cast<int>(SpikerActs::Walk); // go back to walk action when attack is finished
-		data->Action = SpikerActs::WalkToPlayer;
+		
+		if (data->AttackType == SpikerAttack_Homing) {
+			data->Action = SpikerActs::WalkToPlayer;
+		}
+		else {
+			data->Action = SpikerActs::Attack;
+		}
 	}
 }
 
@@ -281,7 +291,7 @@ void Spiker_ActionWalkToPlayer(SpikerData1* data, enemywk* enmwk) {
 		data->Action = static_cast<SpikerActs>(enmwk->old_mode);
 	}
 
-	if (Spiker_CanAttack(data) == true && IsPlayerInsideSphere_(&data->Position, data->AttackRadius / 4)) {
+	if (Spiker_CanAttack(data) == true && IsPlayerInsideSphere_(&data->Position, data->AttackRadius / 3)) {
 		data->Action = SpikerActs::Attack;
 	}
 }
@@ -393,13 +403,6 @@ void __cdecl Spiker(ObjectMaster* obj) {
 	SpikerData1* data = (SpikerData1*)obj->Data1;
 	enemywk* enmwk = (enemywk*)AllocateObjectData2(obj, (EntityData1*)data); // new structure from the debug symbols
 
-#ifdef _DEBUG
-	data->Rotation.x = 0; // floor or ceiling
-	data->WalkRadius = 50.0f;
-	data->AttackType = 0.0f;
-	data->AttackRadius = 200.0f;
-#endif // _DEBUG
-
 	Collision_Init(obj, &Spiker_Col, 1, 3);
 	
 	// some enemy information
@@ -432,10 +435,10 @@ void __cdecl Spiker(ObjectMaster* obj) {
 	data->EmeraldID = data->Rotation.z;
 	Object_CheckEmerald(data->EmeraldID, &data->Position); // signals position to the radar, rotz is emerald id
 
-	LoadSpikerSpike(obj, data);
-
 	// floor or ceiling
 	data->Ceiling = data->Rotation.x % 2;
+
+	LoadSpikerSpike(obj, data);
 
 	// If the enemy is on the floor, attach
 	if (data->EmeraldID == false) {

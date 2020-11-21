@@ -140,7 +140,7 @@ int IsPlayerInGlobalCylinder(NJS_VECTOR* center, float x, float y) {
 		NJS_VECTOR* pos = &EntityData1Ptrs[player]->Position;
 
 		if ((powf(pos->x - center->x, 2) + pow(pos->z - center->z, 2)) <= pow(x, 2) &&
-			pos->y > center->y && pos->y < center->y + y) {
+			pos->y > center->y - y / 2 && pos->y < center->y + y / 2) {
 			return player + 1;
 		}
 	}

@@ -16,6 +16,7 @@ FunctionPointer(Angle, ObjectData2_LookAtHome, (EntityData1* a1, ObjectData2* a2
 FunctionPointer(Angle, ObjectData2_LookAtPlayer, (EntityData1* a1, ObjectData2* a2, Uint8 player), 0x4CD6F0);
 FunctionPointer(Bool, IsEventPerforming, (), 0x42FB00);
 FunctionPointer(int, GetClosestPlayerID, (NJS_VECTOR* pos), 0x441B70);
+FunctionPointer(int, DetectDyncolCollision, (NJS_VECTOR* pos, NJS_VECTOR* output, Rotation3* rotation, ColFlags flagstoignore, float detectionradius), 0x439620);
 
 ObjectFunc(LoadMusic_EventDelayed, 0x600890);
 ObjectFunc(SecondaryObjectPhysics, 0x49D730);
