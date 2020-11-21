@@ -36,7 +36,6 @@ enum class SpikerActs : Uint32 {
 	Walk,
 	WalkToPlayer,
 	Attack,
-	RunningAway,
 	Destroyed
 };
 
@@ -47,7 +46,8 @@ enum SpikerAttacks {
 
 struct SpikerData1 {
 	SpikerActs Action;
-	Uint32 EmeraldID;
+	Uint16 Timer;
+	Uint16 EmeraldID;
 	Bool Ceiling;
 	NJS_OBJECT* Object;
 	Bool SpikeReleased;
@@ -63,16 +63,30 @@ struct SpikerData1 {
 
 void __cdecl SpikerSpike_Display(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
-	EntityData1* pdata = obj->Parent->Data1;
+	SpikerData1* pdata = (SpikerData1*)obj->Parent->Data1;
 	enemywk* enmwk = (enemywk*)obj->Parent->Data2;
 
 	if (!MissedFrames && data->Action != 0) {
 		njSetTexture(&SPIKER_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njRotateY_(pdata->Rotation.y);
-		njRotateX_(pdata->Rotation.x);
-		njTranslateY(9.0f);
+
+		if (data->NextAction == SpikerAttack_Homing) {
+			njRotateY_(data->Rotation.y);
+			njRotateX_(data->Rotation.x);
+			njTranslateY(-7.5f);
+		}
+		else if (pdata->Ceiling == true) {
+			njRotateY_(data->Rotation.y);
+			njRotateX(0, 0x8000);
+			njTranslateY(9.0f);
+		}
+		else {
+			njRotateEx((Angle*)&data->Rotation, false);
+			njTranslateY(9.0f);
+		}
+
+		njRotateY(0, 0x8000);
 		njDrawModel_SADX(data->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
@@ -80,10 +94,97 @@ void __cdecl SpikerSpike_Display(ObjectMaster* obj) {
 
 void __cdecl SpikerSpike_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
-	EntityData1* pdata = obj->Parent->Data1;
+	SpikerData1* pdata = (SpikerData1*)obj->Parent->Data1;
 	enemywk* enmwk = (enemywk*)obj->Parent->Data2;
 
-	data->Position = pdata->Position;
+	if (data->Action == 0) {
+		if (pdata->SpikeReleased == true) {
+			data->Action = 1;
+			data->NextAction = pdata->AttackType;
+			data->Scale.x = 0.1f;
+
+			if (data->NextAction == SpikerAttack_Homing) {
+				njPushMatrix(_nj_unit_matrix_);
+				njTranslateEx(&data->Position);
+
+				if (pdata->Ceiling == true) {
+					njRotateY_(data->Rotation.y);
+					njRotateX(0, 0x8000);
+				}
+				else {
+					njRotateEx((Angle*)&data->Rotation, false);
+				}
+
+				njRotateY(0, 0x8000);
+				njTranslateY(20.0f);
+				njGetTranslation(0, &data->Position);
+				njPopMatrixEx();
+
+				data->CollisionInfo->CollisionArray->center.y = 0.0f;
+				data->CollisionInfo->CollisionArray->a = 10.0f;
+				data->Rotation.z = 0;
+			}
+		}
+		else {
+			data->Position = pdata->Position;
+			data->Rotation = pdata->Rotation;
+		}
+	}
+	else {
+		if (++data->field_A > 500 || GetCollidingEntityA(data)) {
+			LoadEnemyExplosion(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
+			DeleteObject_(obj);
+			return;
+		}
+
+		Angle roty = 0;
+		Angle rotx = 0;
+
+		switch (data->NextAction) {
+		case SpikerAttack_Homing:
+			if (data->Scale.x < 1.0f) {
+				data->Scale.x += 0.01f;
+			}
+
+			njLookAt(&data->Position, &EntityData1Ptrs[GetClosestPlayerID(&data->Position)]->Position, &rotx, &roty);
+			rotx += 0x4000;
+
+			data->Rotation.y = BAMS_SubWrap(data->Rotation.y, roty, 0x300);
+			data->Rotation.x = BAMS_SubWrap(data->Rotation.x, rotx, 0x300);
+			
+			njPushMatrix(_nj_unit_matrix_);
+			njTranslateEx(&data->Position);
+			njRotateY_(data->Rotation.y);
+			njRotateX_(data->Rotation.x);
+			njTranslateY(data->Scale.x);
+			njGetTranslation(0, &data->Position);
+			njPopMatrixEx();
+
+			break;
+		case SpikerAttack_Vertical:
+			if (data->Scale.x < 3.0f) {
+				data->Scale.x += 0.01f;
+			}
+
+			njPushMatrix(_nj_unit_matrix_);
+			njTranslateEx(&data->Position);
+
+			if (pdata->Ceiling == true) {
+				njRotateY_(data->Rotation.y);
+				njRotateX(0, 0x8000);
+			}
+			else {
+				njRotateEx((Angle*)&data->Rotation, false);
+			}
+
+			njRotateY(0, 0x8000);
+			njTranslateY(data->Scale.x);
+			njGetTranslation(0, &data->Position);
+			njPopMatrixEx();
+
+			break;
+		}
+	}
 
 	AddToCollisionList(data);
 	obj->DisplaySub(obj);
@@ -96,6 +197,10 @@ void LoadSpikerSpike(ObjectMaster* obj, SpikerData1* data) {
 	spike->DisplaySub = SpikerSpike_Display;
 
 	Collision_Init(spike, &Spike_Col, 1, 3);
+
+	if (data->Ceiling == true) {
+		spike->Data1->CollisionInfo->CollisionArray->center.y = -8.0f;
+	}
 }
 
 #pragma endregion
@@ -134,6 +239,18 @@ bool Spiker_CanAttack(SpikerData1* data) {
 	return data->SpikeReleased == false;
 }
 
+bool Spiker_RunBoundaries(SpikerData1* data, enemywk* enmwk, float radius) {
+	// Turn around if out of range, or no floor
+
+	if (IsPointInsideSphere(&enmwk->home, &data->Position, radius) == false || Spiker_AttachFloor(data) == false) {
+		njLookAt(&data->Position, &enmwk->home, nullptr, &data->Rotation.y);
+		data->Rotation.y -= 0x4000;
+		return false;
+	}
+
+	return true;
+}
+
 void Spiker_ActionStand(SpikerData1* data, enemywk* enmwk) {
 	// Attack if finds player in range
 	if (Spiker_CanAttack(data) == true && IsPlayerInsideSphere_(&data->Position, data->AttackRadius)) {
@@ -145,15 +262,10 @@ void Spiker_ActionStand(SpikerData1* data, enemywk* enmwk) {
 void Spiker_ActionWalk(SpikerData1* data, enemywk* enmwk) {
 	// Move forward
 	Spiker_MoveForward(data, 0.1f);
-
-	// Turn around if out of range, or no floor
-	if (IsPointInsideSphere(&enmwk->home, &data->Position, data->WalkRadius) == false || !Spiker_AttachFloor(data)) {
-		njLookAt(&data->Position, &enmwk->home, nullptr, &data->Rotation.y);
-		data->Rotation.y += 0x4000;
-	}
+	Spiker_RunBoundaries(data, enmwk, data->WalkRadius);
 
 	// Attack if finds player in range
-	if (Spiker_CanAttack(data) == true && IsPlayerInsideSphere_(&data->Position, data->AttackRadius)) {
+	if (IsPlayerInsideSphere_(&data->Position, data->AttackRadius)) {
 		enmwk->old_mode = static_cast<int>(SpikerActs::Walk); // go back to walk action when attack is finished
 		data->Action = SpikerActs::WalkToPlayer;
 	}
@@ -165,13 +277,18 @@ void Spiker_ActionWalkToPlayer(SpikerData1* data, enemywk* enmwk) {
 
 	ObjectData2_LookAtPlayer((EntityData1*)data, (ObjectData2*)enmwk, GetClosestPlayerID(&data->Position));
 
-	if (IsPlayerInsideSphere_(&data->Position, data->AttackRadius) == false || Spiker_AttachFloor(data) == false || Spiker_CanAttack(data) == false) {
+	if (Spiker_RunBoundaries(data, enmwk, enmwk->hear_range) == false) {
 		data->Action = static_cast<SpikerActs>(enmwk->old_mode);
 	}
 
-	if (IsPlayerInsideSphere_(&data->Position, data->AttackRadius / 4)) {
+	if (Spiker_CanAttack(data) == true && IsPlayerInsideSphere_(&data->Position, data->AttackRadius / 4)) {
 		data->Action = SpikerActs::Attack;
 	}
+}
+
+void Spiker_ActionAttack(SpikerData1* data, enemywk* enmwk) {
+	data->SpikeReleased = true;
+	data->Action = static_cast<SpikerActs>(enmwk->old_mode);
 }
 
 void Spiker_ActionDelete(ObjectMaster* obj, SpikerData1* data) {
@@ -246,6 +363,9 @@ void __cdecl Spiker_Main(ObjectMaster* obj) {
 				break;
 			case SpikerActs::WalkToPlayer:
 				Spiker_ActionWalkToPlayer(data, enmwk);
+				break;
+			case SpikerActs::Attack:
+				Spiker_ActionAttack(data, enmwk);
 				break;
 			case SpikerActs::Destroyed:
 				Spiker_ActionDelete(obj, data);
