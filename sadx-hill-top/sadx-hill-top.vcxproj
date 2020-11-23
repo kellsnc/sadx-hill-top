@@ -93,6 +93,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="deathzones.h" />
+    <ClInclude Include="enemies\e_fireball.h" />
+    <ClInclude Include="enemies\e_rexon.h" />
     <ClInclude Include="enemies\e_spiker.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ninja-utils.h" />
@@ -114,6 +116,8 @@
   <ItemGroup>
     <ClCompile Include="deathzones.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="enemies\e_fireball.cpp" />
+    <ClCompile Include="enemies\e_rexon.cpp" />
     <ClCompile Include="enemies\e_spiker.cpp" />
     <ClCompile Include="entry.cpp" />
     <ClCompile Include="level.cpp" />

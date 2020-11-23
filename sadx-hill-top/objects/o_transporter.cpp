@@ -72,8 +72,8 @@ void __cdecl TranspPlatform_Delete(ObjectMaster* obj) {
 	// Removes the dyncol before deleting the object
 
 	if (obj->Data1->LoopData) {
-		DynamicCOL_DeleteObject(obj);
-		obj->Data1->LoopData = nullptr;
+		DynamicCOL_Remove(obj, (NJS_OBJECT*)obj->Data1->LoopData);
+		ObjectArray_Remove((NJS_OBJECT*)obj->Data1->LoopData);
 	}
 }
 

@@ -12,6 +12,8 @@
 #include "objects/o_pickrock.h"
 
 #include "enemies/e_spiker.h"
+#include "enemies/e_rexon.h"
+#include "enemies/e_fireball.h"
 
 NJS_TEXNAME HillTopOBJ_TexNames[9];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
@@ -55,7 +57,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusC_Main, "E UNI C" },
 	{ LoadObj_Data1, 3, 1, 4000000, 0, E104Enemy_Main, "E E_104" },
 	{ LoadObj_Data1, 3, 4, 0, 0, Spiker, "SPIKER" },
-	{ LoadObj_Data1, 3, 4, 0, 0, nullptr, "REXON" },
+	{ LoadObj_Data1, 3, 4, 0, 0, Rexon, "REXON" },
 
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 0, 0, OErupt_Main, "O Erupt" },
 	{ LoadObj_Data1, 3, 1, 638401, 0, OBreakstep_Main, "O BREAKSTEP" },
@@ -82,8 +84,9 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "OBJ_HILLTOP", &HillTopOBJ_TexList },
 	{ "BG_HILLTOP", &HillTopBG_TexList },
 	{ "LAVAFALL", &LAVAFALL_TexList },
+
 	{ "SPIKER", &SPIKER_TexList },
-	
+	{ "REXON", &REXON_TexList },
 	{ "E_BOMB", (TexList*)0x96B464 },
 	{ "E_SARU", (TexList*)0x962560 },
 	{ "SUPI_SUPI", (TexList*)0x96F518 },
@@ -126,5 +129,8 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	Lantern_LoadAssets();
 	HillBush_LoadAssets();
 	PickRock_LoadAssets();
+
 	Spiker_LoadAssets();
+	Rexon_LoadAssets();
+	FireBall_LoadAssets();
 }
