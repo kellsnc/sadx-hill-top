@@ -10,6 +10,7 @@
 #include "objects/o_lantern.h"
 #include "objects/o_hillbush.h"
 #include "objects/o_pickrock.h"
+#include "objects/o_balance.h"
 
 #include "enemies/e_spiker.h"
 #include "enemies/e_rexon.h"
@@ -76,6 +77,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 4, 1, 230000, 0, HillBush, "O HILLBUSH" },
 	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, 130000, 0, PickRock, "O PICKROCK" },
 	{ LoadObj_Data1, 3, 0, 0, 0, FireBallLauncher, "E FIREBALL" },
+	{ LoadObj_Data1, 3, 1, 130000, 0, HillBalance, "O HILLBALANCE" },
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -91,6 +93,7 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "E_BOMB", (TexList*)0x96B464 },
 	{ "E_SARU", (TexList*)0x962560 },
 	{ "SUPI_SUPI", (TexList*)0x96F518 },
+	{ "UNI_A_UNIBODY", (TexList*)0x96CB5C },
 	{ "UNI_C_UNIBODY", (TexList*)0x96DC48 },
 	{ "TOGEBALL_TOGEBALL", (TexList*)0x96BC54 },
 	{ "MOUNTAIN_E104", (TexList*)0x2499328 },
@@ -130,6 +133,7 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	Lantern_LoadAssets();
 	HillBush_LoadAssets();
 	PickRock_LoadAssets();
+	HillBalance_LoadAssets();
 
 	Spiker_LoadAssets();
 	Rexon_LoadAssets();
