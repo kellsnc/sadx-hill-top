@@ -74,7 +74,8 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 130000, 0, HillGrass, "O HILLGRASS" },
 	{ LoadObj_Data1, 3, 1, 230000, 0, HillLantern, "O HILLLANTERN" },
 	{ LoadObj_Data1, 4, 1, 230000, 0, HillBush, "O HILLBUSH" },
-	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, 130000, 0, PickRock, "O PICKROCK" }
+	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, 130000, 0, PickRock, "O PICKROCK" },
+	{ LoadObj_Data1, 3, 0, 0, 0, FireBallLauncher, "E FIREBALL" },
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };

@@ -53,7 +53,7 @@ void RexonHead_LoadFireBall(ObjectMaster* obj, EntityData1* data) {
 
 	njLookAt(&pos, &EntityData1Ptrs[GetClosestPlayerID(&data->Position)]->Position, &rotx, &roty);
 
-	LoadFireBall(obj, &pos, roty, rotx, 1.5f, 1.0f, 1.0f);
+	LoadFireBall(obj, &pos, roty, rotx, 1.5f, 1.0f, 1.0f, 0);
 }
 
 void RexonHead_DrawMouth(EntityData1* data, NJS_OBJECT* object, float mouthopen) {
