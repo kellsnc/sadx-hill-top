@@ -67,6 +67,20 @@ void RexonHead_DrawMouth(EntityData1* data, NJS_OBJECT* object, float mouthopen)
 	DrawObjectRoot(object->sibling);
 }
 
+bool RexonHead_IsInAttackRange(NJS_VECTOR* position, Angle roty, Float radius) {
+	NJS_VECTOR pos = { 0 };
+	
+	// Calculate point in front of the head
+	njPushMatrix(_nj_unit_matrix_);
+	njTranslateEx(position);
+	njRotateY_(roty);
+	njTranslateZ(50.0f);
+	njGetTranslation(0, &pos);
+	njPopMatrixEx();
+
+	return IsPlayerInsideSphere_(&pos, radius);
+}
+
 void __cdecl RexonHead_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
@@ -92,7 +106,7 @@ void __cdecl RexonHead_Main(ObjectMaster* obj) {
 
 	switch (data->Action) {
 	case RexonHeadAct_Normal:
-		if (data->InvulnerableTime == 0 && IsPlayerInsideSphere_(&data->Position, 100.0f) && (rand() % 30) == 0) {
+		if (data->InvulnerableTime == 0 && RexonHead_IsInAttackRange(&data->Position, pdata->Rotation.y, 50.0f) && (rand() % 30) == 0) {
 			data->InvulnerableTime = 80 + (rand() % 50);
 			data->field_A = 1;
 			data->Action = RexonHeadAct_Attacking;
@@ -265,6 +279,7 @@ void Rexon_DrawFins(EntityData1* data, NJS_OBJECT* object, float timer) {
 		njTranslate(nullptr, Pos3(object->pos));
 		njRotateXYZ(nullptr, Pos3(object->ang));
 		njRotateY_(rot);
+		njRotateX_(rot / 4);
 		njScale(nullptr, Pos3(object->scl));
 		njDrawModel_SADX(object->basicdxmodel);
 		njPopMatrixEx();
