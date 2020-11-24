@@ -441,7 +441,7 @@ void __cdecl Spiker(ObjectMaster* obj) {
 	LoadSpikerSpike(obj, data);
 
 	// If the enemy is on the floor, attach
-	if (data->EmeraldID == false) {
+	if (data->Ceiling == false) {
 		Spiker_AttachFloor(data);
 	}
 

@@ -130,8 +130,11 @@ void __cdecl RexonHead_Main(ObjectMaster* obj) {
 		DeleteGammaMissileIfNoTarget(obj);
 
 		obj->Parent->SETData.SETData->Flags |= 0x1000;
+
+		return;
 	}
 	
+	Object_CheckEmerald(data->Rotation.z, &data->Position);
 	RunObjectChildren(obj);
 	AddToCollisionList(data);
 	obj->DisplaySub(obj);
@@ -157,6 +160,9 @@ void __cdecl RexonHead(ObjectMaster* obj) {
 	enmwk->colli_center = { 0, 0, 0 };
 	enmwk->colli_radius = 1.0f;
 	enmwk->home = data->Position;
+
+	data->Rotation.z = pdata->Rotation.z;
+	Object_CheckEmerald(data->Rotation.z, &data->Position);
 
 	obj->DeleteSub = Enemy_Delete;
 	obj->MainSub = RexonHead_Main;
