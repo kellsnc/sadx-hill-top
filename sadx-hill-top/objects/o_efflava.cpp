@@ -12,7 +12,7 @@ Scale: range
 
 extern NJS_TEXLIST HillTopOBJ_TexList;
 
-NJS_TEXANIM	LAVAEFF_TEXANIM = { 0x1, 0x1, 0, 0, 0, 0, 0x100, 0x100, 7, 0x20 };
+NJS_TEXANIM	LAVAEFF_TEXANIM = { 0x2, 0x2, 0, 0, 0, 0, 0x100, 0x100, 7, 0x20 };
 NJS_SPRITE LAVAEFF_SPRITE = { { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 0, &HillTopOBJ_TexList, &LAVAEFF_TEXANIM };
 
 int round_up(int num, int factor) {

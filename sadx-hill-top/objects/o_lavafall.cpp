@@ -17,7 +17,7 @@ NJS_TEXNAME LAVAFALL_TexNames[16];
 NJS_TEXLIST LAVAFALL_TexList = { arrayptrandlength(LAVAFALL_TexNames) };
 
 // The actual lava texture we are going to draw
-NJS_TEXLIST CurrentLavaTex = { nullptr, 1 };
+static NJS_TEXLIST CurrentLavaTex = { nullptr, 1 };
 
 CollisionData LavaFall_Col[] = {
 	{ 0, CollisionShape_Cylinder, 0x77, 0x2F /* Hurt flag */, 0, {0, -25.0f, 0}, 8.0f, 25.0f, 0, 0, 0, 0, 0 },

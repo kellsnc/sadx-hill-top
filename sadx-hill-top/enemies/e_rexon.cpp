@@ -206,7 +206,7 @@ inline float Rexon_NeckMovement(int i, int action, float timer) {
 	return move;
 }
 
-void Rexon_MoveColliNeck(EntityData1* data, NJS_VECTOR* headpos) {
+void Rexon_GetHeadPos(EntityData1* data, NJS_VECTOR* headpos) {
 	NJS_OBJECT* object = data->Object->child->sibling->sibling->sibling->sibling;
 
 	njPushMatrix(_nj_unit_matrix_);
@@ -220,14 +220,36 @@ void Rexon_MoveColliNeck(EntityData1* data, NJS_VECTOR* headpos) {
 		if (i > 0) {
 			njPushMatrixEx();
 			njTranslateZ(Rexon_NeckMovement(i, data->Action, data->Scale.z));
-			njGetTranslation(nullptr, &data->CollisionInfo->CollisionArray[i - 1].center);
-
+			
 			// get the head position
 			if (i == 3) {
 				njGetTranslation(nullptr, headpos);
 				njAddVector(headpos, &data->Position);
 			}
 
+			njPopMatrixEx();
+		}
+
+		object = object->child;
+	}
+
+	njPopMatrixEx();
+}
+
+void Rexon_MoveColliNeck(EntityData1* data) {
+	NJS_OBJECT* object = data->Object->child->sibling->sibling->sibling->sibling;
+
+	njPushMatrix(_nj_unit_matrix_);
+	njScalef(data->Scale.x);
+
+	for (int i = 0; i < 4; ++i) {
+		njTranslate(nullptr, Pos3(object->pos));
+		njRotateXYZ(nullptr, Pos3(object->ang));
+
+		if (i > 0) {
+			njPushMatrixEx();
+			njTranslateZ(Rexon_NeckMovement(i, data->Action, data->Scale.z));
+			njGetTranslation(nullptr, &data->CollisionInfo->CollisionArray[i - 1].center);
 			njPopMatrixEx();
 		}
 		
@@ -351,7 +373,8 @@ void __cdecl Rexon_Main(ObjectMaster* obj) {
 			}
 
 			if (obj->Child) {
-				Rexon_MoveColliNeck(data, &obj->Child->Data1->Position);
+				Rexon_MoveColliNeck(data);
+				Rexon_GetHeadPos(data, &obj->Child->Data1->Position);
 				AddToCollisionList(data);
 			}
 			else {

@@ -16,7 +16,7 @@
 #include "enemies/e_rexon.h"
 #include "enemies/e_fireball.h"
 
-NJS_TEXNAME HillTopOBJ_TexNames[9];
+NJS_TEXNAME HillTopOBJ_TexNames[13];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
 
 ObjectListEntry HillTopObjectList_list[] = {
@@ -58,7 +58,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusC_Main, "E UNI C" },
 	{ LoadObj_Data1, 3, 1, 4000000, 0, E104Enemy_Main, "E E_104" },
 	{ LoadObj_Data1, 3, 4, 0, 0, Spiker, "SPIKER" },
-	{ LoadObj_Data1, 3, 4, 0, 0, Rexon, "REXON" },
+	{ LoadObj_Data1, 3, 4, 0, 0, Rexon, "REXON" }, 
 
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 0, 0, OErupt_Main, "O Erupt" },
 	{ LoadObj_Data1, 3, 1, 638401, 0, OBreakstep_Main, "O BREAKSTEP" },
@@ -87,6 +87,7 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "OBJ_HILLTOP", &HillTopOBJ_TexList },
 	{ "BG_HILLTOP", &HillTopBG_TexList },
 	{ "LAVAFALL", &LAVAFALL_TexList },
+	{ "YOUGAN_ANIM", &YOUGAN_ANIM_TEXLIST },
 
 	{ "SPIKER", &SPIKER_TexList },
 	{ "REXON", &REXON_TexList },
