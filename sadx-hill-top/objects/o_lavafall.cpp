@@ -37,7 +37,8 @@ void __cdecl LavaFall_Display(ObjectMaster* obj) {
 		njSetTexture(&CurrentLavaTex);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njRotateEx((Angle*)&data->Rotation, false);
+		njRotateY_(data->Rotation.y);
+		njRotateX_(data->Rotation.x);
 
 		njScale(0, data->Scale.x, data->Scale.x + data->Scale.y, data->Scale.x);
 
@@ -102,11 +103,13 @@ void __cdecl LavaFall(ObjectMaster* obj) {
 		break;
 	case 2:
 		data->LoopData = (Loop*)&LavaFall2_Action;
-		Collision_Init(obj, &LavaFall_Col[1], 1, 4);
+		//Collision_Init(obj, &LavaFall_Col[1], 1, 4);
+		data->Rotation.x -= 0x4000;
 		break;
 	case 3:
 		data->LoopData = (Loop*)&LavaFall3_Action;
-		Collision_Init(obj, &LavaFall_Col[2], 1, 4);
+		//Collision_Init(obj, &LavaFall_Col[2], 1, 4);
+		data->Rotation.x -= 0x4000;
 		break;
 	}
 

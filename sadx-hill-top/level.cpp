@@ -63,8 +63,7 @@ void __cdecl HillTopLava_Main(ObjectMaster* obj) {
 }
 
 void __cdecl HillTopZone_Main(ObjectMaster* obj) {
-	EntityData1* data = obj->Data1;
-
+	
 }
 
 void __cdecl HillTopZone_Init(ObjectMaster* obj) {
@@ -115,6 +114,11 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	DeathZoneList[LevelIDs_RedMountain][0] = hilltope0_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][1] = hilltope1_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][2] = hilltope2_deathzones;
+
+	FogData_RedMountain1[0].Layer = 167;
+	FogData_RedMountain1[0].Distance = 4000;
+	FogData_RedMountain1[0].Color = 0xFFFFFFFF;
+	FogData_RedMountain1[0].Toggle = 1;
 
 	MusicList[MusicIDs_redmntn1].Name = "hilltop";
 }
