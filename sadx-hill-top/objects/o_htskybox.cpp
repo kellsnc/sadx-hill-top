@@ -9,6 +9,91 @@ NJS_TEXLIST HillTopBG_TexList = { arrayptrandlength(HillTopBG_TexNames) };
 ModelInfo* ht_clouds = nullptr;
 ModelInfo* ht_cloudlayers = nullptr;
 
+typedef struct {
+	NJS_VECTOR pos;
+	Float size;
+	Float speed;
+	Float spawn;
+} CloudData;
+
+void SpawnCloud(CloudData* cloud) {
+	cloud->pos.x = Camera_Data1->Position.x + 2000 - rand() % 4000;
+	cloud->pos.y = -300 + rand() % 100;
+	cloud->pos.z = Camera_Data1->Position.z + 2000 - rand() % 4000;
+	cloud->speed = 1.0f + (static_cast<float>(rand() % 100) / 100.0f);
+	cloud->spawn = 0.0f;
+	cloud->size = 0.5f + (static_cast<float>(rand() % 100) / 200.0f);
+}
+
+void __cdecl CloudHandler_Delete(ObjectMaster* obj) {
+	delete[] obj->Data1->LoopData;
+}
+
+void __cdecl CloudHandler_Display(ObjectMaster* obj) {
+	if (!MissedFrames) {
+		EntityData1* data = obj->Data1;
+		CloudData* clouds = (CloudData*)data->LoopData;
+
+		njSetTexture(&HillTopBG_TexList);
+
+		for (int i = 0; i < 30; ++i) {
+			njPushMatrixEx();
+			njTranslateEx(&clouds[i].pos);
+			njRotateY(0, HT_WindDirection);
+			njScalef(clouds[i].size);
+
+			data->Object->basicdxmodel->mats->diffuse.argb.a = static_cast<Uint8>(clouds[i].spawn * 255);
+			DrawQueueDepthBias = -99999;
+			DrawModel_Queue(data->Object->basicdxmodel, QueuedModelFlagsB_EnableZWrite);
+			DrawQueueDepthBias = 0;
+
+			njPopMatrixEx();
+		}
+	}
+}
+
+void __cdecl CloudHandler_Main(ObjectMaster* obj) {
+	EntityData1* data = obj->Data1;
+	CloudData* clouds = (CloudData*)data->LoopData;
+
+	for (int i = 0; i < 30; ++i) {
+		EntityData1* player = EntityData1Ptrs[GetClosestPlayerID(&clouds[i].pos)];
+
+		njPushMatrix(_nj_unit_matrix_);
+		njTranslateEx(&clouds[i].pos);
+		njRotateY(0, HT_WindDirection);
+		njTranslateX(clouds[i].speed);
+		njGetTranslation(nullptr, &clouds[i].pos);
+		njPopMatrixEx();
+
+		if (clouds[i].spawn < 0.8f) {
+			clouds[i].spawn += 0.01f;
+		}
+
+		if (GetDistance(&player->Position, &clouds[i].pos) > 2000.0f) {
+			SpawnCloud(&clouds[i]);
+		}
+	}
+
+	obj->DisplaySub(obj);
+}
+
+void CloudHandler(ObjectMaster* obj) {
+	EntityData1* data = obj->Data1;
+	CloudData* clouds = new CloudData[30];
+
+	data->LoopData = (Loop*)clouds;
+	data->Object = ht_clouds->getmodel();
+	
+	obj->MainSub = CloudHandler_Main;
+	obj->DisplaySub = CloudHandler_Display;
+	obj->DeleteSub = CloudHandler_Delete;
+
+	for (int i = 0; i < 30; ++i) {
+		SpawnCloud(&clouds[i]);
+	}
+}
+
 void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
@@ -26,7 +111,9 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 			njPushMatrixEx();
 			njRotateY(0, 0xC000 + HT_WindDirection); // Rotated in direction of the wind
 			njScalef(1.5f);
+			DrawQueueDepthBias = -9999999;
 			DrawModel_Queue(clouds->basicdxmodel, QueuedModelFlagsB_EnableZWrite); // Queue alpha to see all layers
+			DrawQueueDepthBias = 0;
 			njPopMatrixEx();
 
 			clouds = clouds->child;
@@ -59,6 +146,9 @@ void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj) {
 
 	// Display cloud layers
 	obj->DisplaySub(obj);
+
+	// Display clouds
+	RunObjectChildren(obj);
 }
 
 void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
@@ -68,6 +158,8 @@ void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
 	LoadLenseFlareAtPosition(&sunpos);
 
 	SetGlobalPoint2Col_Colors(0xFF1844FF, 0xFF2149FF, 0xFF002EFF);
+
+	LoadChildObject(LoadObj_Data1, CloudHandler, obj);
 
 	data->Object = ht_cloudlayers->getmodel();
 	
