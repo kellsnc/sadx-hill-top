@@ -31,7 +31,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 0, 360000, 0, Capsule_Load, "O RELEASE" },
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 360000, 0, Switch_Main, "O SWITCH" },
 	{ LoadObj_Data1 | LoadObj_UnknownB, 3, 0, 160000, 0, Weed_Main, "CMN KUSA" },
-	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 3, 0, 360000, 0, DashHoop_Main, "CMN_DRING" },
+	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 3, 0, 360000, 0, DashHoop_Main, "DashHoop" },
 	{ LoadObj_Data1, 3, 0, 360000, 0, Balloon_Main, "O BALOON" },
 	{ LoadObj_Data1, 3, 0, 160000, 0, ItemBox_Main, "O ITEMBOX" },
 	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 2, 0, 360000, 0, RocketH_Main, "Rocket H" },
@@ -77,7 +77,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 4, 1, 230000, 0, HillBush, "O HILLBUSH" },
 	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, 130000, 0, PickRock, "O PICKROCK" },
 	{ LoadObj_Data1, 3, 0, 0, 0, FireBallLauncher, "E FIREBALL" },
-	{ LoadObj_Data1, 3, 1, 130000, 0, HillBalance, "O HILLBALANCE" },
+	{ LoadObj_Data1, 3, 1, 130000, 0, HillBalance, "O HILLBALANCE" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };

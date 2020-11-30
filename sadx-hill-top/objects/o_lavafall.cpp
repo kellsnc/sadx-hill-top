@@ -91,7 +91,7 @@ void __cdecl LavaFall(ObjectMaster* obj) {
 
 	data->Object = ht_lavafall->getmodel();
 
-	switch (static_cast<int>(data->Scale.y) % 4) {
+	switch (static_cast<int>(data->Rotation.z) % 4) {
 	case 0:
 	default:
 		data->LoopData = (Loop*)&LavaFall0_Action;
@@ -119,8 +119,9 @@ void __cdecl LavaFall(ObjectMaster* obj) {
 
 	// Adjust collision size with scale
 	if (data->CollisionInfo) {
+		data->CollisionInfo->CollisionArray[0].center.y *= data->Scale.x + (data->Scale.y / 8);
 		data->CollisionInfo->CollisionArray[0].a *= data->Scale.x;
-		data->CollisionInfo->CollisionArray[0].b *= data->Scale.x + data->Scale.y;
+		data->CollisionInfo->CollisionArray[0].b *= data->Scale.x + (data->Scale.y / 8);
 	}
 
 	data->Scale.x *= 8;

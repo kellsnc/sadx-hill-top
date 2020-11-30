@@ -338,7 +338,7 @@ void __cdecl Spiker_Display(ObjectMaster* obj) {
 		}
 
 		// Run animation only if in range or visible
-		if (IsPlayerInRange(&data->Position, enmwk->view_range) && IsVisible(&data->Position, 40.0f)) {
+		if (IsPlayerInRange(&data->Position, enmwk->view_range)) {
 			njAction(enmwk->actp, enmwk->pframe);
 		}
 		else {
