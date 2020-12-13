@@ -16,6 +16,8 @@
 #include "enemies/e_rexon.h"
 #include "enemies/e_fireball.h"
 
+static constexpr int MinDistance = 360000;
+
 NJS_TEXNAME HillTopOBJ_TexNames[13];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
 
@@ -69,15 +71,15 @@ ObjectListEntry HillTopObjectList_list[] = {
 
 	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" },
 	{ LoadObj_Data1, 3, 1, 1000000, 0, HillTransporter, "O TRANSPORTER" },
-	{ LoadObj_Data1, 4, 1, 130000, 0, HillFlowers, "O HILLFLOWERS" },
-	{ LoadObj_Data1, 3, 1, 130000, 0, LavaFall, "O LAVAFALL" },
-	{ LoadObj_Data1, 4, 1, 130000, 0, LavaEffect, "O EFFLAVA" },
-	{ LoadObj_Data1, 3, 1, 130000, 0, HillGrass, "O HILLGRASS" },
-	{ LoadObj_Data1, 3, 1, 230000, 0, HillLantern, "O HILLLANTERN" },
-	{ LoadObj_Data1, 4, 1, 230000, 0, HillBush, "O HILLBUSH" },
-	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, 130000, 0, PickRock, "O PICKROCK" },
+	{ LoadObj_Data1, 4, 1, MinDistance, 0, HillFlowers, "O HILLFLOWERS" },
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, LavaFall, "O LAVAFALL" },
+	{ LoadObj_Data1, 4, 1, MinDistance, 0, LavaEffect, "O EFFLAVA" },
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillGrass, "O HILLGRASS" },
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillLantern, "O HILLLANTERN" },
+	{ LoadObj_Data1, 4, 1, MinDistance, 0, HillBush, "O HILLBUSH" },
+	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, MinDistance, 0, PickRock, "O PICKROCK" },
 	{ LoadObj_Data1, 3, 0, 0, 0, FireBallLauncher, "E FIREBALL" },
-	{ LoadObj_Data1, 3, 1, 130000, 0, HillBalance, "O HILLBALANCE" }
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillBalance, "O HILLBALANCE" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
