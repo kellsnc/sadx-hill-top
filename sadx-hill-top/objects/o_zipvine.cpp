@@ -23,7 +23,7 @@ struct TransporterPathData1 {
 	CollisionInfo* CollisionInfo;
 };
 
-CollisionData Pole_Col[] = {
+CollisionData ZipVine_Col[] = {
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
 	{ 1, CollisionShape_Sphere, 0xF0, 0, 0, { 0 }, 8.0f, 0, 0, 0, 0, 0, 0 }
@@ -68,7 +68,6 @@ void DrawZipVinePole(NJS_OBJECT* poles, NJS_VECTOR* pos, Angle rot) {
 	njPushMatrixEx();
 	njTranslateEx(pos);
 	njRotateY_(rot);
-	njTranslateY(-37.0f);
 	njDrawModel_SADX(poles->basicdxmodel);
 	njDrawModel_SADX(poles->child->basicdxmodel);
 	njPopMatrixEx();
@@ -122,6 +121,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 
 		if (data->State == data->PathData->Count - 1) {
 			data->Action = ZipVineActs::Stop;
+			ForcePlayerAction(0, 24);
 			break;
 		}
 
@@ -146,10 +146,11 @@ void __cdecl ZipVine(ObjectMaster* obj) {
 	data->Object = ht_transporter->getmodel();
 	data->VineObject = ht_vine->getmodel();
 
-	Collision_Init(obj, arrayptrandlength(Pole_Col), 4);
+	Collision_Init(obj, arrayptrandlength(ZipVine_Col), 4);
 
 	// Set start position and end position for poles and their collisions
 	data->CollisionInfo->CollisionArray[0].center = PathData->LoopList[0].Position;
+	data->CollisionInfo->CollisionArray[0].center.y -= 37.0f;
 	data->CollisionInfo->CollisionArray[1].center = PathData->LoopList[PathData->Count - 1].Position;
 	data->CollisionInfo->CollisionArray[1].center.y -= 37.0f;
 
