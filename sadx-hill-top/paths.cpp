@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "objects/o_transporter.h"
+#include "objects/o_zipvine.h"
 
 Loop HT0_PropPath_Entries[] = {
 	{ 0, 0, 977.02916, { 2237.581f,  501.5421f,  592.0755f } },
@@ -13,7 +13,7 @@ Loop HT0_PropPath_Entries[] = {
 	{ 0, 0, 0, { 376.9286f,  -22.22725f,  1460.423f } },
 };
 
-LoopHead HT0_PropPath = { 0, LengthOfArray<int16_t>(HT0_PropPath_Entries), 2197.14608f, HT0_PropPath_Entries, HillTransporterPath };
+LoopHead HT0_PropPath = { 0, LengthOfArray<int16_t>(HT0_PropPath_Entries), 2197.14608f, HT0_PropPath_Entries, ZipVine };
 
 Loop HT0_LoopPath_Entries[] = {
 	{ 0, 0, 31.47127, { 1665.611f,  -1.430883f,  296.7416f } },

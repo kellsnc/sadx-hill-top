@@ -98,12 +98,12 @@ int IsPlayerInsideSphere_(float x, float y, float z, float radius) {
 	return IsPlayerInsideSphere_(&vec, radius);
 }
 
-bool IsSpecificPlayerInSphere(float x, float y, float z, float radius, uint8_t player) {
+bool IsSpecificPlayerInSphere(float x, float y, float z, float radius, int player) {
 	NJS_VECTOR vec = { x, y, z };
 	return IsPointInsideSphere(&vec, &EntityData1Ptrs[player]->Position, radius);
 }
 
-bool IsSpecificPlayerInSphere(NJS_VECTOR* center, float radius, uint8_t player) {
+bool IsSpecificPlayerInSphere(NJS_VECTOR* center, float radius, int player) {
 	return IsPointInsideSphere(center, &EntityData1Ptrs[player]->Position, radius);
 }
 
@@ -146,4 +146,12 @@ int IsPlayerInGlobalCylinder(NJS_VECTOR* center, float x, float y) {
 	}
 
 	return 0;
+}
+
+void SetPlayerPosition(int id, float x, float y, float z) {
+	EntityData1Ptrs[id]->Position = { x, y, z };
+}
+
+void SetPlayerPosition(int id, NJS_VECTOR* pos) {
+	SetPlayerPosition(id, pos->x, pos->y, pos->z);
 }

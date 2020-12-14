@@ -90,6 +90,9 @@
     <ClInclude Include="objects\o_balance.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="objects\o_zipvine.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -159,6 +162,9 @@
       <Filter>Source Files\Enemies</Filter>
     </ClCompile>
     <ClCompile Include="objects\o_balance.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="objects\o_zipvine.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>

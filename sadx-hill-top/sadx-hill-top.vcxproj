@@ -110,6 +110,7 @@
     <ClInclude Include="objects\o_lavafall.h" />
     <ClInclude Include="objects\o_pickrock.h" />
     <ClInclude Include="objects\o_transporter.h" />
+    <ClInclude Include="objects\o_zipvine.h" />
     <ClInclude Include="paths.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pointers.h" />
@@ -136,6 +137,7 @@
     <ClCompile Include="objects\o_lavafall.cpp" />
     <ClCompile Include="objects\o_pickrock.cpp" />
     <ClCompile Include="objects\o_transporter.cpp" />
+    <ClCompile Include="objects\o_zipvine.cpp" />
     <ClCompile Include="paths.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
