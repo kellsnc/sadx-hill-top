@@ -341,22 +341,41 @@ struct TransporterPathData1 {
 	Uint16 State;
 	Float Progress;
 	Uint16 test;
-	NJS_OBJECT* VineObject;
+	NJS_VECTOR* PreviousPosition;
 	LoopHead* PathData;
 	Angle RotX;
 	Angle RotY;
 	Angle RotZ;
 	NJS_VECTOR Position;
 	NJS_OBJECT* TransporterObject;
-	Float thing;
-	Float otherthing;
+	NJS_OBJECT* VineObject;
+	NJS_OBJECT* CollisionObject;
 	CollisionInfo* CollisionInfo;
 };
 
-void DrawVines(LoopHead* PathData, NJS_OBJECT* vine, int state, float progress) {
+void DrawTransporter(NJS_OBJECT* transporter, NJS_OBJECT* collision) {
+	njPushMatrixEx();
+	njTranslateEx((NJS_VECTOR*)collision->pos);
+	njRotateY_(collision->ang[1] + 0x4000);
+	njDrawModel_SADX(transporter->basicdxmodel);
+	njTranslateY(1.5f);
+	njTranslateZ(10.0f);
+	njDrawModel_SADX(transporter->child->basicdxmodel);
+	njTranslateZ(-20.0f);
+	njDrawModel_SADX(transporter->child->basicdxmodel);
+	njPopMatrixEx();
+}
+
+void DrawVines(LoopHead* PathData, NJS_OBJECT* transporter, NJS_OBJECT* vine, int state, float progress) {
 	for (int i = 0; i < PathData->Count - 1; ++i) {
 		Loop* spoint = &PathData->LoopList[i];
 		Loop* epoint = &PathData->LoopList[i + 1];
+
+		float p = 0.0f;
+
+		if (i == state) {
+			p = progress;
+		}
 
 		float Y = epoint->Position.y - spoint->Position.y;
 		float Z = sqrtf(powf(epoint->Position.x - spoint->Position.x, 2) + powf(epoint->Position.z - spoint->Position.z, 2));
@@ -365,9 +384,9 @@ void DrawVines(LoopHead* PathData, NJS_OBJECT* vine, int state, float progress) 
 		njTranslateEx(&spoint->Position);
 		njRotateY_(spoint->Ang_Y);
 		njTranslateX(10.0f);
-		DrawVine(vine, &spoint->Position, Y, Z, 0.0f);
+		DrawVine(vine, &spoint->Position, Y, Z, p);
 		njTranslateX(-20.0f);
-		DrawVine(vine, &spoint->Position, Y, Z, 0.0f);
+		DrawVine(vine, &spoint->Position, Y, Z, p);
 		njPopMatrixEx();
 	}
 }
@@ -379,6 +398,38 @@ void SetUpVineRotations(LoopHead* PathData) {
 
 		njLookAt(&spoint->Position, &epoint->Position, nullptr, (Angle*)&spoint->Ang_Y);
 	}
+}
+
+void MovePlatformPath(NJS_OBJECT* collision, NJS_VECTOR* PeviousPosition, LoopHead* PathData, int state, float progress) {
+	NJS_VECTOR* pos = (NJS_VECTOR*)collision->pos;
+
+	*PeviousPosition = *pos;
+
+	Loop* spoint = &PathData->LoopList[state];
+	Loop* epoint = &PathData->LoopList[state + 1];
+
+	*pos = GetPositionBetweenPoints(&spoint->Position, &epoint->Position, progress);
+
+	// Get the bending offset, same code as in the parent display
+	float bend = progress;
+
+	if (bend > 0.5f) {
+		bend = fabsf(1.0f - bend);
+	}
+
+	// Adjust y position accordingly
+	pos->y +=  13.5f -((sqrtf(powf(epoint->Position.x - spoint->Position.x, 2) + powf(epoint->Position.z - spoint->Position.z, 2)) / 10.0f) * bend) - 37.0f;
+	
+	collision->ang[1] = spoint->Ang_Y;
+}
+
+void MovePlayerOnPlatformPath(ObjectMaster* obj, EntityData1* player) {
+	// Compares the position from the previous frame to move the player accordingly
+
+	TransporterPathData1* data = (TransporterPathData1*)obj->Data1;
+	NJS_VECTOR offset = { data->CollisionObject->pos[0], data->CollisionObject->pos[1], data->CollisionObject->pos[2] };
+	njSubVector(&offset, data->PreviousPosition);
+	njAddVector(&player->Position, &offset);
 }
 
 void __cdecl HillTransporterPath_Display(ObjectMaster* obj) {
@@ -396,16 +447,57 @@ void __cdecl HillTransporterPath_Display(ObjectMaster* obj) {
 			njPopMatrixEx();
 		}
 		
-		DrawVines(data->PathData, data->VineObject, data->State, data->Progress);
+		DrawVines(data->PathData, data->TransporterObject->child, data->VineObject, data->State, data->Progress);
+		DrawTransporter(data->TransporterObject->child, data->CollisionObject);
 	}
 }
 
 void __cdecl HillTransporterPath_Main(ObjectMaster* obj) {
 	TransporterPathData1* data = (TransporterPathData1*)obj->Data1;
 
+	if (data->Action == 0) {
+		if (IsPlayerOnDyncol(obj)) {
+			data->Action = 1;
+		}
+	}
+	else if (data->Action == 1) {
+		data->Progress += 0.005f;
+
+		if (data->Progress >= 1.0f) {
+			data->Progress = 0.0f;
+			data->State += 1;
+		}
+
+		if (data->State == data->PathData->Count - 1) {
+			data->Action = 2;
+		}
+		else {
+			MovePlatformPath(data->CollisionObject, data->PreviousPosition, data->PathData, data->State, data->Progress);
+			ForEveryPlayerOnDyncol(obj, MovePlayerOnPlatformPath);
+		}
+
+		if (IsPlayerInsideSphere_((NJS_VECTOR*)&data->CollisionObject->pos, 500) == 0) {
+			data->Action = 0;
+			data->State = 0;
+			data->Progress = 0.0f;
+			MovePlatformPath(data->CollisionObject, data->PreviousPosition, data->PathData, 0, 0.0f);
+		}
+	}
+	
 	AddToCollisionList((EntityData1*)data);
 	RunObjectChildren(obj);
 	obj->DisplaySub(obj);
+}
+
+void __cdecl HillTransporterPath_Delete(ObjectMaster* obj) {
+	TransporterPathData1* data = (TransporterPathData1*)obj->Data1;
+
+	if (data && data->CollisionObject) {
+		DynamicCOL_Remove(obj, data->CollisionObject);
+		ObjectArray_Remove(data->CollisionObject);
+	}
+
+	delete data->PreviousPosition;
 }
 
 void __cdecl HillTransporterPath(ObjectMaster* obj) {
@@ -414,6 +506,7 @@ void __cdecl HillTransporterPath(ObjectMaster* obj) {
 
 	obj->DisplaySub = HillTransporterPath_Display;
 	obj->MainSub = HillTransporterPath_Main;
+	obj->DeleteSub = HillTransporterPath_Delete;
 
 	data->Position = PathData->LoopList[0].Position;
 	data->Position.y -= 37.0f;
@@ -432,5 +525,20 @@ void __cdecl HillTransporterPath(ObjectMaster* obj) {
 	dest.y -= 37.0f;
 	
 	LoadEndPoles(obj, data->TransporterObject->child->sibling, &dest, endrot);
+
+	// Create the dynamic collision
+	NJS_OBJECT* object = ObjectArray_GetFreeObject();
+	object->ang[0] = 0;
+	object->ang[2] = 0;
+	object->scl[0] = 1.0f;
+	object->scl[1] = 1.0f;
+	object->scl[2] = 1.0f;
+	object->basicdxmodel = ht_transportercol->getmodel()->basicdxmodel;
+	DynamicCOL_Add((ColFlags)0x08000001, obj, object);
+	data->CollisionObject = object;
+
+	data->PreviousPosition = new NJS_VECTOR;
+
+	MovePlatformPath(data->CollisionObject, data->PreviousPosition, data->PathData, 0, 0.0f);
 }
 #pragma endregion
