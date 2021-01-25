@@ -77,7 +77,7 @@ void __cdecl HillTopZone_Init(ObjectMaster* obj) {
 
 	// Load the lava handler
 
-	ObjectMaster* lavaobj = LoadObject(LoadObj_Data1, 3, HillTopLava_Main);
+	ObjectMaster* lavaobj = LoadObject(LoadObj_Data1, 1, HillTopLava_Main);
 	lavaobj->DisplaySub = HillTopLava_Display;
 
 	obj->MainSub = HillTopZone_Main;

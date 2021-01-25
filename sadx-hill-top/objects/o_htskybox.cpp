@@ -43,9 +43,10 @@ void __cdecl CloudHandler_Display(ObjectMaster* obj) {
 			njScalef(clouds[i].size);
 
 			data->Object->basicdxmodel->mats->diffuse.argb.a = static_cast<Uint8>(clouds[i].spawn * 255);
-			DrawQueueDepthBias = -99999;
-			DrawModel_Queue(data->Object->basicdxmodel, QueuedModelFlagsB_EnableZWrite);
-			DrawQueueDepthBias = 0;
+
+			Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
+			njDrawModel_SADX(data->Object->basicdxmodel);
+			Direct3D_SetNearFarPlanes(LevelDrawDistance.Minimum, LevelDrawDistance.Maximum);
 
 			njPopMatrixEx();
 		}
@@ -101,25 +102,25 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 
 		njSetTexture(&HillTopBG_TexList);
 
+		Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
 		njPushMatrixEx();
 		njTranslate(0, Camera_Data1->Position.x, -300.0f, Camera_Data1->Position.z);
 
 		// Clouds
 		while (clouds) {
 			njTranslateEx((NJS_VECTOR*)&clouds->pos);
+			njScaleEx((NJS_VECTOR*)&clouds->scl);
 
 			njPushMatrixEx();
 			njRotateY(0, 0xC000 + HT_WindDirection); // Rotated in direction of the wind
-			njScalef(1.5f);
-			DrawQueueDepthBias = -9999999;
-			DrawModel_Queue(clouds->basicdxmodel, QueuedModelFlagsB_EnableZWrite); // Queue alpha to see all layers
-			DrawQueueDepthBias = 0;
+			njDrawModel_SADX(clouds->basicdxmodel);
 			njPopMatrixEx();
 
 			clouds = clouds->child;
 		}
 
 		njPopMatrixEx();
+		Direct3D_SetNearFarPlanes(LevelDrawDistance.Minimum, LevelDrawDistance.Maximum);
 	}
 }
 
