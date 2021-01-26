@@ -94,6 +94,7 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "BG_HILLTOP", &HillTopBG_TexList },
 	{ "LAVAFALL", &LAVAFALL_TexList },
 	{ "YOUGAN_ANIM", &YOUGAN_ANIM_TEXLIST },
+	{ "EC_LIGHT", (NJS_TEXLIST*)0x2BF4F2C },
 
 	{ "SPIKER", &SPIKER_TexList },
 	{ "REXON", &REXON_TexList },

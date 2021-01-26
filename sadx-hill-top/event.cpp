@@ -1,10 +1,5 @@
 #include "pch.h"
 
-// 968.0f, 1309.0f, 2446.0f
-// 1215.0f, 1239.0f, 3120.0f
-// 33.0f 266.0f 1360.0f
-// 65, 277, 1481   0xB000 0xA500
-
 extern StartPosition StartPoses[4];
 
 void EV_RedMountainChaseEvt_r(EVTSTATES state) {
@@ -13,7 +8,7 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state) {
 		*(int*)0x3C83A08 = 0;
 		break;
 	case EVTSTATES::Main:
-		RedMountain_SetViewData(ClipLevel);
+		RedMountain_SetViewData();
 		EV_InitCamera();
 		DisableControl();
 		EV_SetCurrentEvt();

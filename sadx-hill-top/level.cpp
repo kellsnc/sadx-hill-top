@@ -63,25 +63,44 @@ void __cdecl HillTopLava_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
+void __cdecl HillTopZone_Display(ObjectMaster* obj) {
+	njPushMatrixEx();
+	Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
+	njSetTexture((NJS_TEXLIST*)0x2BF4F2C);
+	njTranslate(_nj_current_matrix_ptr_, 1215.0f, 839.0f, 3520.0f);
+	njRotateY_(0x8725);
+	njScalef(0.1f);
+	njAction((NJS_ACTION*)0x24983CC, obj->Data1->Scale.x); // Egg Carrier LOD Action
+	Direct3D_SetNearFarPlanes(LevelDrawDistance.Minimum, LevelDrawDistance.Maximum);
+	njPopMatrixEx();
+}
+
 void __cdecl HillTopZone_Main(ObjectMaster* obj) {
-	
+	obj->Data1->Scale.x += 0.5f;
+
+	if (obj->DisplaySub) {
+		obj->DisplaySub(obj);
+	}
 }
 
 void __cdecl HillTopZone_Init(ObjectMaster* obj) {
-	
 	// This initializes the music after the timer in InvulnerableTime is elpased 
 	// and no event is running
 	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
-	
 	musicobj->Data1->Action = MusicIDs_redmntn1;
 	musicobj->Data1->InvulnerableTime = 3;
 
 	// Load the lava handler
-
 	ObjectMaster* lavaobj = LoadObject(LoadObj_Data1, 1, HillTopLava_Main);
 	lavaobj->DisplaySub = HillTopLava_Display;
 
+	RedMountain_SetViewData();
+
 	obj->MainSub = HillTopZone_Main;
+
+	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false) {
+		obj->DisplaySub = HillTopZone_Display; // display the egg carrier if level never completed
+	}
 }
 
 LandTable* LoadLandTable(const HelperFunctions& helperFunctions, const char* name) {
@@ -95,11 +114,11 @@ LandTable* LoadLandTable(const HelperFunctions& helperFunctions, const char* nam
 void Level_Init(const HelperFunctions& helperFunctions) {
 	GeoLists[LevelIDs_RedMountain * 8] = LoadLandTable(helperFunctions, "system\\hilltopzone0.sa1lvl");
 	GeoLists[LevelIDs_RedMountain * 8 + 1] = LoadLandTable(helperFunctions, "system\\hilltopzone1.sa1lvl");
-	GeoLists[LevelIDs_RedMountain * 8 + 2] = LoadLandTable(helperFunctions, "system\\hilltopzone2.sa1lvl");
+	GeoLists[LevelIDs_RedMountain * 8 + 2] = GeoLists[LevelIDs_RedMountain * 8];
 
 	LavaTables[0] = LoadLandTable(helperFunctions, "system\\hilltopzone0_lava.sa1lvl");
 	LavaTables[1] = LoadLandTable(helperFunctions, "system\\hilltopzone1_lava.sa1lvl");
-	LavaTables[2] = LoadLandTable(helperFunctions, "system\\hilltopzone2_lava.sa1lvl");
+	LavaTables[2] = LavaTables[0];
 
 	helperFunctions.RegisterPathList(hilltop0_pathdata);
 	helperFunctions.RegisterPathList(hilltop1_pathdata);
@@ -114,7 +133,7 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 
 	DeathZoneList[LevelIDs_RedMountain][0] = hilltope0_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][1] = hilltope1_deathzones;
-	DeathZoneList[LevelIDs_RedMountain][2] = hilltope2_deathzones;
+	DeathZoneList[LevelIDs_RedMountain][2] = hilltope0_deathzones;
 
 	FogData_RedMountain1[0].Layer = 167;
 	FogData_RedMountain1[0].Distance = 6000;

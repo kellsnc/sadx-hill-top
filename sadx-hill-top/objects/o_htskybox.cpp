@@ -160,6 +160,7 @@ void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
 	LoadLenseFlareAtPosition(&sunpos);
 
 	SetGlobalPoint2Col_Colors(0xFF1844FF, 0xFF2149FF, 0xFF002EFF);
+	RedMountain_SetViewData();
 
 	LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -150.0f;
 	LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = 1100.0f;
