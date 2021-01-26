@@ -105,6 +105,7 @@
     <ClInclude Include="objects\o_hillbush.h" />
     <ClInclude Include="objects\o_hillflowers.h" />
     <ClInclude Include="objects\o_hillgrass.h" />
+    <ClInclude Include="objects\o_hillplatform.h" />
     <ClInclude Include="objects\o_hillpole.h" />
     <ClInclude Include="objects\o_hilltree.h" />
     <ClInclude Include="objects\o_htskybox.h" />
@@ -135,6 +136,7 @@
     <ClCompile Include="objects\o_hillbush.cpp" />
     <ClCompile Include="objects\o_hillflowers.cpp" />
     <ClCompile Include="objects\o_hillgrass.cpp" />
+    <ClCompile Include="objects\o_hillplatform.cpp" />
     <ClCompile Include="objects\o_hillpole.cpp" />
     <ClCompile Include="objects\o_hilltree.cpp" />
     <ClCompile Include="objects\o_htskybox.cpp" />

@@ -13,6 +13,7 @@
 #include "objects/o_balance.h"
 #include "objects/o_hillpole.h"
 #include "objects/o_vinepulley.h"
+#include "objects/o_hillplatform.h"
 
 #include "enemies/e_spiker.h"
 #include "enemies/e_rexon.h"
@@ -83,7 +84,8 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 0, 0, 0, FireBallLauncher, "E FIREBALL" },
 	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillBalance, "O HILLBALANCE" },
 	{ LoadObj_Data1, 3, 1, 640000, 0, HillPole, "O HILLPOLE" },
-	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" }
+	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" },
+	{ LoadObj_Data1, 3, 1, 1280000, 0, HillPlatform, "O HILLPLATFORM" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -142,6 +144,7 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	HillBush_LoadAssets();
 	PickRock_LoadAssets();
 	HillBalance_LoadAssets();
+	HillPlatform_LoadAssets();
 
 	Spiker_LoadAssets();
 	Rexon_LoadAssets();

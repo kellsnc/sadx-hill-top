@@ -10,7 +10,7 @@ Loop HT0_PropPath_Entries[] = {
 	{ 0, 0, 81.0502, { 560.077f,  68.81733f,  1229.356f } },
 	{ 0, 0, 80.22955, { 495.2714f,  54.95324f,  1276.016f } },
 	{ 0, 0, 170.26293, { 441.8804f,  28.43449f,  1329.709f } },
-	{ 0, 0, 0, { 376.9286f,  -22.22725f,  1460.423f } },
+	{ 0, 0, 0, { 376.9286f,  -22.22725f,  1460.423f } }
 };
 
 LoopHead HT0_PropPath = { 0, LengthOfArray<int16_t>(HT0_PropPath_Entries), 2197.0f, HT0_PropPath_Entries, ZipVine };
@@ -33,7 +33,7 @@ Loop HT0_LoopPath1_Entries[] = {
 	{ 0, 0, 40.8311, { 1659.628f,  36.37862f,  162.2458f } },
 	{ 0, 0, 32.19556, { 1690.954f,  10.54801f,  166.5632f } },
 	{ 0, 0, 46.06013, { 1721.076f,  1.944771f,  173.9931f } },
-	{ 0, 0, 0, { 1764.638f,  1.123087f,  188.9334f } },
+	{ 0, 0, 0, { 1764.638f,  1.123087f,  188.9334f } }
 };
 
 LoopHead HT0_LoopPath1 = { 0, LengthOfArray<int16_t>(HT0_LoopPath1_Entries), 560.0f, HT0_LoopPath1_Entries, (ObjectFuncPtr)0x4BB1F0 };
