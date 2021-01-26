@@ -99,6 +99,9 @@
     <ClInclude Include="objects\o_vinepulley.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -178,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="objects\o_vinepulley.cpp">
       <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="event.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

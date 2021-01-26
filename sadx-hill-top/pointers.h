@@ -17,6 +17,35 @@ FunctionPointer(Angle, ObjectData2_LookAtPlayer, (EntityData1* a1, ObjectData2* 
 FunctionPointer(Bool, IsEventPerforming, (), 0x42FB00);
 FunctionPointer(int, GetClosestPlayerID, (NJS_VECTOR* pos), 0x441B70);
 FunctionPointer(int, DetectDyncolCollision, (NJS_VECTOR* pos, NJS_VECTOR* output, Rotation3* rotation, ColFlags flagstoignore, float detectionradius), 0x439620);
+FunctionPointer(void, RedMountain_SetViewData, (int clipLevel), 0x6007E0);
+
+// Event related
+VoidFunc(EV_InitCamera, 0x4303E0);
+VoidFunc(EV_FreeCamera, 0x4304B0);
+VoidFunc(EV_SetCurrentEvt, 0x42F630);
+FunctionPointer(void, EV_AllocMem, (int size), 0x64FC80);
+VoidFunc(EV_FreeMem, 0x64FCB0);
+FunctionPointer(void, EV_LoadObject, (float x, float y, float z, Angle rotx, Angle roty, Angle rotz, float scalex, float scaley, float scalez, NJS_OBJECT* object, NJS_TEXLIST* texlist, int ObjectID), 0x6ECF20);
+FunctionPointer(void, EV_FreeObject, (int ObjectID), 0x6ECB50);
+FunctionPointer(void, EV_LoadMotion, (int ObjectID, NJS_ACTION* Action, int ActionID), 0x6ECAC0);
+FunctionPointer(void, EV_SetObjectThing, (int ObjectID, float a2, float a3, int a4), 0x6ECAE0);
+FunctionPointer(void, EV_MoveObjectFromTo, (ObjectMaster* obj, float from_x, float from_y, float from_z, float to_x, float to_y, float to_z, signed int time), 0x6EC2B0);
+FunctionPointer(ObjectMaster*, EV_GetObject, (int ObjectID), 0x6ECB40);
+FunctionPointer(void, EV_PlaySoundQueue, (int idk, int ID, int PlayTime), 0x64FD00);
+FunctionPointer(void, sub_64FD80, (int a1, int a2, int a3), 0x64FD80);
+FunctionPointer(void, EventWait, (int time), 0x4314D0);
+FunctionPointer(void, EV_SetPlayerPos, (ObjectMaster* obj, float x, float y, float z), 0x42FC70);
+FunctionPointer(void, EV_RotatePlayer, (ObjectMaster* obj, Angle x, Angle y, Angle z), 0x42FCD0);
+FunctionPointer(void, EV_MoveCamera, (char a1, int a2, float x, float y, float z), 0x430D00);
+FunctionPointer(void, EV_RotateCamera, (char a1, int a2, Angle x, Angle y, Angle z), 0x430C90);
+FunctionPointer(void, EV_ResetPlayer, (int playerID), 0x431780);
+VoidFunc(EV_FreeControlObjects, 0x6EBB00);
+
+enum class EVTSTATES : int {
+    Init,
+    Main,
+    Free
+};
 
 ObjectFunc(LoadMusic_EventDelayed, 0x600890);
 ObjectFunc(SecondaryObjectPhysics, 0x49D730);

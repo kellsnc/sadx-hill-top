@@ -2,6 +2,7 @@
 
 #include "paths.h"
 #include "deathzones.h"
+#include "event.h"
 
 #include "objects/o_lavafall.h"
 
@@ -13,7 +14,7 @@ NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 LandTable* LavaTables[3] = { nullptr };
 
 StartPosition StartPoses[] = {
-	{ LevelIDs_RedMountain, 0, { 0, 0, 0 }, 0 }, // Sonic Act 1
+	{ LevelIDs_RedMountain, 0, { 0, 0, 0 }, 0x8000 }, // Sonic Act 1
 	{ LevelIDs_RedMountain, 1, { 0, 0, 0 }, 0 }, // Sonic Act 2
 	{ LevelIDs_RedMountain, 1, { 0, 0, 0 }, 0 }, // Gamma Act 2
 	{ LevelIDs_RedMountain, 2, { 0, 0, 0 }, 0 }  // Knuckles Act 3
@@ -121,4 +122,6 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	FogData_RedMountain1[0].Toggle = 1;
 
 	MusicList[MusicIDs_redmntn1].Name = "hilltop";
+
+	HookRedMountainEvent();
 }
