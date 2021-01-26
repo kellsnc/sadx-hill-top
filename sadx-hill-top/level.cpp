@@ -14,10 +14,10 @@ NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 LandTable* LavaTables[3] = { nullptr };
 
 StartPosition StartPoses[] = {
-	{ LevelIDs_RedMountain, 0, { 0, 0, 0 }, 0x8000 }, // Sonic Act 1
-	{ LevelIDs_RedMountain, 1, { 0, 0, 0 }, 0 }, // Sonic Act 2
-	{ LevelIDs_RedMountain, 1, { 0, 0, 0 }, 0 }, // Gamma Act 2
-	{ LevelIDs_RedMountain, 2, { 0, 0, 0 }, 0 }  // Knuckles Act 3
+	{ LevelIDs_RedMountain, 0, { 0.0f, 0.0f, 0.0f }, 0x8000 }, // Sonic Act 1
+	{ LevelIDs_RedMountain, 1, { 0.0f, 0.0f, 0.0f }, 0 }, // Sonic Act 2
+	{ LevelIDs_RedMountain, 1, { 0.0f, 0.0f, 0.0f }, 0 }, // Gamma Act 2
+	{ LevelIDs_RedMountain, 2, { 895.0f, 295.0f, 515.0f }, 0 }  // Knuckles Act 3
 };
 
 // The actual lava texture we are going to draw
@@ -64,15 +64,17 @@ void __cdecl HillTopLava_Main(ObjectMaster* obj) {
 }
 
 void __cdecl HillTopZone_Display(ObjectMaster* obj) {
-	njPushMatrixEx();
-	Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
-	njSetTexture((NJS_TEXLIST*)0x2BF4F2C);
-	njTranslate(_nj_current_matrix_ptr_, 1215.0f, 839.0f, 3520.0f);
-	njRotateY_(0x8725);
-	njScalef(0.1f);
-	njAction((NJS_ACTION*)0x24983CC, obj->Data1->Scale.x); // Egg Carrier LOD Action
-	Direct3D_SetNearFarPlanes(LevelDrawDistance.Minimum, LevelDrawDistance.Maximum);
-	njPopMatrixEx();
+	if (CurrentAct == 0) {
+		njPushMatrixEx();
+		Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
+		njSetTexture((NJS_TEXLIST*)0x2BF4F2C);
+		njTranslate(_nj_current_matrix_ptr_, 1215.0f, 839.0f, 3520.0f);
+		njRotateY_(0x8725);
+		njScalef(0.1f);
+		njAction((NJS_ACTION*)0x24983CC, obj->Data1->Scale.x); // Egg Carrier LOD Action
+		Direct3D_SetNearFarPlanes(LevelDrawDistance.Minimum, LevelDrawDistance.Maximum);
+		njPopMatrixEx();
+	}
 }
 
 void __cdecl HillTopZone_Main(ObjectMaster* obj) {
@@ -98,7 +100,7 @@ void __cdecl HillTopZone_Init(ObjectMaster* obj) {
 
 	obj->MainSub = HillTopZone_Main;
 
-	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false) {
+	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false && CurrentAct == 0) {
 		obj->DisplaySub = HillTopZone_Display; // display the egg carrier if level never completed
 	}
 }

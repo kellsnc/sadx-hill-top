@@ -18,7 +18,7 @@ void __cdecl HillGrass_Display(ObjectMaster* obj) {
 		
 		njScaleY(1.0f + data->Scale.y);
 
-		if (IsPlayerInsideSphere_(&data->Position, 400) && IsVisible(&data->Position, 30.0f)) {
+		if (IsPlayerInsideSphere_(&data->Position, 400.0f)) {
 			njAction(&Grass0_Action, data->Scale.z);
 		}
 		else {

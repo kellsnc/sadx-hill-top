@@ -13,9 +13,9 @@ Loop HT0_PropPath_Entries[] = {
 	{ 0, 0, 0, { 376.9286f,  -22.22725f,  1460.423f } },
 };
 
-LoopHead HT0_PropPath = { 0, LengthOfArray<int16_t>(HT0_PropPath_Entries), 2197.14608f, HT0_PropPath_Entries, ZipVine };
+LoopHead HT0_PropPath = { 0, LengthOfArray<int16_t>(HT0_PropPath_Entries), 2197.0f, HT0_PropPath_Entries, ZipVine };
 
-Loop HT0_LoopPath_Entries[] = {
+Loop HT0_LoopPath1_Entries[] = {
 	{ 0, 0, 31.47127, { 1665.611f,  -1.430883f,  296.7416f } },
 	{ 0, 0, 32.14772, { 1695.344f,  6.395791f,  303.4597f } },
 	{ 0, 0, 32.09332, { 1723.281f,  21.83468f,  307.286f } },
@@ -36,11 +36,35 @@ Loop HT0_LoopPath_Entries[] = {
 	{ 0, 0, 0, { 1764.638f,  1.123087f,  188.9334f } },
 };
 
-LoopHead HT0_LoopPath = { 0, LengthOfArray<int16_t>(HT0_LoopPath_Entries), 560.13943f, HT0_LoopPath_Entries, (ObjectFuncPtr)0x4BB1F0 };
+LoopHead HT0_LoopPath1 = { 0, LengthOfArray<int16_t>(HT0_LoopPath1_Entries), 560.0f, HT0_LoopPath1_Entries, (ObjectFuncPtr)0x4BB1F0 };
+
+Loop HT0_LoopPath2_Entries[] = {
+	{ 0, 0, 31.73962, { 354.7624f,  252.9624f,  1834.687f } },
+	{ 0, 0, 25.20396, { 341.8329f,  273.2037f,  1855.436f } },
+	{ 0, 0, 16.25818, { 332.6413f,  295.7843f,  1861.829f } },
+	{ 0, 0, 21.98592, { 327.8058f,  311.2187f,  1860.178f } },
+	{ 0, 0, 21.97677, { 323.9836f,  331.1794f,  1851.791f } },
+	{ 0, 0, 23.40502, { 320.8196f,  346.7344f,  1836.592f } },
+	{ 0, 0, 22.6028, { 319.4725f,  356.3301f,  1815.287f } },
+	{ 0, 0, 22.4725, { 319.9385f,  357.0964f,  1792.702f } },
+	{ 0, 0, 23.87606, { 319.8939f,  349.255f,  1771.642f } },
+	{ 0, 0, 17.91192, { 317.4851f,  333.1813f,  1754.152f } },
+	{ 0, 0, 15.98718, { 315.2658f,  317.3298f,  1746.112f } },
+	{ 0, 0, 20.20781, { 310.4388f,  302.4115f,  1742.992f } },
+	{ 0, 0, 17.12352, { 303.7887f,  283.4351f,  1744.999f } },
+	{ 0, 0, 22.52499, { 298.5427f,  268.7635f,  1752.101f } },
+	{ 0, 0, 38.93148, { 288.3077f,  254.8344f,  1766.544f } },
+	{ 0, 0, 51.85369, { 272.5709f,  239.079f,  1798.478f } },
+	{ 0, 0, 60.70121, { 259.3822f,  221.1372f,  1845.307f } },
+	{ 0, 0, 0, { 258.1613f,  212.7315f,  1905.411f } }
+};
+
+LoopHead HT0_LoopPath2 = { 0, LengthOfArray<int16_t>(HT0_LoopPath2_Entries), 500.0f, HT0_LoopPath2_Entries, (ObjectFuncPtr)0x4BB1F0 };
 
 LoopHead* hilltop0_paths[]{
 	&HT0_PropPath,
-	&HT0_LoopPath,
+	&HT0_LoopPath1,
+	&HT0_LoopPath2,
 	nullptr
 };
 
@@ -53,6 +77,8 @@ LoopHead* hilltop1_paths[]{
 PathDataPtr hilltop1_pathdata = { LevelAndActIDs_RedMountain2, hilltop1_paths };
 
 LoopHead* hilltop2_paths[]{
+	&HT0_LoopPath1,
+	&HT0_LoopPath2,
 	nullptr
 };
 
