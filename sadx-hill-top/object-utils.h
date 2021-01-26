@@ -19,3 +19,4 @@ void ForEveryPlayerOnDyncol(ObjectMaster* obj, void(__cdecl* function)(ObjectMas
 int IsPlayerInGlobalCylinder(NJS_VECTOR* center, float x, float y);
 void SetPlayerPosition(int id, float x, float y, float z);
 void SetPlayerPosition(int id, NJS_VECTOR* pos);
+bool CheckJump(int id);

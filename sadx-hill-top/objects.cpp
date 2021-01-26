@@ -11,6 +11,8 @@
 #include "objects/o_hillbush.h"
 #include "objects/o_pickrock.h"
 #include "objects/o_balance.h"
+#include "objects/o_hillpole.h"
+#include "objects/o_vinepulley.h"
 
 #include "enemies/e_spiker.h"
 #include "enemies/e_rexon.h"
@@ -40,7 +42,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 2, 0, 360000, 0, RocketHS_Main, "Rocket HS" },
 	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 2, 0, 360000, 0, RocketV_Main, "Rocket V" },
 	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 2, 0, 360000, 0, RocketVS_Main, "Rocket VS" },
-	{ LoadObj_Data1, 2, 0, 4000000, 0, JumpPanel_Load, "O JPanel" },
+	{ LoadObj_Data1, 2, 1, 30000000, 0, JumpPanel_Load, "O JPanel" },
 	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 6, 0, 360000, 0, CheckPoint_Main, "O Save Point" },
 	{ LoadObj_Data1, 3, 0, 0, 0, Wall_Main, "WALL   " },
 	{ LoadObj_Data1, 3, 1, 1000000, 0, ODynamite, "O DYNAMITE" },
@@ -57,15 +59,15 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerC_Main, "SPINA C" },
 	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusA_Main, "E UNI A" },
 	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusB_Main, "E UNI B" },
-	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusC_Main, "E UNI C" },
+	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusC_Main, "E UNI C" }, // 34
 	{ LoadObj_Data1, 3, 1, 4000000, 0, E104Enemy_Main, "E E_104" },
 	{ LoadObj_Data1, 3, 4, 0, 0, Spiker, "SPIKER" },
 	{ LoadObj_Data1, 3, 4, 0, 0, Rexon, "REXON" }, 
 
-	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 0, 0, OErupt_Main, "O Erupt" },
-	{ LoadObj_Data1, 3, 1, 638401, 0, OBreakstep_Main, "O BREAKSTEP" },
-	{ LoadObj_Data1, 3, 1, 638401, 0, OBreakstep2_Main, "O BREAKSTEP2" },
-	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 0, 0, Magmacnt_Main, "MagmaCnt" },
+	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 640000, 0, OTuri1_Main, "O TURI 1" }, // 38
+	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_Main, "O ZAKO" },
+	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_b_Main, "O ZAKO B" },
+	{ LoadObj_Data1, 3, 1, 638401, 0, OHaka_Main, "O HAKA" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow_Main, "O BLOW" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
 
@@ -79,7 +81,9 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 4, 1, MinDistance, 0, HillBush, "O HILLBUSH" },
 	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, MinDistance, 0, PickRock, "O PICKROCK" },
 	{ LoadObj_Data1, 3, 0, 0, 0, FireBallLauncher, "E FIREBALL" },
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillBalance, "O HILLBALANCE" }
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillBalance, "O HILLBALANCE" },
+	{ LoadObj_Data1, 3, 1, 640000, 0, HillPole, "O HILLPOLE" },
+	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };

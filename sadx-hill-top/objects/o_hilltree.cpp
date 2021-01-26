@@ -27,7 +27,7 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 		njScalef(data->Scale.x);
 		njTranslateY(15.0f * data->Scale.y);
 
-		while (branch->sibling) {
+		while (branch) {
 			DrawObjectRoot(branch);
 			branch = branch->sibling;
 		}
@@ -49,8 +49,9 @@ void __cdecl HillTree(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	
 	// Choose the model and collison based on set information
-	switch (static_cast<int>(data->Scale.z) % 4) {
+	switch (static_cast<int>(data->Scale.z) % 5) {
 	case 0:
+	default:
 		data->Object = ht_tree->getmodel()->child;
 		Collision_Init(obj, &HillTree_Col[0], 1, 4);
 		break;
@@ -64,6 +65,10 @@ void __cdecl HillTree(ObjectMaster* obj) {
 		break;
 	case 3:
 		data->Object = ht_tree->getmodel()->child->sibling->sibling->sibling;
+		break;
+	case 4:
+		data->Object = ht_tree->getmodel()->child->sibling->sibling->sibling->sibling;
+		Collision_Init(obj, &HillTree_Col[0], 1, 4);
 		break;
 	}
 	

@@ -4,7 +4,7 @@
 
 // Spline object
 
-enum class ZipVineActs : Uint16 {
+enum class ZipVineActs : Uint8 {
 	Wait,
 	Run,
 	Stop
@@ -12,6 +12,7 @@ enum class ZipVineActs : Uint16 {
 
 struct TransporterPathData1 {
 	ZipVineActs Action;
+	Uint8 PlayerDetached;
 	Uint16 State;
 	Float Progress;
 	NJS_OBJECT* Object;
@@ -26,7 +27,7 @@ struct TransporterPathData1 {
 CollisionData ZipVine_Col[] = {
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
-	{ 1, CollisionShape_Sphere, 0xF0, 0, 0, { 0 }, 8.0f, 0, 0, 0, 0, 0, 0 }
+	{ 1, CollisionShape_Sphere, 0xF0, 0, 0, { 0 }, 10.0f, 0, 0, 0, 0, 0, 0 }
 };
 
 void GetVinePoint(NJS_VECTOR* vec, Angle* angle, LoopHead* PathData, int state, float progress) {
@@ -105,14 +106,14 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 
 	switch (data->Action) {
 	case ZipVineActs::Wait:
-		if (IsSpecificPlayerInSphere(&data->Position, 8.0f, 0)) {
+		if (IsSpecificPlayerInSphere(&data->Position, 10.0f, 0)) {
 			data->Action = ZipVineActs::Run;
 			ForcePlayerAction(0, 16);
 		}
 
 		break;
 	case ZipVineActs::Run:
-		data->Progress += 0.005f;
+		data->Progress += (data->PathData->TotalDist / data->PathData->LoopList[data->State].Dist) / data->PathData->TotalDist * 3.0f;
 
 		if (data->Progress >= 1.0f) {
 			data->Progress = 0.0f;
@@ -126,9 +127,16 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 		}
 
 		GetVinePoint(&data->Position, &data->Rotation.y, data->PathData, data->State, data->Progress); // Get new position
-		SetPlayerPosition(0, &data->Position); // Update player position
-		RotatePlayer(0, data->Rotation.y); // Update player rotation
-		
+
+		if (data->PlayerDetached == false) {
+			SetPlayerPosition(0, &data->Position); // Update player position
+			RotatePlayer(0, data->Rotation.y); // Update player rotation
+
+			if (CheckJump(0)) {
+				data->PlayerDetached = true;
+			}
+		}
+
 		break;
 	}
 	
@@ -146,7 +154,7 @@ void __cdecl ZipVine(ObjectMaster* obj) {
 	data->Object = ht_transporter->getmodel();
 	data->VineObject = ht_vine->getmodel();
 
-	Collision_Init(obj, arrayptrandlength(ZipVine_Col), 4);
+	Collision_Init(obj, arrayptrandlength(ZipVine_Col), 3);
 
 	// Set start position and end position for poles and their collisions
 	data->CollisionInfo->CollisionArray[0].center = PathData->LoopList[0].Position;
@@ -167,6 +175,7 @@ void __cdecl ZipVine(ObjectMaster* obj) {
 	}
 
 	// Start position of the hanging vine
-	GetVinePoint(&data->Position, &data->Rotation.y, data->PathData, 0, 0.0f);
+	data->Progress = 0.01f;
+	GetVinePoint(&data->Position, &data->Rotation.y, data->PathData, 0, data->Progress);
 }
 #pragma endregion

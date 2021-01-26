@@ -155,3 +155,32 @@ void SetPlayerPosition(int id, float x, float y, float z) {
 void SetPlayerPosition(int id, NJS_VECTOR* pos) {
 	SetPlayerPosition(id, pos->x, pos->y, pos->z);
 }
+
+bool CheckJump(int id) {
+	if (PressedButtons[id] & Buttons_A) {
+		EntityData1* pdata = EntityData1Ptrs[id];
+		CharObj2* pco2 = CharObj2Ptrs[id];
+
+		switch (pdata->CharID) {
+		case Characters_Sonic:
+			pdata->Action = 8;
+			pdata->Status = pdata->Status & ~Status_Unknown1 | Status_Attack | Status_Ball;
+			pco2->Speed.y = pco2->PhysicsData.JumpSpeed;
+			pco2->SpindashSpeed = 5.0f;
+			Sonic_Spin(pco2);
+			break;
+		case Characters_Tails:
+		case Characters_Knuckles:
+			pdata->Action = 6;
+			pdata->Status = pdata->Status & ~Status_Unknown1 | Status_Attack | Status_Ball;
+			pco2->Speed.y = pco2->PhysicsData.JumpSpeed;
+			pco2->SpindashSpeed = 2.0f;
+			pco2->AnimationThing.Index = 14;
+			break;
+		}
+
+		return true;
+	}
+
+	return false;
+}

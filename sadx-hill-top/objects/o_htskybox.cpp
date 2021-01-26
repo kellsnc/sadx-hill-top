@@ -18,11 +18,11 @@ typedef struct {
 
 void SpawnCloud(CloudData* cloud) {
 	cloud->pos.x = Camera_Data1->Position.x + 2000 - rand() % 4000;
-	cloud->pos.y = -300 + rand() % 100;
+	cloud->pos.y = -150 + rand() % 150;
 	cloud->pos.z = Camera_Data1->Position.z + 2000 - rand() % 4000;
 	cloud->speed = 1.0f + (static_cast<float>(rand() % 100) / 100.0f);
 	cloud->spawn = 0.0f;
-	cloud->size = 0.5f + (static_cast<float>(rand() % 100) / 200.0f);
+	cloud->size = 0.5f + (static_cast<float>(rand() % 100) / 100.0f);
 }
 
 void __cdecl CloudHandler_Delete(ObjectMaster* obj) {
@@ -38,6 +38,7 @@ void __cdecl CloudHandler_Display(ObjectMaster* obj) {
 
 		for (int i = 0; i < 30; ++i) {
 			njPushMatrixEx();
+			njTranslateY(data->Position.y);
 			njTranslateEx(&clouds[i].pos);
 			njRotateY(0, HT_WindDirection);
 			njScalef(clouds[i].size);
@@ -160,7 +161,8 @@ void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
 
 	SetGlobalPoint2Col_Colors(0xFF1844FF, 0xFF2149FF, 0xFF002EFF);
 
-	LoadChildObject(LoadObj_Data1, CloudHandler, obj);
+	LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -150.0f;
+	LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = 1100.0f;
 
 	data->Object = ht_cloudlayers->getmodel();
 	
