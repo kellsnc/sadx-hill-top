@@ -1,5 +1,15 @@
 #include "pch.h"
-#include "o_hillbush.h"
+#include "o_hillplatform.h"
+
+/*
+
+Platform that goes up and down in lava
+
+ScaleX = scale
+ScaleY = movement length
+RotZ = speed (default to 150)
+
+*/
 
 ModelInfo* ht_platform = nullptr;
 
