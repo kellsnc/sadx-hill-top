@@ -131,6 +131,7 @@ void __cdecl HillBalance_Main(ObjectMaster* obj) {
 
 				if (playerid) {
 					CharObj2Ptrs[playerid - 1]->Speed.y = data->Scale.x;
+					EntityData2Ptrs[playerid - 1]->VelocityDirection.y = data->Scale.x;
 				}
 
 				data->Action = 0;
@@ -150,8 +151,6 @@ void __cdecl HillBalance_Main(ObjectMaster* obj) {
 void __cdecl HillBalance(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	
-	data->Scale.x = 5.0f; // height power
-
 	data->Rotation.x = -0x880;
 	data->Object = ht_balance->getmodel();
 
