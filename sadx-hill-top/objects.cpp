@@ -53,7 +53,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 2, 0, 0, 0, Ottotto_Main, "OTTOTTO" },
 	{ LoadObj_Data1, 2, 0, 0, 0, TikalHint_Load, "O TIKAL" },
 	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 3, 0, 0, 0, ItemBoxAir_Main, "O ItemBoxAir" },
-	
+
 	{ LoadObj_Data1, 3, 5, 250000, 0, Kiki_Load, "E SARU  " },
 	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerA_Main, "SPINA A" },
 	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerB_Main, "SPINA B" },
@@ -63,7 +63,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusC_Main, "E UNI C" }, // 34
 	{ LoadObj_Data1, 3, 1, 4000000, 0, E104Enemy_Main, "E E_104" },
 	{ LoadObj_Data1, 3, 4, 0, 0, Spiker, "SPIKER" },
-	{ LoadObj_Data1, 3, 4, 0, 0, Rexon, "REXON" }, 
+	{ LoadObj_Data1, 3, 4, 0, 0, Rexon, "REXON" },
 
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 640000, 0, OTuri1_Main, "O TURI 1" }, // 38
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_Main, "O ZAKO" },
@@ -85,7 +85,9 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillBalance, "O HILLBALANCE" },
 	{ LoadObj_Data1, 3, 1, 640000, 0, HillPole, "O HILLPOLE" },
 	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" },
-	{ LoadObj_Data1, 3, 1, 1280000, 0, HillPlatform, "O HILLPLATFORM" }
+	{ LoadObj_Data1, 3, 1, 1280000, 0, HillPlatform, "O HILLPLATFORM" },
+
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, RingGroup_Main, "O_GRING" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };

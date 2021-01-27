@@ -1,6 +1,7 @@
 #include "pch.h"
 
 extern StartPosition StartPoses[4];
+void HillTop_SetViewData();
 
 void EV_RedMountainChaseEvt_r(EVTSTATES state) {
 	switch (state) {
@@ -8,7 +9,7 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state) {
 		*(int*)0x3C83A08 = 0;
 		break;
 	case EVTSTATES::Main:
-		RedMountain_SetViewData();
+		HillTop_SetViewData();
 		EV_InitCamera();
 		DisableControl();
 		EV_SetCurrentEvt();

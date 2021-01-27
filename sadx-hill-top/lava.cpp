@@ -21,7 +21,7 @@ void __cdecl HillTopLava_Display(ObjectMaster* obj) {
 		CurrentLavaNames[0] = YOUGAN_ANIM_TEXNAMES[data->Index];
 		CurrentLavaNames[1] = LAVAFALL_TexList.textures[data->Index];
 
-		njSetTexture(&CurrentLavaTex);
+		njSetTexture(land->TexList);
 
 		if (land) {
 			for (int i = 0; i < land->COLCount; ++i) {
@@ -59,7 +59,7 @@ void LoadLavaManager() {
 }
 
 void LoadLavaLandTables(const HelperFunctions& helperFunctions) {
-	LavaTables[0] = LoadLandTable(helperFunctions, "system\\hilltopzone0_lava.sa1lvl");
-	LavaTables[1] = LoadLandTable(helperFunctions, "system\\hilltopzone1_lava.sa1lvl");
+	LavaTables[0] = LoadLandTable(helperFunctions, "system\\hilltopzone0_lava.sa1lvl", &CurrentLavaTex);
+	LavaTables[1] = LoadLandTable(helperFunctions, "system\\hilltopzone1_lava.sa1lvl", &CurrentLavaTex);
 	LavaTables[2] = LavaTables[0];
 }

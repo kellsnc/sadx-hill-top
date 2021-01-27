@@ -17,7 +17,30 @@ StartPosition StartPoses[] = {
 	{ LevelIDs_RedMountain, 2, { 895.0f, 295.0f, 515.0f }, 0 }  // Knuckles Act 3
 };
 
+FogData HillTopFogData[] = {
+	{ 167, 6000, 0x80FFFFFF, 1 },
+	{ 167, 6000, 0x80FFFFFF, 1 }
+};
+
+DrawDistance HillTopSkyDrawDist[] = {
+	{ -1.0f, -10000.0f },
+	{ -1.0f, -5000.0f },
+	{ -1.0f, -2000.0f }
+};
+
+DrawDistance HillTopDrawDists[] = {
+	{ -1.0f, -2500.0f },
+	{ -1.0f, -1600.0f },
+	{ -1.0f, -1000.0f }
+};
+
 // Level handler (init level-specific stuff):
+
+void HillTop_SetViewData() {
+	SkyboxDrawDistance = HillTopSkyDrawDist[ClipLevel];
+	LevelDrawDistance = HillTopDrawDists[ClipLevel];
+	LevelFogData = HillTopFogData[CurrentAct];
+}
 
 void __cdecl HillTopZone_Display(ObjectMaster* obj) {
 	if (CurrentAct < 2) {
@@ -42,6 +65,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 			NextAct_SetCameraData(1);
 			NextAct_IncrementAct(1);
 			MovePlayerToStartPoint(EntityData1Ptrs[0]);
+			HillTop_SetViewData();
 		}
 
 		// Egg Carrier display
@@ -53,7 +77,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 }
 
 void __cdecl HillTopZone_Init(ObjectMaster* obj) {
-	RedMountain_SetViewData(); // Set fog, view distance, etc.
+	HillTop_SetViewData(); // Set fog, view distance, etc.
 	LoadLavaManager(); // Load the object that handles animated lava geometry
 
 	// This initializes the music only if no event is running.
@@ -100,12 +124,6 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	DeathZoneList[LevelIDs_RedMountain][0] = hilltope0_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][1] = hilltope1_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][2] = hilltope0_deathzones;
-
-	// Fog
-	FogData_RedMountain1[0].Layer = 167;
-	FogData_RedMountain1[0].Distance = 6000;
-	FogData_RedMountain1[0].Color = 0x80FFFFFF;
-	FogData_RedMountain1[0].Toggle = 1;
 
 	// Music
 	MusicList[MusicIDs_redmntn1].Name = "hilltop";
