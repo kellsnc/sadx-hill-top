@@ -13,7 +13,8 @@ enum class ZipVineActs : Uint8 {
 struct TransporterPathData1 {
 	ZipVineActs Action;
 	Uint8 PlayerDetached;
-	Uint16 State;
+	Uint8 State;
+	Uint8 Timer;
 	Float Progress;
 	NJS_OBJECT* Object;
 	NJS_OBJECT* VineObject;
@@ -27,7 +28,7 @@ struct TransporterPathData1 {
 CollisionData ZipVine_Col[] = {
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
-	{ 1, CollisionShape_Sphere, 0xF0, 0, 0, { 0 }, 10.0f, 0, 0, 0, 0, 0, 0 }
+	{ 1, CollisionShape_Sphere, 0xF0, 0, 0, { 0 }, 14.0f, 0, 0, 0, 0, 0, 0 }
 };
 
 void GetVinePoint(NJS_VECTOR* vec, Angle* angle, LoopHead* PathData, int state, float progress) {
@@ -106,7 +107,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 
 	switch (data->Action) {
 	case ZipVineActs::Wait:
-		if (IsSpecificPlayerInSphere(&data->Position, 10.0f, 0)) {
+		if (IsSpecificPlayerInSphere(&data->Position, 14.0f, 0)) {
 			data->Action = ZipVineActs::Run;
 			ForcePlayerAction(0, 16);
 		}
@@ -120,7 +121,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 			data->State += 1;
 		}
 
-		if (data->State == data->PathData->Count - 1) {
+		if (data->State == data->PathData->Count - 1 || (data->State == data->PathData->Count - 2 && data->Progress > 0.95f)) {
 			data->Action = ZipVineActs::Stop;
 			ForcePlayerAction(0, 24);
 			break;
@@ -135,6 +136,17 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 			if (CheckJump(0)) {
 				data->PlayerDetached = true;
 			}
+		}
+
+		break;
+	case ZipVineActs::Stop:
+		if (++data->Timer > 100) {
+			data->Progress = 0.01f;
+			data->State = 0;
+			GetVinePoint(&data->Position, &data->Rotation.y, data->PathData, 0, data->Progress);
+			data->Action = ZipVineActs::Wait;
+			data->Timer = 0;
+			data->PlayerDetached = false;
 		}
 
 		break;
