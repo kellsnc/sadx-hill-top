@@ -1,6 +1,16 @@
 #include "pch.h"
 #include "o_hillflowers.h"
 
+/*
+
+Object that spawns different kind of flowers.
+
+ScaleX: Global scale
+ScaleY: Additional Y scale
+ScaleZ: Tree ID
+
+*/
+
 ModelInfo* ht_flower0 = nullptr;
 ModelInfo* ht_flower1 = nullptr;
 ModelInfo* ht_flowerpatch0 = nullptr;

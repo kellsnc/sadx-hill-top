@@ -2,7 +2,14 @@
 #include "o_transporter.h"
 #include "o_zipvine.h"
 
-// Spline object
+/*
+
+Long vines that acts like a zipline.
+
+Path object, data->LoopData contains the path information.
+See paths.cpp for implementation.
+
+*/
 
 enum class ZipVineActs : Uint8 {
 	Wait,

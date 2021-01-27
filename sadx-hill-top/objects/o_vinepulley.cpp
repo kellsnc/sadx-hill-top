@@ -1,9 +1,15 @@
 #include "pch.h"
 #include "o_vinepulley.h"
 
-// Position: where the vine starts
-// Scale X: distance to where the player grabs the vine
-// Scale Y: distance to where the vine stops
+/*
+
+Vine that acts like a pulley.
+
+Position: where the vine starts
+Scale X: distance to where the player grabs the vine
+Scale Y: distance to where the vine stops
+
+*/
 
 extern ModelInfo* ht_transporter;
 

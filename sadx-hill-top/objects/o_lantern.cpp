@@ -1,6 +1,14 @@
 #include "pch.h"
 #include "o_lantern.h"
 
+/*
+
+A tiny lantern object with fireflies flying around it.
+
+ScaleX: amount of firefiles.
+
+*/
+
 extern NJS_TEXLIST HillTopOBJ_TexList;
 
 ModelInfo* ht_lantern = nullptr;

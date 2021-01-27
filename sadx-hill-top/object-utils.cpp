@@ -184,3 +184,9 @@ bool CheckJump(int id) {
 
 	return false;
 }
+
+LandTable* LoadLandTable(const HelperFunctions& helperFunctions, const char* name, NJS_TEXLIST* texlist) {
+	LandTableInfo* info = new LandTableInfo(helperFunctions.GetReplaceablePath(name));
+	info->getlandtable()->TexList = texlist;
+	return info->getlandtable();
+}

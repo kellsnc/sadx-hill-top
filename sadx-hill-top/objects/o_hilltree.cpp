@@ -1,6 +1,16 @@
 #include "pch.h"
 #include "o_hilltree.h"
 
+/*
+
+An object that spawn different kind of trees.
+
+ScaleX: Global scale
+ScaleY: Additional Y scale
+ScaleZ: Tree ID
+
+*/
+
 ModelInfo* ht_tree = nullptr;
 
 CollisionData HillTree_Col[] = {

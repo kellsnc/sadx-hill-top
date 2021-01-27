@@ -1,6 +1,13 @@
 #include "pch.h"
 #include "o_hillgrass.h"
 
+/*
+
+Simple grass object with an animation.
+ScaleY: Y scale.
+
+*/
+
 ModelInfo* ht_grass0 = nullptr;
 
 AnimationFile* ht_grass0_anm = nullptr;

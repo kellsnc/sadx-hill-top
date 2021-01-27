@@ -1,7 +1,11 @@
 #include "pch.h"
 #include "o_hillpole.h"
 
-// Unidus balance, Scale X is height speed power.
+/*
+
+Simple object that just draw poles (for bridges.)
+
+*/
 
 extern ModelInfo* ht_transporter;
 

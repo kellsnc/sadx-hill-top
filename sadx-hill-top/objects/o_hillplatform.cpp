@@ -3,7 +3,7 @@
 
 /*
 
-Platform that goes up and down in lava
+Platform that goes up and down in lava.
 
 ScaleX = scale
 ScaleY = movement length

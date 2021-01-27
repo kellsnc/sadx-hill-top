@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "o_hillbush.h"
 
+/*
+
+A simple bush object.
+
+*/
+
 ModelInfo* ht_bush = nullptr;
 
 void __cdecl HillBush_Display(ObjectMaster* obj) {

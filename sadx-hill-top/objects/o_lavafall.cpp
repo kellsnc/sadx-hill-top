@@ -1,6 +1,16 @@
 #include "pch.h"
 #include "o_lavafall.h"
 
+/*
+
+A chunk model representing a fall of lava, the model bends with animations.
+
+ScaleX: Global scale
+ScaleY: Additional Y scale
+RotZ: animation ID
+
+*/
+
 ModelInfo* ht_lavafall = nullptr;
 
 AnimationFile* ht_lavafall0_anm = nullptr;

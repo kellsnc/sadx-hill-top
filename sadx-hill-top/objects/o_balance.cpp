@@ -1,7 +1,13 @@
 #include "pch.h"
 #include "o_hillflowers.h"
 
-// Unidus balance, Scale X is height speed power.
+/*
+
+Unidus balance
+
+ScaleX: Height power
+
+*/
 
 ModelInfo* ht_balance = nullptr;
 

@@ -4,7 +4,7 @@
 /*
 
 A little rock that can be held and pushed.
-Example of an held & pushable object.
+Example of an holdable & pushable object.
 
 */
 

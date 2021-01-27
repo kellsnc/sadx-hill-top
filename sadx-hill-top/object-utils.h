@@ -20,3 +20,4 @@ int IsPlayerInGlobalCylinder(NJS_VECTOR* center, float x, float y);
 void SetPlayerPosition(int id, float x, float y, float z);
 void SetPlayerPosition(int id, NJS_VECTOR* pos);
 bool CheckJump(int id);
+LandTable* LoadLandTable(const HelperFunctions& helperFunctions, const char* name, NJS_TEXLIST* texlist);

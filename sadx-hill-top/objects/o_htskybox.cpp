@@ -1,6 +1,15 @@
 #include "pch.h"
 #include "o_htskybox.h"
 
+/*
+
+Skybox of the level.
+
+We use the GlobalPoint2Col heavily to simulate infinite sky,
+the only things we draw are clouds with transparency, simulating horizon.
+
+*/
+
 extern Angle HT_WindDirection;
 
 NJS_TEXNAME HillTopBG_TexNames[2];

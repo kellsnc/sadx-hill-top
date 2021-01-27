@@ -5,7 +5,7 @@
 
 Particule effet above lava.
 
-Rotz: amount
+RotZ: amount
 Scale: range
 
 */

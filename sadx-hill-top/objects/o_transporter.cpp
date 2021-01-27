@@ -1,8 +1,15 @@
 #include "pch.h"
 #include "o_transporter.h"
 
-// Complex object using Ninja Chunk format for bending vines
-// And some more complex objet structure
+/*
+
+Complex object using Ninja Chunk format for bending vines
+and some more complex objet structure.
+
+Scale: destination
+RotZ: speed
+
+*/
 
 enum class TranspPlatformActs : Uint16 {
 	Input,
