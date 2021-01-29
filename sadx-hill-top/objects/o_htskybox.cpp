@@ -5,8 +5,8 @@
 
 Skybox of the level.
 
-We use the GlobalPoint2Col heavily to simulate infinite sky,
-the only things we draw are clouds with transparency, simulating horizon.
+The global color set in the level.cpp simulates infinite sky,
+the only things we draw from the skybox are clouds with transparency, simulating horizon.
 
 */
 
@@ -105,6 +105,25 @@ void CloudHandler(ObjectMaster* obj) {
 	}
 }
 
+void LoadSkyboxAct(ObjectMaster* obj) {
+	NJS_VECTOR sunpos1 = { 4000, 2000, 500 };
+
+	switch (CurrentAct) {
+	case 0:
+		LoadLenseFlareAtPosition(&sunpos1);
+		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -150.0f;
+		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = 1100.0f;
+		obj->Data1->Position.y = -300.0f;
+		break;
+	case 1:
+		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -200.0f;
+		obj->Data1->Position.y = -200.0f;
+		break;
+	}
+
+	obj->Data1->Index = CurrentAct;
+}
+
 void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
@@ -114,7 +133,7 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 
 		Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
 		njPushMatrixEx();
-		njTranslate(0, Camera_Data1->Position.x, -300.0f, Camera_Data1->Position.z);
+		njTranslate(0, Camera_Data1->Position.x, data->Position.y, Camera_Data1->Position.z);
 
 		// Clouds
 		while (clouds) {
@@ -137,6 +156,11 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	NJS_OBJECT* clouds = data->Object;
+
+	if (data->Index != CurrentAct) {
+		LoadSkyboxAct(obj);
+		return;
+	}
 
 	// Move the cloud layers texture to simulate wind
 	if (FrameCounterUnpaused % 2 == 0) {
@@ -164,19 +188,13 @@ void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj) {
 
 void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
-	NJS_VECTOR sunpos = { 4000, 2000, 500 };
-
-	LoadLenseFlareAtPosition(&sunpos);
-
-	SetGlobalPoint2Col_Colors(0xFF1844FF, 0xFF2149FF, 0xFF002EFF);
-
-	LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -150.0f;
-	LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = 1100.0f;
 
 	data->Object = ht_cloudlayers->getmodel();
 	
 	obj->MainSub = HillTopZone_SkyBox_Main;
 	obj->DisplaySub = HillTopZone_SkyBox_Display;
+
+	LoadSkyboxAct(obj);
 }
 
 void SkyBox_LoadAssets() {

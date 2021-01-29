@@ -4,6 +4,12 @@ static constexpr int MaxPlayers = 4;
 
 extern HelperFunctions HelperFunctionsGlobal;
 
+struct Color3 {
+    unsigned int c1;
+    unsigned int c2;
+    unsigned int c3;
+};
+
 FunctionPointer(void, DrawObject, (NJS_OBJECT*), 0x408530);
 FunctionPointer(void, LoadEnemyExplosion, (Float x, Float y, Float z, Float scale), 0x4CAF80);
 FunctionPointer(void, SpawnAnimal, (Uint32 unk, Float x, Float y, Float z), 0x4BE610);
@@ -19,6 +25,7 @@ FunctionPointer(int, GetClosestPlayerID, (NJS_VECTOR* pos), 0x441B70);
 FunctionPointer(int, DetectDyncolCollision, (NJS_VECTOR* pos, NJS_VECTOR* output, Rotation3* rotation, ColFlags flagstoignore, float detectionradius), 0x439620);
 FunctionPointer(void, RedMountain_SetViewData_Clip, (int clipLevel), 0x6007E0);
 VoidFunc(RedMountain_SetViewData, 0x600730);
+DataArray(Color3, GlobalColorsLevel, 0x90BFE8, 43);
 
 // Event related
 VoidFunc(EV_InitCamera, 0x4303E0);

@@ -87,7 +87,10 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" },
 	{ LoadObj_Data1, 3, 1, 1280000, 0, HillPlatform, "O HILLPLATFORM" },
 
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, RingGroup_Main, "O_GRING" }
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, RingGroup_Main, "O_GRING" },
+
+	//{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLava, "O GROWLAVA" },
+	//{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -125,6 +128,13 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	helperFunctions.ReplaceFile("system\\SET0501S.bin", "system\\SETHT01S.bin");
 	helperFunctions.ReplaceFile("system\\SET0501E.bin", "system\\SETHT01E.bin");
 	helperFunctions.ReplaceFile("system\\SET0502K.bin", "system\\SETHT02K.bin");
+
+	// Compatibility with DC Conversion
+	WriteData<5>((void*)0x422D14, 0x90);
+	helperFunctions.ReplaceFile("system\\SET0500S_DC.bin", "system\\SETHT00S.bin");
+	helperFunctions.ReplaceFile("system\\SET0501S_DC.bin", "system\\SETHT01S.bin");
+	helperFunctions.ReplaceFile("system\\SET0501E_DC.bin", "system\\SETHT01E.bin");
+	helperFunctions.ReplaceFile("system\\SET0502K_DC.bin", "system\\SETHT02K.bin");
 
 	TexLists_Obj[LevelIDs_RedMountain] = HillTopObjectTextures;
 	ObjLists[LevelIDs_RedMountain * 8] = &HillTopObjectList;

@@ -12,7 +12,7 @@ NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 
 StartPosition StartPoses[] = {
 	{ LevelIDs_RedMountain, 0, { 0.0f, 0.0f, 0.0f }, 0x8000 }, // Sonic Act 1
-	{ LevelIDs_RedMountain, 1, { 0.0f, 0.0f, 0.0f }, 0 }, // Sonic Act 2
+	{ LevelIDs_RedMountain, 1, { 0.0f, 50.0f, 0.0f }, 0 }, // Sonic Act 2
 	{ LevelIDs_RedMountain, 1, { 0.0f, 0.0f, 0.0f }, 0 }, // Gamma Act 2
 	{ LevelIDs_RedMountain, 2, { 895.0f, 295.0f, 515.0f }, 0 }  // Knuckles Act 3
 };
@@ -64,6 +64,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 			NextAct_IncrementCurrentStageAndAct(1);
 			NextAct_SetCameraData(1);
 			NextAct_IncrementAct(1);
+			ForcePlayerAction(0, 24);
 			MovePlayerToStartPoint(EntityData1Ptrs[0]);
 			HillTop_SetViewData();
 		}
@@ -96,6 +97,19 @@ void __cdecl HillTopZone_Init(ObjectMaster* obj) {
 
 // Replace Red Mountain with our level:
 
+void LoadSkyboxObject_r() {
+	SetGlobalPoint2Col_Colors(GlobalColorsLevel[CurrentLevel].c1, GlobalColorsLevel[CurrentLevel].c2, GlobalColorsLevel[CurrentLevel].c3);
+	
+	if (SkyboxObjects[CurrentLevel]) {
+		if (CurrentLevel == LevelIDs_RedMountain) {
+			LoadObject(LoadObj_Data1, 2, SkyboxObjects[CurrentLevel]);
+		}
+		else {
+			LoadObject(LoadObj_Data1, 1, SkyboxObjects[CurrentLevel]);
+		}
+	}
+}
+
 void LoadHillTopLandTables(const HelperFunctions& helperFunctions) {
 	GeoLists[LevelIDs_RedMountain * 8] = LoadLandTable(helperFunctions, "system\\hilltopzone0.sa1lvl", &HillTop_TexList);
 	GeoLists[LevelIDs_RedMountain * 8 + 1] = LoadLandTable(helperFunctions, "system\\hilltopzone1.sa1lvl", &HillTop_TexList);
@@ -105,17 +119,17 @@ void LoadHillTopLandTables(const HelperFunctions& helperFunctions) {
 void Level_Init(const HelperFunctions& helperFunctions) {
 	LoadHillTopLandTables(helperFunctions); // Main geometry
 	LoadLavaLandTables(helperFunctions); // Animated lava geometry
-
+	
 	// Paths
 	helperFunctions.RegisterPathList(hilltop0_pathdata);
 	helperFunctions.RegisterPathList(hilltop1_pathdata);
 	helperFunctions.RegisterPathList(hilltop2_pathdata);
 
 	// Start positions
-	SonicStartArray[11] = StartPoses[0];
-	SonicStartArray[12] = StartPoses[1];
-	GammaStartArray[3]	= StartPoses[2];
-	KnucklesStartArray[1] = StartPoses[3];
+	helperFunctions.RegisterStartPosition(Characters_Sonic, StartPoses[0]);
+	helperFunctions.RegisterStartPosition(Characters_Sonic, StartPoses[1]);
+	helperFunctions.RegisterStartPosition(Characters_Gamma, StartPoses[2]);
+	helperFunctions.RegisterStartPosition(Characters_Knuckles, StartPoses[3]);
 
 	// Level Handler
 	LevelObjects[LevelIDs_RedMountain] = HillTopZone_Init;
@@ -128,6 +142,12 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	// Music
 	MusicList[MusicIDs_redmntn1].Name = "hilltop";
 
+	// Sky color
+	GlobalColorsLevel[LevelIDs_RedMountain] = { 0xFF1844FF, 0xFF2149FF, 0xFF002EFF };
+
 	// Event
 	HookRedMountainEvent();
+
+	// Fix skybox transparency
+	WriteJump(LoadSkyboxObject, LoadSkyboxObject_r);
 }
