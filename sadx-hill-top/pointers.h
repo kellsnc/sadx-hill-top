@@ -26,6 +26,7 @@ FunctionPointer(int, DetectDyncolCollision, (NJS_VECTOR* pos, NJS_VECTOR* output
 FunctionPointer(void, RedMountain_SetViewData_Clip, (int clipLevel), 0x6007E0);
 VoidFunc(RedMountain_SetViewData, 0x600730);
 DataArray(Color3, GlobalColorsLevel, 0x90BFE8, 43);
+FunctionPointer(void, KillPlayer, (uint8_t ID), 0x440CD0);
 
 // Event related
 VoidFunc(EV_InitCamera, 0x4303E0);

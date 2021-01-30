@@ -69,7 +69,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 640000, 0, OTuri1_Main, "O TURI 1" }, // 38
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_Main, "O ZAKO" },
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_b_Main, "O ZAKO B" },
-	{ LoadObj_Data1, 3, 1, 638401, 0, OSaku, "O SAKU" },
+	{ LoadObj_Data1, 3, 1, 249001, 0, OSaku_Main, "O SAKU" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow_Main, "O BLOW" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
 
@@ -92,7 +92,8 @@ ObjectListEntry HillTopObjectList_list[] = {
 
 	{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLava, "O GROWLAVA" },
 	{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
-	{ LoadObj_Data1, 2, 0, 0, 0, GrowLavaTrigger, "O GRAWLAVATRIGGER" }
+	{ LoadObj_Data1, 2, 0, 0, 0, GrowLavaTrigger, "O GRAWLAVATRIGGER" },
+	{ LoadObj_Data1, 2, 0, 0, 0, KillCeiling, "O KILLCEILING" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
