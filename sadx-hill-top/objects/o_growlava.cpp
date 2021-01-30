@@ -1,0 +1,254 @@
+#include "pch.h"
+#include "o_growlava.h"
+#include "lava.h"
+
+/*
+
+Objects related to the growing lava event in act 2
+
+*/
+
+extern NJS_TEXLIST HillTop_TexList;
+
+extern ModelInfo* ht_platform;
+static ModelInfo* ht_growlava = nullptr;
+
+static CollisionData GrowLavaTrigger_Col = { 0, CollisionShape_Sphere, 0xF0, 0, 0, { 0, 0, 0 }, 0, 0, 0, 0, 0 };
+static int TriggerIndex = -1;
+static float LavaHeight = 0.0f;
+
+static NJS_VECTOR ShakeOffset = { };
+
+static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_VECTOR* pos) {
+	dyncol->pos[0] = pos->x;
+	dyncol->pos[1] = pos->y;
+	dyncol->pos[2] = pos->z;
+	
+	dyncol->pos[0] += ShakeOffset.x;
+	dyncol->pos[1] += ShakeOffset.y;
+	dyncol->pos[2] += ShakeOffset.z;
+}
+
+#pragma region GrowLava
+void __cdecl GrowLava_Delete(ObjectMaster* obj) {
+	// Removes the dyncol before deleting the object
+
+	if (obj->Data1->LoopData) {
+		DynamicCOL_Remove(obj, (NJS_OBJECT*)obj->Data1->LoopData);
+		ObjectArray_Remove((NJS_OBJECT*)obj->Data1->LoopData);
+	}
+}
+
+void __cdecl GrowLava_Display(ObjectMaster* obj) {
+	if (!MissedFrames) {
+		EntityData1* data = obj->Data1;
+
+		njSetTexture(&CurrentLavaTex);
+		njPushMatrixEx();
+		njTranslateEx(&data->Position);
+		njTranslateEx(&ShakeOffset);
+		njDrawModel_SADX(data->Object->basicdxmodel);
+		njPopMatrixEx();
+	}
+}
+
+void __cdecl GrowLava_Main(ObjectMaster* obj) {
+	if (!ClipSetObject(obj)) {
+		EntityData1* data = obj->Data1;
+
+		if (data->Position.y < LavaHeight) {
+			data->Position.y = LavaHeight;
+			UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position);
+		}
+
+		obj->DisplaySub(obj);
+	}
+}
+
+void __cdecl GrowLava(ObjectMaster* obj) {
+	EntityData1* data = obj->Data1;
+
+	data->Object = GetModelSibling(ht_growlava->getmodel()->child, static_cast<int>(data->Scale.x));
+
+	NJS_OBJECT* object = ObjectArray_GetFreeObject();
+
+	object->pos[0] = data->Position.x;
+	object->pos[1] = data->Position.y;
+	object->pos[2] = data->Position.z;
+
+	object->ang[0] = 0;
+	object->ang[1] = 0;
+	object->ang[2] = 0;
+
+	object->scl[0] = 1.0f;
+	object->scl[1] = 1.0f;
+	object->scl[2] = 1.0f;
+
+	object->basicdxmodel = data->Object->basicdxmodel;
+
+	DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid | ColFlags_Hurt), obj, object);
+
+	data->LoopData = (Loop*)object;
+	
+	obj->MainSub = GrowLava_Main;
+	obj->DeleteSub = GrowLava_Delete;
+	obj->DisplaySub = GrowLava_Display;
+}
+#pragma endregion
+
+#pragma region GrowLavaPlatform
+void __cdecl GrowLavaPlatform_Delete(ObjectMaster* obj) {
+	// Removes the dyncol before deleting the object
+
+	if (obj->Data1->LoopData) {
+		DynamicCOL_Remove(obj, (NJS_OBJECT*)obj->Data1->LoopData);
+		ObjectArray_Remove((NJS_OBJECT*)obj->Data1->LoopData);
+	}
+}
+
+void __cdecl GrowLavaPlatform_Display(ObjectMaster* obj) {
+	if (!MissedFrames) {
+		EntityData1* data = obj->Data1;
+
+		njSetTexture(&HillTop_TexList);
+		njPushMatrixEx();
+		njTranslateEx(&data->Position);
+		njTranslateEx(&ShakeOffset);
+		njRotateY_(data->Rotation.y);
+		njScalef(data->Scale.x);
+		njDrawModel_SADX(data->Object->basicdxmodel);
+		njPopMatrixEx();
+	}
+}
+
+void __cdecl GrowLavaPlatform_Main(ObjectMaster* obj) {
+	if (!ClipSetObject(obj)) {
+		EntityData1* data = obj->Data1;
+
+		if (data->Position.y < LavaHeight) {
+			data->Position.y = LavaHeight;
+		}
+		else {
+			data->Position.y = data->Scale.z + (1.0f - powf(njSin(FrameCounterUnpaused * data->Rotation.z), 2.0f)) * data->Scale.y;
+		}
+
+		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position);
+		obj->DisplaySub(obj);
+	}
+}
+
+void __cdecl GrowLavaPlatform(ObjectMaster* obj) {
+	EntityData1* data = obj->Data1;
+
+	if (data->Scale.x == 0.0f) {
+		data->Scale.x = 1.0f;
+	}
+
+	data->Object = ht_platform->getmodel();
+
+	// Create the dynamic collision
+	NJS_OBJECT* object = ObjectArray_GetFreeObject();
+
+	object->pos[0] = data->Position.x;
+	object->pos[1] = data->Position.y;
+	object->pos[2] = data->Position.z;
+
+	object->ang[0] = 0;
+	object->ang[1] = data->Rotation.y;
+	object->ang[2] = 0;
+
+	object->scl[0] = data->Scale.x;
+	object->scl[1] = data->Scale.x;
+	object->scl[2] = data->Scale.x;
+
+	object->basicdxmodel = data->Object->basicdxmodel;
+
+	DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid | ColFlags_UseRotation), obj, object);
+
+	data->LoopData = (Loop*)object;
+	data->Scale.z = data->Position.y;
+
+	if (data->Rotation.z == 0) {
+		data->Rotation.z = 150; // speed
+	}
+
+	obj->MainSub = GrowLavaPlatform_Main;
+	obj->DisplaySub = GrowLavaPlatform_Display;
+	obj->DeleteSub = GrowLavaPlatform_Delete;
+}
+#pragma endregion
+
+#pragma region GrowLavaTrigger
+void __cdecl GrowLavaTrigger_Delete(ObjectMaster* obj) {
+	if (TriggerIndex == obj->Data1->Rotation.z) {
+		TriggerIndex = -1;
+	}
+}
+
+void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
+	EntityData1* data = obj->Data1;
+
+	if (data->Action == 0) {
+		if (!ClipSetObject(obj)) {
+			EntityData1* entity = GetCollidingEntityA(data);
+
+			if (entity && entity->CharIndex == 0) {
+				LavaHeight = data->Scale.y;
+				TriggerIndex = data->Rotation.z;
+				data->Action = 1;
+			}
+
+			AddToCollisionList(data);
+		}
+	}
+	else {
+		if (LavaHeight < data->Scale.z) {
+			LavaHeight += static_cast<float>(data->Rotation.x) / 100;
+		}
+		
+		if (TriggerIndex != data->Rotation.z) {
+			DeleteObject_(obj);
+		}
+
+		// Shake everything
+
+		++data->field_A;
+
+		if (data->field_A < 90) {
+			float sin = (static_cast<float>(data->field_A) / 90.0f) * 1.5f;
+
+			if (sin <= 1.0f) {
+				sin = njSin(((sin * 90.0f + 90.0f) * 182.0444488525391f));
+			}
+			else {
+				sin = 0.0;
+			}
+
+			ShakeOffset.y = njSin((data->field_A * 40.0 * 182.0444488525391)) * (sin * 4.0);
+
+			if (data->field_A == 2) {
+				// Sound
+			}
+		}
+		else 
+		{
+			ShakeOffset.y = njSin(((static_cast<float>(data->field_A) - 90) * 48.0 * 182.0444488525391)) * 0.1800000071525574;
+		}
+	}
+}
+
+void __cdecl GrowLavaTrigger(ObjectMaster* obj) {
+	EntityData1* data = obj->Data1;
+
+	Collision_Init(obj, &GrowLavaTrigger_Col, 1, 4);
+
+	data->CollisionInfo->CollisionArray->a = data->Scale.x;
+
+	obj->MainSub = GrowLavaTrigger_Main;
+	obj->DeleteSub = GrowLavaTrigger_Delete;
+}
+#pragma endregion
+
+void GrowLava_LoadAssets() {
+	LoadModel(&ht_growlava, "ht_growlava", ModelFormat_Basic);
+}

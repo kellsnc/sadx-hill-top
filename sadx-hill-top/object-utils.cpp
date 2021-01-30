@@ -190,3 +190,16 @@ LandTable* LoadLandTable(const HelperFunctions& helperFunctions, const char* nam
 	info->getlandtable()->TexList = texlist;
 	return info->getlandtable();
 }
+
+NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id) {
+	int i = 0;
+
+	while (object) {
+		if (i == id) {
+			return object;
+		}
+
+		++i;
+		object = object->sibling;
+	}
+}

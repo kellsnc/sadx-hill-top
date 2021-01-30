@@ -1,0 +1,6 @@
+#pragma once
+
+void GrowLava_LoadAssets();
+void __cdecl GrowLava(ObjectMaster* obj);
+void __cdecl GrowLavaPlatform(ObjectMaster* obj);
+void __cdecl GrowLavaTrigger(ObjectMaster* obj);

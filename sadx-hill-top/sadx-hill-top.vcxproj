@@ -103,6 +103,7 @@
     <ClInclude Include="object-utils.h" />
     <ClInclude Include="objects\o_balance.h" />
     <ClInclude Include="objects\o_efflava.h" />
+    <ClInclude Include="objects\o_growlava.h" />
     <ClInclude Include="objects\o_hillbush.h" />
     <ClInclude Include="objects\o_hillflowers.h" />
     <ClInclude Include="objects\o_hillgrass.h" />
@@ -135,6 +136,7 @@
     <ClCompile Include="objects.cpp" />
     <ClCompile Include="objects\o_balance.cpp" />
     <ClCompile Include="objects\o_efflava.cpp" />
+    <ClCompile Include="objects\o_growlava.cpp" />
     <ClCompile Include="objects\o_hillbush.cpp" />
     <ClCompile Include="objects\o_hillflowers.cpp" />
     <ClCompile Include="objects\o_hillgrass.cpp" />

@@ -15,7 +15,7 @@ ModelInfo* ht_platform = nullptr;
 
 extern NJS_TEXLIST HillTop_TexList;
 
-void UpdateDynCol(NJS_OBJECT* dyncol, float y) {
+static void UpdateDynCol(NJS_OBJECT* dyncol, float y) {
 	dyncol->pos[1] = y;
 }
 

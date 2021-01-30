@@ -14,6 +14,7 @@
 #include "objects/o_hillpole.h"
 #include "objects/o_vinepulley.h"
 #include "objects/o_hillplatform.h"
+#include "objects/o_growlava.h"
 
 #include "enemies/e_spiker.h"
 #include "enemies/e_rexon.h"
@@ -68,7 +69,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 640000, 0, OTuri1_Main, "O TURI 1" }, // 38
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_Main, "O ZAKO" },
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_b_Main, "O ZAKO B" },
-	{ LoadObj_Data1, 3, 1, 638401, 0, OHaka_Main, "O HAKA" },
+	{ LoadObj_Data1, 3, 1, 638401, 0, OSaku, "O SAKU" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow_Main, "O BLOW" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
 
@@ -89,8 +90,9 @@ ObjectListEntry HillTopObjectList_list[] = {
 
 	{ LoadObj_Data1, 3, 1, MinDistance, 0, RingGroup_Main, "O_GRING" },
 
-	//{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLava, "O GROWLAVA" },
-	//{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" }
+	{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLava, "O GROWLAVA" },
+	{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
+	{ LoadObj_Data1, 2, 0, 0, 0, GrowLavaTrigger, "O GRAWLAVATRIGGER" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
@@ -157,6 +159,7 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	PickRock_LoadAssets();
 	HillBalance_LoadAssets();
 	HillPlatform_LoadAssets();
+	GrowLava_LoadAssets();
 
 	Spiker_LoadAssets();
 	Rexon_LoadAssets();

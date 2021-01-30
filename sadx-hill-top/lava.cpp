@@ -8,7 +8,7 @@ Draw a secondary landtable for animated lava geometries
 */
 
 static NJS_TEXNAME CurrentLavaNames[2] = { 0 };
-static NJS_TEXLIST CurrentLavaTex = { CurrentLavaNames, 2 };
+NJS_TEXLIST CurrentLavaTex = { CurrentLavaNames, 2 };
 
 static LandTable* LavaTables[3] = { nullptr };
 

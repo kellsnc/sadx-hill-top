@@ -21,3 +21,4 @@ void SetPlayerPosition(int id, float x, float y, float z);
 void SetPlayerPosition(int id, NJS_VECTOR* pos);
 bool CheckJump(int id);
 LandTable* LoadLandTable(const HelperFunctions& helperFunctions, const char* name, NJS_TEXLIST* texlist);
+NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id);
