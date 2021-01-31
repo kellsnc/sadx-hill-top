@@ -58,7 +58,7 @@ void __cdecl HillTopZone_Display(ObjectMaster* obj) {
 
 void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 	if (CurrentAct == 0) {
-		// Act swap
+		// Act 1-2 swap
 		if (IsSpecificPlayerInSphere(301.0f, 164.0f, 3145.0f, 100.0f, 0)) {
 			NextAct_FreeLandTable(1);
 			NextAct_IncrementCurrentStageAndAct(1);
@@ -73,6 +73,30 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 		if (obj->DisplaySub) {
 			obj->Data1->Scale.x += 0.5f;
 			obj->DisplaySub(obj);
+		}
+	}
+	else if (CurrentAct == 1) {
+		// Act 2-4 swap
+		int player = IsPlayerInsideSphere_(15.0f, 950.0f, 225.0f, 50.0f) - 1;
+
+		if (player >= 0) {
+			ForcePlayerAction(player, 24);
+
+			// If level has been completed once, go to boss instead
+			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true) {
+				NextAct_FreeLandTable(2);
+				NextAct_IncrementCurrentStageAndAct(2);
+				NextAct_SetCameraData(2);
+				NextAct_IncrementAct(2);
+				MovePlayerToStartPoint(EntityData1Ptrs[0]);
+				HillTop_SetViewData();
+			}
+			else {
+				// teleport to end of level that's further way
+				SetPlayerPosition(player, -480.0f, 935.0f, 3030.0f);
+				EntityData1Ptrs[player]->Rotation.y = 0x3E80;
+				CharObj2Ptrs[player]->Speed = { 2, 8, 0 };
+			}
 		}
 	}
 }

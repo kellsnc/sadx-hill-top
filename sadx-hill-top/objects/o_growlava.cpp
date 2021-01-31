@@ -56,6 +56,11 @@ void __cdecl GrowLava_Main(ObjectMaster* obj) {
 
 	if (LavaHeight != 0.0f) {
 		data->Position.y = LavaHeight;
+
+		if (data->Position.y < data->Scale.z) {
+			data->Position.y = data->Scale.z;
+		}
+
 		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position);
 	}
 	else {
@@ -190,7 +195,7 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 
 	if (data->Action == 0) {
 		if (!ClipSetObject(obj)) {
-			EntityData1* entity = GetCollidingEntityA(data);
+			EntityData1* entity = EntityData1Ptrs[IsPlayerInsideSphere_(&data->Position, data->Scale.x) - 1];
 
 			if (entity && entity->CharIndex == 0) {
 				LavaHeight = data->Scale.y;
