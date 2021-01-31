@@ -19,6 +19,7 @@
 #include "enemies/e_spiker.h"
 #include "enemies/e_rexon.h"
 #include "enemies/e_fireball.h"
+#include "enemies/e_epsilon.h"
 
 static constexpr int MinDistance = 360000;
 
@@ -99,7 +100,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
 
 PVMEntry HillTopObjectTextures[] = {
-	{ "OBJ_MOUNTAIN", (TexList*)0x24208A8 },
+	{ "OBJ_MOUNTAIN", &OBJ_MOUNTAIN_TEXLIST },
 	{ "OBJ_HILLTOP", &HillTopOBJ_TexList },
 	{ "BG_HILLTOP", &HillTopBG_TexList },
 	{ "LAVAFALL", &LAVAFALL_TexList },
@@ -108,20 +109,22 @@ PVMEntry HillTopObjectTextures[] = {
 
 	{ "SPIKER", &SPIKER_TexList },
 	{ "REXON", &REXON_TexList },
-	{ "E_BOMB", (TexList*)0x96B464 },
-	{ "E_SARU", (TexList*)0x962560 },
-	{ "SUPI_SUPI", (TexList*)0x96F518 },
-	{ "UNI_A_UNIBODY", (TexList*)0x96CB5C },
-	{ "UNI_C_UNIBODY", (TexList*)0x96DC48 },
-	{ "TOGEBALL_TOGEBALL", (TexList*)0x96BC54 },
-	{ "MOUNTAIN_E104", (TexList*)0x2499328 },
+	{ "E_BOMB", &E_BOMB_TEXLIST },
+	{ "E_SARU", &E_SARU_TEXLIST },
+	{ "SUPI_SUPI", &SUPI_SUPI_TEXLIST },
+	{ "UNI_A_UNIBODY", &UNI_A_UNIBODY_TEXLIST },
+	{ "UNI_C_UNIBODY", &UNI_C_UNIBODY_TEXLIST },
+	{ "TOGEBALL_TOGEBALL", &TOGEBALL_TOGEBALL_TEXLIST },
+	{ "MOUNTAIN_E104", &MOUNTAIN_E104_TEXLIST },
+	{ "MOUNTAIN_MEXPLOSION", (TexList*)0x2498810 },
+	{ NULL, &b32ascii_TEXLIST },
 
-	{ "OUM", (TexList*)0x9334EC },
-	{ "GORI", (TexList*)0x945964 },
-	{ "LION", (TexList*)0x944094 },
-	{ "MOGU", (TexList*)0x93ECEC },
-	{ "ZOU", (TexList*)0x94160C },
-	{ "TUBA", (TexList*)0x92F2BC },
+	{ "OUM", &OUM_TEXLIST },
+	{ "GORI", &GORI_TEXLIST },
+	{ "LION", &LION_TEXLIST },
+	{ "MOGU", &MOGU_TEXLIST },
+	{ "ZOU", &ZOU_TEXLIST },
+	{ "TUBA", &TUBA_TEXLIST },
 
 	{ 0 }
 };
@@ -165,4 +168,5 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	Spiker_LoadAssets();
 	Rexon_LoadAssets();
 	FireBall_LoadAssets();
+	EpsilonBoss_Init();
 }

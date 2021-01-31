@@ -12,8 +12,8 @@ NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 
 StartPosition StartPoses[] = {
 	{ LevelIDs_RedMountain, 0, { 0.0f, 0.0f, 0.0f }, 0x8000 }, // Sonic Act 1
-	{ LevelIDs_RedMountain, 1, { 0.0f, 50.0f, 0.0f }, 0 }, // Sonic Act 2
-	{ LevelIDs_RedMountain, 1, { 0.0f, 0.0f, 0.0f }, 0 }, // Gamma Act 2
+	{ LevelIDs_RedMountain, 1, { 0.0f, 50.0f, 0.0f }, 0x4000 }, // Sonic Act 2
+	{ LevelIDs_RedMountain, 1, { 15.0f, 700.0f, 225.0f }, 0 }, // Gamma Act 2
 	{ LevelIDs_RedMountain, 2, { 895.0f, 295.0f, 515.0f }, 0 }  // Knuckles Act 3
 };
 
@@ -116,6 +116,8 @@ void LoadHillTopLandTables(const HelperFunctions& helperFunctions) {
 	GeoLists[LevelIDs_RedMountain * 8 + 2] = GeoLists[LevelIDs_RedMountain * 8];
 }
 
+
+
 void Level_Init(const HelperFunctions& helperFunctions) {
 	LoadHillTopLandTables(helperFunctions); // Main geometry
 	LoadLavaLandTables(helperFunctions); // Animated lava geometry
@@ -145,7 +147,7 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	// Sky color
 	GlobalColorsLevel[LevelIDs_RedMountain] = { 0xFF1844FF, 0xFF2149FF, 0xFF002EFF };
 
-	// Event
+	// Events
 	HookRedMountainEvent();
 
 	// Fix skybox transparency

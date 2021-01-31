@@ -111,6 +111,9 @@
     <ClInclude Include="objects\o_growlava.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="enemies\e_epsilon.h">
+      <Filter>Header Files\Enemies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -202,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="objects\o_growlava.cpp">
       <Filter>Source Files\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="enemies\e_epsilon.cpp">
+      <Filter>Source Files\Enemies</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
