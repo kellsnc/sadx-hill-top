@@ -116,8 +116,6 @@ void LoadHillTopLandTables(const HelperFunctions& helperFunctions) {
 	GeoLists[LevelIDs_RedMountain * 8 + 2] = GeoLists[LevelIDs_RedMountain * 8];
 }
 
-
-
 void Level_Init(const HelperFunctions& helperFunctions) {
 	LoadHillTopLandTables(helperFunctions); // Main geometry
 	LoadLavaLandTables(helperFunctions); // Animated lava geometry
