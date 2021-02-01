@@ -29,6 +29,14 @@ static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_VECTOR* pos) {
 }
 
 #pragma region GrowLava
+
+/*
+
+Lava that goes up when the trigger is trigged
+ScaleX: model ID
+
+*/
+
 void __cdecl GrowLava_Delete(ObjectMaster* obj) {
 	// Removes the dyncol before deleting the object
 
@@ -103,6 +111,17 @@ void __cdecl GrowLava(ObjectMaster* obj) {
 #pragma endregion
 
 #pragma region GrowLavaPlatform
+
+/*
+
+Platform that moves with lava height
+
+RotZ: speed
+ScaleX: scale
+ScaleY: movement radius
+
+*/
+
 void __cdecl GrowLavaPlatform_Delete(ObjectMaster* obj) {
 	// Removes the dyncol before deleting the object
 
@@ -184,6 +203,19 @@ void __cdecl GrowLavaPlatform(ObjectMaster* obj) {
 #pragma endregion
 
 #pragma region GrowLavaTrigger
+/*
+
+Trigger that launches the lava & plaforms
+
+RotX: grow speed (divided by 100)
+RotY: if 1, force lava to position in scale y on restart
+RotZ: index
+ScaleX: radius
+ScaleY: start height
+ScaleZ: end height
+
+*/
+
 void __cdecl GrowLavaTrigger_Delete(ObjectMaster* obj) {
 	if (TriggerIndex == obj->Data1->Rotation.z) {
 		TriggerIndex = -1;
@@ -192,6 +224,11 @@ void __cdecl GrowLavaTrigger_Delete(ObjectMaster* obj) {
 
 void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
+
+	// only reset lava if restarting
+	if (data->Rotation.y == 1 && GameState != 4) {
+		UpdateSetDataAndDelete(obj);
+	}
 
 	if (data->Action == 0) {
 		if (!ClipSetObject(obj)) {
@@ -261,6 +298,14 @@ void __cdecl GrowLavaTrigger(ObjectMaster* obj) {
 #pragma endregion
 
 #pragma region KillCeiling
+
+/*
+
+Object that kills the player if standing while colliding with this.
+Scale: box scale
+
+*/
+
 void __cdecl KillCeiling(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 

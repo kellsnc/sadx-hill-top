@@ -121,7 +121,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 
 		break;
 	case ZipVineActs::Run:
-		data->Progress += (data->PathData->TotalDist / data->PathData->LoopList[data->State].Dist) / data->PathData->TotalDist * 3.0f;
+		data->Progress += (data->PathData->TotalDist / data->PathData->LoopList[data->State].Dist) / data->PathData->TotalDist * 4.0f;
 
 		if (data->Progress >= 1.0f) {
 			data->Progress = 0.0f;
