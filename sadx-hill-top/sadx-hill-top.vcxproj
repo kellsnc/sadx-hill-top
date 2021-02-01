@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cameras.h" />
     <ClInclude Include="deathzones.h" />
     <ClInclude Include="enemies\e_epsilon.h" />
     <ClInclude Include="enemies\e_fireball.h" />
@@ -123,6 +124,7 @@
     <ClInclude Include="pointers.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cameras.cpp" />
     <ClCompile Include="deathzones.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="enemies\e_epsilon.cpp" />

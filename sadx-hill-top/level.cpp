@@ -161,7 +161,7 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	// Deathzones
 	DeathZoneList[LevelIDs_RedMountain][0] = hilltope0_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][1] = hilltope1_deathzones;
-	DeathZoneList[LevelIDs_RedMountain][2] = hilltope0_deathzones;
+	DeathZoneList[LevelIDs_RedMountain][2] = hilltope2_deathzones;
 
 	// Music
 	MusicList[MusicIDs_redmntn1].Name = "hilltop";
