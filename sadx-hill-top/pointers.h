@@ -32,6 +32,12 @@ DataArray(Color3, GlobalColorsLevel, 0x90BFE8, 43);
 FunctionPointer(void, KillPlayer, (uint8_t ID), 0x440CD0);
 DataArray(NJS_VECTOR, GammaCamBounds, 0x24C8D00, 5);
 FunctionPointer(void, DisplayBossName2, (const char* name, signed int width, signed int height, int a4), 0x4B36D0);
+FunctionPointer(void, LoadLifeGauge, (signed int w, signed int h, signed int health), 0x4B3CC0);
+FunctionPointer(bosswk*, BossAlloc, (EntityData1* data, int size), 0x4BD420);
+VoidFunc(EnableTimeThing, 0x426030);
+FunctionPointer(void, PlayerDirectionToVector, (EntityData1* player, NJS_VECTOR* direction), 0x43EC90);
+FunctionPointer(void, PlayVoiceCheckSetting, (int voice), 0x571990);
+DataPointer(ObjectMaster*, Egg1ExplosionTask, 0x3C6C940);
 
 // Event related
 VoidFunc(EV_InitCamera, 0x4303E0);
