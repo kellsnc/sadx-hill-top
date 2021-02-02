@@ -37,28 +37,13 @@ DrawDistance HillTopDrawDists[] = {
 	{ -1.0f, -1000.0f }
 };
 
-// Level handler (init level-specific stuff):
-
 void HillTop_SetViewData() {
 	SkyboxDrawDistance = HillTopSkyDrawDist[ClipLevel];
 	LevelDrawDistance = HillTopDrawDists[ClipLevel];
 	LevelFogData = HillTopFogData[CurrentAct];
 }
 
-void __cdecl HillTopZone_Display(ObjectMaster* obj) {
-	if (CurrentAct < 2) {
-		njPushMatrixEx();
-		Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
-		njSetTexture((NJS_TEXLIST*)0x2BF4F2C); // EC_Light (Low poly Egg Carrier textures)
-		njTranslate(_nj_current_matrix_ptr_, 1215.0f, 839.0f, 3520.0f);
-		njRotateY_(0x8725);
-		njScalef(0.1f);
-		njAction((NJS_ACTION*)0x24983CC, obj->Data1->Scale.x); // Egg Carrier LOD Action
-		Direct3D_SetNearFarPlanes(LevelDrawDistance.Minimum, LevelDrawDistance.Maximum);
-		njPopMatrixEx();
-	}
-}
-
+#pragma region Level Handler
 void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 	if (CurrentAct == 0) {
 		// Act 1-2 swap
@@ -70,12 +55,6 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 			ForcePlayerAction(0, 24);
 			MovePlayerToStartPoint(EntityData1Ptrs[0]);
 			HillTop_SetViewData();
-		}
-
-		// Egg Carrier display
-		if (obj->DisplaySub) {
-			obj->Data1->Scale.x += 0.5f;
-			obj->DisplaySub(obj);
 		}
 	}
 	else if (CurrentAct == 1) {
@@ -115,12 +94,8 @@ void __cdecl HillTopZone_Init(ObjectMaster* obj) {
 
 	// Main level function ran every frame, used mostly for act swaps.
 	obj->MainSub = HillTopZone_Main;
-
-	// Provide the Egg Carrier display if the level was never completed.
-	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false && CurrentAct == 0) {
-		obj->DisplaySub = HillTopZone_Display;
-	}
 }
+#pragma endregion
 
 // Replace Red Mountain with our level:
 
@@ -129,7 +104,7 @@ void LoadSkyboxObject_r() {
 	
 	if (SkyboxObjects[CurrentLevel]) {
 		if (CurrentLevel == LevelIDs_RedMountain) {
-			LoadObject(LoadObj_Data1, 2, SkyboxObjects[CurrentLevel]);
+			LoadObject(LoadObj_Data1, 2, SkyboxObjects[CurrentLevel]); // Put this in object index 2 to fix transparency issues
 		}
 		else {
 			LoadObject(LoadObj_Data1, 1, SkyboxObjects[CurrentLevel]);
@@ -177,11 +152,29 @@ __declspec(naked) void HookLoadLevelFilesRM() {
 	}
 }
 
+void __cdecl RunLevelDestructor_r(int mode) {
+	if (mode != 5 && LevelDestructor != LevelDestructor_MissionMode) {
+		if (mode == 0) {
+			ReleaseSetFile();
+			ReleaseCamFile();
+		}
+
+		if (LevelDestructor) {
+			LevelDestructor();
+			LevelDestructor = nullptr;
+		}
+	}
+}
+
 void Level_Init(const HelperFunctions& helperFunctions) {
 	// Replace the Red Mountain switch case from LoadLevelFiles to use our own set/cam/level files
 	// This effectively removes what Dreamcast Conversion does in it
 	WriteJump((void*)0x422D0A, HookLoadLevelFilesRM);
 	
+	// Fix an obvious error in RunLevelDestructor (OR instead of AND)
+	// Vanilla levels don't use the level destructor in SADX PC since it doesn't load levels externally so it doesn't crash.
+	WriteJump(RunLevelDestructor, RunLevelDestructor_r);
+
 	// Paths
 	helperFunctions.RegisterPathList(hilltop0_pathdata);
 	helperFunctions.RegisterPathList(hilltop1_pathdata);

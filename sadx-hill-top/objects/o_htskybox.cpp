@@ -8,6 +8,8 @@ Skybox of the level.
 The global color set in the level.cpp simulates infinite sky,
 the only things we draw from the skybox are clouds with transparency, simulating horizon.
 
+Also handles the Egg Carrier if the level has never been completed.
+
 */
 
 extern Angle HT_WindDirection;
@@ -25,6 +27,15 @@ typedef struct {
 	Float spawn;
 } CloudData;
 
+static constexpr NJS_VECTOR SunPositions[2] = {
+	{ 4000, 2000, 500 },
+	{ 4000, 4000, 500 }
+};
+
+static NJS_VECTOR EggCarrierPosition;
+static Rotation3 EggCarrierRotation;
+
+#pragma region Clouds
 void SpawnCloud(CloudData* cloud) {
 	cloud->pos.x = Camera_Data1->Position.x + 2000 - rand() % 4000;
 	cloud->pos.y = -150 + rand() % 150;
@@ -104,14 +115,13 @@ void CloudHandler(ObjectMaster* obj) {
 		SpawnCloud(&clouds[i]);
 	}
 }
+#pragma endregion
 
 void LoadSkyboxAct(ObjectMaster* obj) {
-	NJS_VECTOR sunpos1 = { 4000, 2000, 500 };
-
 	switch (CurrentAct) {
 	case 0:
 	case 2:
-		LoadLenseFlareAtPosition(&sunpos1);
+		LoadLenseFlareAtPosition(&SunPositions[0]);
 		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -150.0f;
 		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = 1100.0f;
 		obj->Data1->Position.y = -300.0f;
@@ -121,9 +131,10 @@ void LoadSkyboxAct(ObjectMaster* obj) {
 		obj->Data1->Position.y = -200.0f;
 		break;
 	case 3:
-		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -400.0f;
-		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = 1000.0f;
-		obj->Data1->Position.y = -500.0f;
+		LoadLenseFlareAtPosition(&SunPositions[1]);
+		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -500.0f;
+		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = 800.0f;
+		obj->Data1->Position.y = -600.0f;
 		break;
 	}
 
@@ -138,23 +149,37 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 		njSetTexture(&HillTopBG_TexList);
 
 		Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
-		njPushMatrixEx();
-		njTranslate(0, Camera_Data1->Position.x, data->Position.y, Camera_Data1->Position.z);
 
-		// Clouds
-		while (clouds) {
-			njTranslateEx((NJS_VECTOR*)&clouds->pos);
-			njScaleEx((NJS_VECTOR*)&clouds->scl);
+		// Cloud layers
+		njPushMatrixEx(); {
+			njTranslate(0, Camera_Data1->Position.x, data->Position.y, Camera_Data1->Position.z);
 
-			njPushMatrixEx();
-			njRotateY(0, 0xC000 + HT_WindDirection); // Rotated in direction of the wind
-			njDrawModel_SADX(clouds->basicdxmodel);
+			while (clouds) {
+				njTranslateEx((NJS_VECTOR*)&clouds->pos);
+				njScaleEx((NJS_VECTOR*)&clouds->scl);
+
+				njPushMatrixEx();
+				njRotateY(0, 0xC000 + HT_WindDirection); // Rotated in direction of the wind
+				njDrawModel_SADX(clouds->basicdxmodel);
+				njPopMatrixEx();
+
+				clouds = clouds->child;
+			}
+
 			njPopMatrixEx();
-
-			clouds = clouds->child;
+		}
+		
+		// Egg Carrier display
+		if (data->field_A == 1) {
+			njPushMatrixEx();
+			njSetTexture((NJS_TEXLIST*)0x2BF4F2C); // EC_Light (Low poly Egg Carrier textures)
+			njTranslateEx(&EggCarrierPosition);
+			njRotateEx((Angle*)&EggCarrierRotation, false);
+			njScalef(0.1f);
+			njAction((NJS_ACTION*)0x24983CC, obj->Data1->Scale.x); // Egg Carrier LOD Action
+			njPopMatrixEx();
 		}
 
-		njPopMatrixEx();
 		Direct3D_SetNearFarPlanes(LevelDrawDistance.Minimum, LevelDrawDistance.Maximum);
 	}
 }
@@ -162,7 +187,7 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	NJS_OBJECT* clouds = data->Object;
-
+	
 	if (data->Index != CurrentAct) {
 		LoadSkyboxAct(obj);
 		return;
@@ -185,6 +210,16 @@ void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj) {
 		}
 	}
 
+	// Egg Carrier animation frame
+	if (data->field_A == 1) {
+		obj->Data1->Scale.x += 0.5f;
+
+		// Remove the Egg Carrier at the end of act 1
+		if (CurrentAct == 1 && EntityData1Ptrs[0]->Position.z > 2200) {
+			data->field_A = 0;
+		}
+	}
+
 	// Display cloud layers
 	obj->DisplaySub(obj);
 
@@ -199,6 +234,21 @@ void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
 	
 	obj->MainSub = HillTopZone_SkyBox_Main;
 	obj->DisplaySub = HillTopZone_SkyBox_Display;
+
+	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false
+		&& CurrentCharacter != Characters_Gamma && CurrentAct < 2) {
+
+		if (CurrentAct == 0) {
+			EggCarrierPosition = { 1215.0f, 839.0f, 3520.0f };
+			EggCarrierRotation = { 0, 0x8725, 0 };
+		}
+		else if (EntityData1Ptrs[0]->Position.z < 2200.0f) {
+			EggCarrierPosition = { 3100.0f, 1400.0f, -1300.0f };
+			EggCarrierRotation = { 0x1000, 0xF725, 0 };
+		}
+
+		data->field_A = 1; // Show Egg Carrier
+	}
 
 	LoadSkyboxAct(obj);
 }
