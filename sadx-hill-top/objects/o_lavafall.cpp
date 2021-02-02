@@ -141,12 +141,12 @@ void __cdecl LavaFall(ObjectMaster* obj) {
 }
 
 void LavaFall_LoadAssets() {
-	LoadModel(&ht_lavafall, "ht_lavafall", ModelFormat_Chunk);
+	LoadModelFile(&ht_lavafall, "ht_lavafall", ModelFormat_Chunk);
 
-	LoadAnimation(&ht_lavafall0_anm, "ht_lavafall0");
-	LoadAnimation(&ht_lavafall1_anm, "ht_lavafall1");
-	LoadAnimation(&ht_lavafall2_anm, "ht_lavafall2");
-	LoadAnimation(&ht_lavafall3_anm, "ht_lavafall3");
+	LoadAnimationFile(&ht_lavafall0_anm, "ht_lavafall0");
+	LoadAnimationFile(&ht_lavafall1_anm, "ht_lavafall1");
+	LoadAnimationFile(&ht_lavafall2_anm, "ht_lavafall2");
+	LoadAnimationFile(&ht_lavafall3_anm, "ht_lavafall3");
 
 	NJS_OBJECT* object = ht_lavafall->getmodel();
 
@@ -161,4 +161,12 @@ void LavaFall_LoadAssets() {
 
 	LavaFall3_Action.object = object;
 	LavaFall3_Action.motion = ht_lavafall3_anm->getmotion();
+}
+
+void LavaFall_FreeAssets() {
+	FreeModelFile(&ht_lavafall);
+	FreeAnimationFile(&ht_lavafall0_anm);
+	FreeAnimationFile(&ht_lavafall1_anm);
+	FreeAnimationFile(&ht_lavafall2_anm);
+	FreeAnimationFile(&ht_lavafall3_anm);
 }

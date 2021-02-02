@@ -451,6 +451,11 @@ void __cdecl Rexon(ObjectMaster* obj) {
 #pragma endregion
 
 void Rexon_LoadAssets() {
-	LoadModel(&e_rexon, "e_rexon", ModelFormat_Basic);
-	LoadModel(&e_rexoncol, "e_rexoncol", ModelFormat_Basic);
+	LoadModelFile(&e_rexon, "e_rexon", ModelFormat_Basic);
+	LoadModelFile(&e_rexoncol, "e_rexoncol", ModelFormat_Basic);
+}
+
+void Rexon_FreeAssets() {
+	FreeModelFile(&e_rexon);
+	FreeModelFile(&e_rexoncol);
 }

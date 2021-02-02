@@ -10,7 +10,7 @@ const char* mdlformatfiletypes[] = {
 	".sa2mdl"
 };
 
-void LoadModel(ModelInfo** info, const char* name, ModelFormat format) {
+void LoadModelFile(ModelInfo** info, const char* name, ModelFormat format) {
 	PrintDebug("[Hill Top] Loading %s model: %s... ", mdlformatstrings[format - 1], name);
 
 	std::string fullPath = "system\\models\\";
@@ -29,7 +29,7 @@ void LoadModel(ModelInfo** info, const char* name, ModelFormat format) {
 	}
 }
 
-void LoadAnimation(AnimationFile** info, const char* name) {
+void LoadAnimationFile(AnimationFile** info, const char* name) {
 	PrintDebug("[Hill Top] Loading animation: %s... ", name);
 
 	std::string fullPath = "system\\models\\";
@@ -45,6 +45,44 @@ void LoadAnimation(AnimationFile** info, const char* name) {
 	else {
 		PrintDebug("Done.\n");
 		*info = anm;
+	}
+}
+
+void LoadLandTableFile(LandTableInfo** info, const char* name, NJS_TEXLIST* texlist) {
+	PrintDebug("[Hill Top] Loading geometry file: %s... ", name);
+
+	LandTableInfo* lnd = new LandTableInfo(HelperFunctionsGlobal.GetReplaceablePath(name));
+
+	if (lnd->getlandtable() == nullptr) {
+		PrintDebug("Failed!\n");
+		delete lnd;
+		*info = nullptr;
+	}
+	else {
+		PrintDebug("Done.\n");
+		lnd->getlandtable()->TexList = texlist;
+		*info = lnd;
+	}
+}
+
+void FreeLandTableFile(LandTableInfo** info) {
+	if (*info) {
+		delete* info;
+		info = nullptr;
+	}
+}
+
+void FreeModelFile(ModelInfo** info) {
+	if (*info) {
+		delete* info;
+		info = nullptr;
+	}
+}
+
+void FreeAnimationFile(AnimationFile** info) {
+	if (*info) {
+		delete* info;
+		info = nullptr;
 	}
 }
 
@@ -183,12 +221,6 @@ bool CheckJump(int id) {
 	}
 
 	return false;
-}
-
-LandTable* LoadLandTable(const HelperFunctions& helperFunctions, const char* name, NJS_TEXLIST* texlist) {
-	LandTableInfo* info = new LandTableInfo(helperFunctions.GetReplaceablePath(name));
-	info->getlandtable()->TexList = texlist;
-	return info->getlandtable();
 }
 
 NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id) {

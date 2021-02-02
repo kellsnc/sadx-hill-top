@@ -1,7 +1,12 @@
 #pragma once
 
-void LoadModel(ModelInfo** info, const char* name, ModelFormat format);
-void LoadAnimation(AnimationFile** info, const char* name);
+void LoadModelFile(ModelInfo** info, const char* name, ModelFormat format);
+void LoadAnimationFile(AnimationFile** info, const char* name);
+void LoadLandTableFile(LandTableInfo** info, const char* name, NJS_TEXLIST* texlist);
+
+void FreeLandTableFile(LandTableInfo** info);
+void FreeModelFile(ModelInfo** info);
+void FreeAnimationFile(AnimationFile** info);
 
 NJS_VECTOR GetPositionBetweenPoints(NJS_VECTOR* orig, NJS_VECTOR* dest, float dist);
 
@@ -20,5 +25,4 @@ int IsPlayerInGlobalCylinder(NJS_VECTOR* center, float x, float y);
 void SetPlayerPosition(int id, float x, float y, float z);
 void SetPlayerPosition(int id, NJS_VECTOR* pos);
 bool CheckJump(int id);
-LandTable* LoadLandTable(const HelperFunctions& helperFunctions, const char* name, NJS_TEXLIST* texlist);
 NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id);

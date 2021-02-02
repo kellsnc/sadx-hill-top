@@ -10,6 +10,9 @@ struct Color3 {
     unsigned int c3;
 };
 
+typedef void(__cdecl* VoidFuncPtr)(void);
+
+DataPointer(VoidFuncPtr, LevelDestructor, 0x3B291B4);
 FunctionPointer(void, DrawObject, (NJS_OBJECT*), 0x408530);
 FunctionPointer(void, LoadEnemyExplosion, (Float x, Float y, Float z, Float scale), 0x4CAF80);
 FunctionPointer(void, SpawnAnimal, (Uint32 unk, Float x, Float y, Float z), 0x4BE610);

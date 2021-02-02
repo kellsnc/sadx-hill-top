@@ -103,6 +103,7 @@
     <ClInclude Include="lava.h" />
     <ClInclude Include="ninja-utils.h" />
     <ClInclude Include="object-utils.h" />
+    <ClInclude Include="objects.h" />
     <ClInclude Include="objects\o_balance.h" />
     <ClInclude Include="objects\o_efflava.h" />
     <ClInclude Include="objects\o_growlava.h" />

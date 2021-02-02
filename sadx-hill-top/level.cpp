@@ -10,11 +10,14 @@ Angle HT_WindDirection = 0;
 NJS_TEXNAME HillTop_TexNames[5];
 NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 
+LandTableInfo* HillTopLands[3] = { nullptr };
+
 StartPosition StartPoses[] = {
 	{ LevelIDs_RedMountain, 0, { 0.0f, 0.0f, 0.0f }, 0x8000 }, // Sonic Act 1
 	{ LevelIDs_RedMountain, 1, { 0.0f, 50.0f, 0.0f }, 0x4000 }, // Sonic Act 2
 	{ LevelIDs_RedMountain, 1, { 15.0f, 700.0f, 225.0f }, 0 }, // Gamma Act 2
-	{ LevelIDs_RedMountain, 2, { 895.0f, 295.0f, 515.0f }, 0 }  // Knuckles Act 3
+	{ LevelIDs_RedMountain, 2, { 895.0f, 295.0f, 515.0f }, 0 },  // Knuckles Act 3
+	{ LevelIDs_RedMountain, 3, { 0.0f, 0.0f, 0.0f }, 0 }  // Sonic Act 4 (boss)
 };
 
 FogData HillTopFogData[] = {
@@ -134,15 +137,50 @@ void LoadSkyboxObject_r() {
 	}
 }
 
-void LoadHillTopLandTables(const HelperFunctions& helperFunctions) {
-	GeoLists[LevelIDs_RedMountain * 8] = LoadLandTable(helperFunctions, "system\\hilltopzone0.sa1lvl", &HillTop_TexList);
-	GeoLists[LevelIDs_RedMountain * 8 + 1] = LoadLandTable(helperFunctions, "system\\hilltopzone1.sa1lvl", &HillTop_TexList);
-	GeoLists[LevelIDs_RedMountain * 8 + 2] = GeoLists[LevelIDs_RedMountain * 8];
+void LoadHillTopLandTables() {
+	LoadLandTableFile(&HillTopLands[0], "system\\hilltopzone0.sa1lvl", &HillTop_TexList);
+	LoadLandTableFile(&HillTopLands[1], "system\\hilltopzone1.sa1lvl", &HillTop_TexList);
+	LoadLandTableFile(&HillTopLands[2], "system\\hilltopzone3.sa1lvl", &HillTop_TexList);
+
+	GeoLists[LevelIDs_RedMountain * 8] = HillTopLands[0]->getlandtable();
+	GeoLists[LevelIDs_RedMountain * 8 + 1] = HillTopLands[1]->getlandtable();
+	GeoLists[LevelIDs_RedMountain * 8 + 2] = HillTopLands[0]->getlandtable();
+	GeoLists[LevelIDs_RedMountain * 8 + 3] = HillTopLands[2]->getlandtable();
+}
+
+void FreeHillTopLandTables() {
+	FreeLandTableFile(&HillTopLands[0]);
+	FreeLandTableFile(&HillTopLands[1]);
+	FreeLandTableFile(&HillTopLands[2]);
+}
+
+void __cdecl UnloadHillTopFiles() {
+	FreeHillTopLandTables();
+	FreeLavaLandTables();
+	FreeObjectFiles();
+}
+
+void __cdecl LoadHillTopFiles() {
+	PrintDebug("[Hill Top] Loading level files...\n");
+	LoadHillTopLandTables();
+	LoadLavaLandTables();
+	LoadObjectFiles();
+
+	LevelDestructor = UnloadHillTopFiles;
+}
+
+__declspec(naked) void HookLoadLevelFilesRM() {
+	__asm {
+		call LoadHillTopFiles
+		push 004237B3h
+		ret
+	}
 }
 
 void Level_Init(const HelperFunctions& helperFunctions) {
-	LoadHillTopLandTables(helperFunctions); // Main geometry
-	LoadLavaLandTables(helperFunctions); // Animated lava geometry
+	// Replace the Red Mountain switch case from LoadLevelFiles to use our own set/cam/level files
+	// This effectively removes what Dreamcast Conversion does in it
+	WriteJump((void*)0x422D0A, HookLoadLevelFilesRM);
 	
 	// Paths
 	helperFunctions.RegisterPathList(hilltop0_pathdata);
@@ -154,6 +192,7 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	helperFunctions.RegisterStartPosition(Characters_Sonic, StartPoses[1]);
 	helperFunctions.RegisterStartPosition(Characters_Gamma, StartPoses[2]);
 	helperFunctions.RegisterStartPosition(Characters_Knuckles, StartPoses[3]);
+	helperFunctions.RegisterStartPosition(Characters_Sonic, StartPoses[4]);
 
 	// Level Handler
 	LevelObjects[LevelIDs_RedMountain] = HillTopZone_Init;
@@ -162,6 +201,7 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 	DeathZoneList[LevelIDs_RedMountain][0] = hilltope0_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][1] = hilltope1_deathzones;
 	DeathZoneList[LevelIDs_RedMountain][2] = hilltope2_deathzones;
+	DeathZoneList[LevelIDs_RedMountain][3] = hilltope0_deathzones;
 
 	// Music
 	MusicList[MusicIDs_redmntn1].Name = "hilltop";

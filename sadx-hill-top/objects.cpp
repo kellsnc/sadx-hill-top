@@ -21,7 +21,7 @@
 #include "enemies/e_fireball.h"
 #include "enemies/e_epsilon.h"
 
-static constexpr int MinDistance = 360000;
+static constexpr int MinDistance = 460000;
 
 NJS_TEXNAME HillTopOBJ_TexNames[13];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
@@ -55,7 +55,6 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 2, 0, 0, 0, Ottotto_Main, "OTTOTTO" },
 	{ LoadObj_Data1, 2, 0, 0, 0, TikalHint_Load, "O TIKAL" },
 	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 3, 0, 0, 0, ItemBoxAir_Main, "O ItemBoxAir" },
-
 	{ LoadObj_Data1, 3, 5, 250000, 0, Kiki_Load, "E SARU  " },
 	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerA_Main, "SPINA A" },
 	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerB_Main, "SPINA B" },
@@ -66,14 +65,12 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 4000000, 0, E104Enemy_Main, "E E_104" },
 	{ LoadObj_Data1, 3, 4, 0, 0, Spiker, "SPIKER" },
 	{ LoadObj_Data1, 3, 4, 0, 0, Rexon, "REXON" },
-
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 640000, 0, OTuri1_Main, "O TURI 1" }, // 38
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_Main, "O ZAKO" },
 	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_b_Main, "O ZAKO B" },
-	{ LoadObj_Data1, 3, 1, 249001, 0, OSaku_Main, "O SAKU" },
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, OSaku_Main, "O SAKU" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow_Main, "O BLOW" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
-
 	{ LoadObj_Data1, 3, 1, 638401, 0, HillTree, "O HILLLTREE" },
 	{ LoadObj_Data1, 3, 1, 1000000, 0, HillTransporter, "O TRANSPORTER" },
 	{ LoadObj_Data1, 4, 1, MinDistance, 0, HillFlowers, "O HILLFLOWERS" },
@@ -88,9 +85,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 640000, 0, HillPole, "O HILLPOLE" },
 	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" },
 	{ LoadObj_Data1, 3, 1, 1280000, 0, HillPlatform, "O HILLPLATFORM" },
-
 	{ LoadObj_Data1, 3, 1, MinDistance, 0, RingGroup_Main, "O_GRING" },
-
 	{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLava, "O GROWLAVA" },
 	{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
 	{ LoadObj_Data1, 2, 0, 0, 0, GrowLavaTrigger, "O GRAWLAVATRIGGER" },
@@ -106,7 +101,6 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "LAVAFALL", &LAVAFALL_TexList },
 	{ "YOUGAN_ANIM", &YOUGAN_ANIM_TEXLIST },
 	{ "EC_LIGHT", (NJS_TEXLIST*)0x2BF4F2C },
-
 	{ "SPIKER", &SPIKER_TexList },
 	{ "REXON", &REXON_TexList },
 	{ "E_BOMB", &E_BOMB_TEXLIST },
@@ -118,7 +112,6 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "MOUNTAIN_E104", &MOUNTAIN_E104_TEXLIST },
 	{ "MOUNTAIN_MEXPLOSION", (TexList*)0x2498810 },
 	{ NULL, &b32ascii_TEXLIST },
-
 	{ "OUM", &OUM_TEXLIST },
 	{ "GORI", &GORI_TEXLIST },
 	{ "LION", &LION_TEXLIST },
@@ -129,32 +122,20 @@ PVMEntry HillTopObjectTextures[] = {
 	{ 0 }
 };
 
-void Objects_Init(const HelperFunctions& helperFunctions) {
-	helperFunctions.ReplaceFile("system\\SET0500S.bin", "system\\SETHT00S.bin");
-	helperFunctions.ReplaceFile("system\\SET0501S.bin", "system\\SETHT01S.bin");
-	helperFunctions.ReplaceFile("system\\SET0501E.bin", "system\\SETHT01E.bin");
-	helperFunctions.ReplaceFile("system\\SET0502K.bin", "system\\SETHT02K.bin");
+void LoadObjectFiles() {
+	LoadSetFile(0, "HT00");
+	LoadSetFile(1, "HT01");
+	LoadSetFile(2, "HT02");
+	LoadSetFile(3, "HT03"); // custom act
 
-	// Compatibility with DC Conversion
-	WriteData<5>((void*)0x422D14, 0x90);
-	helperFunctions.ReplaceFile("system\\SET0500S_DC.bin", "system\\SETHT00S.bin");
-	helperFunctions.ReplaceFile("system\\SET0501S_DC.bin", "system\\SETHT01S.bin");
-	helperFunctions.ReplaceFile("system\\SET0501E_DC.bin", "system\\SETHT01E.bin");
-	helperFunctions.ReplaceFile("system\\SET0502K_DC.bin", "system\\SETHT02K.bin");
-
-	TexLists_Obj[LevelIDs_RedMountain] = HillTopObjectTextures;
-	ObjLists[LevelIDs_RedMountain * 8] = &HillTopObjectList;
-	ObjLists[LevelIDs_RedMountain * 8 + 1] = &HillTopObjectList;
-	ObjLists[LevelIDs_RedMountain * 8 + 2] = &HillTopObjectList;
-
-	SkyboxObjects[LevelIDs_RedMountain] = HillTopZone_SkyBox;
-
-	LoadModel(&ht_tree, "ht_tree", ModelFormat_Basic);
-	LoadModel(&ht_transporter, "ht_transporter", ModelFormat_Basic);
-	LoadModel(&ht_transportercol, "ht_transportercol", ModelFormat_Basic);
-	LoadModel(&ht_vine, "ht_vine", ModelFormat_Chunk);
+	LoadCamFile(0, "HT00");
+	LoadCamFile(1, "HT01");
+	LoadCamFile(2, "HT02");
+	LoadCamFile(3, "HT03"); // custom act
 
 	SkyBox_LoadAssets();
+	HillTree_LoadAssets();
+	HillTransporter_LoadAssets();
 	HillFlowers_LoadAssets();
 	LavaFall_LoadAssets();
 	HillGrass_LoadAssets();
@@ -168,5 +149,46 @@ void Objects_Init(const HelperFunctions& helperFunctions) {
 	Spiker_LoadAssets();
 	Rexon_LoadAssets();
 	FireBall_LoadAssets();
+}
+
+void FreeObjectFiles() {
+	SkyBox_FreeAssets();
+	HillTree_FreeAssets();
+	HillTransporter_FreeAssets();
+	HillFlowers_FreeAssets();
+	LavaFall_FreeAssets();
+	HillGrass_FreeAssets();
+	Lantern_FreeAssets();
+	HillBush_FreeAssets();
+	PickRocket_FreeAssets();
+	HillBalance_FreeAssets();
+	HillPlatform_FreeAssets();
+	GrowLava_FreeAssets();
+
+	Spiker_FreeAssets();
+	Rexon_FreeAssets();
+	FireBall_FreeAssets();
+}
+
+void Objects_Init(const HelperFunctions& helperFunctions) {
+	// Add a new act to Red Mountain set/cam files (originally 0x210)
+	SetDataThings[LevelIDs_RedMountain] = 0x3210;
+	CamDataThings[LevelIDs_RedMountain] = 0x3210;
+
+	// Compatibility with DC Conversion
+	helperFunctions.ReplaceFile("system\\SET0500S_DC.bin", "system\\SETHT00S.bin");
+	helperFunctions.ReplaceFile("system\\SET0501S_DC.bin", "system\\SETHT01S.bin");
+	helperFunctions.ReplaceFile("system\\SET0501E_DC.bin", "system\\SETHT01E.bin");
+	helperFunctions.ReplaceFile("system\\SET0502K_DC.bin", "system\\SETHT02K.bin");
+
+	TexLists_Obj[LevelIDs_RedMountain] = HillTopObjectTextures;
+	ObjLists[LevelIDs_RedMountain * 8] = &HillTopObjectList;
+	ObjLists[LevelIDs_RedMountain * 8 + 1] = &HillTopObjectList;
+	ObjLists[LevelIDs_RedMountain * 8 + 2] = &HillTopObjectList;
+	ObjLists[LevelIDs_RedMountain * 8 + 3] = &HillTopObjectList; // custom act
+
+	SkyboxObjects[LevelIDs_RedMountain] = HillTopZone_SkyBox;
+
+	// Adjust E104 fight positions
 	EpsilonBoss_Init();
 }

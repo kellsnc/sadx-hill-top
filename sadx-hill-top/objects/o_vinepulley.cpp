@@ -27,7 +27,7 @@ void __cdecl VinePulley_Display(ObjectMaster* obj) {
 		EntityData1* data = obj->Data1;
 		EntityData1* child = obj->Child->Data1;
 
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&child->Position);
 		njScaleY(data->Scale.z / 23);

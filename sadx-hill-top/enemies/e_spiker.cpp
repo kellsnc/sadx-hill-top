@@ -463,9 +463,9 @@ void __cdecl Spiker(ObjectMaster* obj) {
 #pragma endregion
 
 void Spiker_LoadAssets() {
-	LoadModel(&e_spiker, "e_spiker", ModelFormat_Basic);
-	LoadAnimation(&e_spiker_stand, "e_spiker_stand");
-	LoadAnimation(&e_spiker_walk, "e_spiker_walk");
+	LoadModelFile(&e_spiker, "e_spiker", ModelFormat_Basic);
+	LoadAnimationFile(&e_spiker_stand, "e_spiker_stand");
+	LoadAnimationFile(&e_spiker_walk, "e_spiker_walk");
 
 	NJS_OBJECT* object = e_spiker->getmodel();
 
@@ -474,4 +474,10 @@ void Spiker_LoadAssets() {
 
 	SpikerActions[1].object = object;
 	SpikerActions[1].motion = e_spiker_walk->getmotion();
+}
+
+void Spiker_FreeAssets() {
+	FreeModelFile(&e_spiker);
+	FreeAnimationFile(&e_spiker_stand);
+	FreeAnimationFile(&e_spiker_walk);
 }

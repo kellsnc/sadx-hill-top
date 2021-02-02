@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "lava.h"
 #include "objects/o_lavafall.h"
 
 /*
@@ -10,20 +11,21 @@ Draw a secondary landtable for animated lava geometries
 static NJS_TEXNAME CurrentLavaNames[2] = { 0 };
 NJS_TEXLIST CurrentLavaTex = { CurrentLavaNames, 2 };
 
-static LandTable* LavaTables[3] = { nullptr };
+static LandTableInfo* LavaTableInfos[2] = { nullptr };
+static LandTable* LavaLands[4] = { nullptr };
 
 void __cdecl HillTopLava_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
-		LandTable* land = LavaTables[CurrentAct];
+		LandTable* land = LavaLands[CurrentAct];
 
 		// Hacky thing to draw the texture we want
 		CurrentLavaNames[0] = YOUGAN_ANIM_TEXNAMES[data->Index];
 		CurrentLavaNames[1] = LAVAFALL_TexList.textures[data->Index];
 
-		njSetTexture(land->TexList);
-
 		if (land) {
+			njSetTexture(land->TexList);
+
 			for (int i = 0; i < land->COLCount; ++i) {
 				COL* col = &land->Col[i];
 
@@ -58,8 +60,16 @@ void LoadLavaManager() {
 	lavaobj->DisplaySub = HillTopLava_Display;
 }
 
-void LoadLavaLandTables(const HelperFunctions& helperFunctions) {
-	LavaTables[0] = LoadLandTable(helperFunctions, "system\\hilltopzone0_lava.sa1lvl", &CurrentLavaTex);
-	LavaTables[1] = LoadLandTable(helperFunctions, "system\\hilltopzone1_lava.sa1lvl", &CurrentLavaTex);
-	LavaTables[2] = LavaTables[0];
+void LoadLavaLandTables() {
+	LoadLandTableFile(&LavaTableInfos[0], "system\\hilltopzone0_lava.sa1lvl", &CurrentLavaTex);
+	LoadLandTableFile(&LavaTableInfos[1], "system\\hilltopzone1_lava.sa1lvl", &CurrentLavaTex);
+
+	LavaLands[0] = LavaTableInfos[0]->getlandtable();
+	LavaLands[1] = LavaTableInfos[1]->getlandtable();
+	LavaLands[2] = LavaTableInfos[0]->getlandtable();
+}
+
+void FreeLavaLandTables() {
+	FreeLandTableFile(&LavaTableInfos[0]);
+	FreeLandTableFile(&LavaTableInfos[1]);
 }

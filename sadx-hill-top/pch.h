@@ -11,5 +11,6 @@
 #include "pointers.h"
 #include "ninja-utils.h"
 #include "object-utils.h"
+#include "objects.h"
 
 #endif

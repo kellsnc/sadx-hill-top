@@ -20,7 +20,7 @@ void __cdecl FireFly_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 
@@ -72,7 +72,7 @@ void __cdecl Lantern_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
@@ -114,5 +114,9 @@ void __cdecl HillLantern(ObjectMaster* obj) {
 }
 
 void Lantern_LoadAssets() {
-	LoadModel(&ht_lantern, "ht_lantern", ModelFormat_Basic);
+	LoadModelFile(&ht_lantern, "ht_lantern", ModelFormat_Basic);
+}
+
+void Lantern_FreeAssets() {
+	FreeModelFile(&ht_lantern);
 }

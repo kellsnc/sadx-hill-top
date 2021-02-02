@@ -339,5 +339,9 @@ void __cdecl KillCeiling(ObjectMaster* obj) {
 #pragma endregion
 
 void GrowLava_LoadAssets() {
-	LoadModel(&ht_growlava, "ht_growlava", ModelFormat_Basic);
+	LoadModelFile(&ht_growlava, "ht_growlava", ModelFormat_Basic);
+}
+
+void GrowLava_FreeAssets() {
+	FreeModelFile(&ht_growlava);
 }

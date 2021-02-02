@@ -17,7 +17,7 @@ void __cdecl HillPole_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njDrawModel_SADX(data->Object->basicdxmodel);

@@ -102,7 +102,7 @@ void DrawPoles(NJS_OBJECT* PoleObject) {
 void __cdecl EndPoles_Display(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 
-	njSetTexture(LevelObjTexlists[1]);
+	njSetTexture(&HillTopOBJ_TexList);
 	njPushMatrixEx();
 	njTranslateEx(&data->Position);
 	njRotateY_(data->Rotation.y);
@@ -161,7 +161,7 @@ void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
 	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
 
-	njSetTexture(LevelObjTexlists[1]);
+	njSetTexture(&HillTopOBJ_TexList);
 	njPushMatrixEx();
 	njTranslateEx(&data->Position);
 
@@ -279,7 +279,7 @@ void __cdecl HillTransporter_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		TransporterData1* data = (TransporterData1*)obj->Data1;
 
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
@@ -338,4 +338,16 @@ void __cdecl HillTransporter(ObjectMaster* obj) {
 
 	data->Rotation.x = 0;
 	data->Rotation.z = 0;
+}
+
+void HillTransporter_LoadAssets() {
+	LoadModelFile(&ht_transporter, "ht_transporter", ModelFormat_Basic);
+	LoadModelFile(&ht_transportercol, "ht_transportercol", ModelFormat_Basic);
+	LoadModelFile(&ht_vine, "ht_vine", ModelFormat_Chunk);
+}
+
+void HillTransporter_FreeAssets() {
+	FreeModelFile(&ht_transporter);
+	FreeModelFile(&ht_transportercol);
+	FreeModelFile(&ht_vine);
 }

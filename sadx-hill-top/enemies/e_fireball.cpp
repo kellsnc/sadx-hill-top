@@ -153,5 +153,9 @@ void FireBallLauncher(ObjectMaster* obj) {
 }
 
 void FireBall_LoadAssets() {
-	LoadModel(&e_fireball, "e_fireball", ModelFormat_Basic);
+	LoadModelFile(&e_fireball, "e_fireball", ModelFormat_Basic);
+}
+
+void FireBall_FreeAssets() {
+	FreeModelFile(&e_fireball);
 }

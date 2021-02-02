@@ -99,7 +99,7 @@ void __cdecl HillBalance_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
@@ -169,5 +169,9 @@ void __cdecl HillBalance(ObjectMaster* obj) {
 }
 
 void HillBalance_LoadAssets() {
-	LoadModel(&ht_balance, "ht_balance", ModelFormat_Basic);
+	LoadModelFile(&ht_balance, "ht_balance", ModelFormat_Basic);
+}
+
+void HillBalance_FreeAssets() {
+	FreeModelFile(&ht_balance);
 }

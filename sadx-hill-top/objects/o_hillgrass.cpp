@@ -18,7 +18,7 @@ void __cdecl HillGrass_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
@@ -57,9 +57,14 @@ void __cdecl HillGrass(ObjectMaster* obj) {
 }
 
 void HillGrass_LoadAssets() {
-	LoadModel(&ht_grass0, "ht_grass0", ModelFormat_Basic);
-	LoadAnimation(&ht_grass0_anm, "ht_grass0");
+	LoadModelFile(&ht_grass0, "ht_grass0", ModelFormat_Basic);
+	LoadAnimationFile(&ht_grass0_anm, "ht_grass0");
 
 	Grass0_Action.object = ht_grass0->getmodel();
 	Grass0_Action.motion = ht_grass0_anm->getmotion();
+}
+
+void HillGrass_FreeAssets() {
+	FreeModelFile(&ht_grass0);
+	FreeAnimationFile(&ht_grass0_anm);
 }

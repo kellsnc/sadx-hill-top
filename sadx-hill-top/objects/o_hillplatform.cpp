@@ -94,5 +94,9 @@ void __cdecl HillPlatform(ObjectMaster* obj) {
 }
 
 void HillPlatform_LoadAssets() {
-	LoadModel(&ht_platform, "ht_platform", ModelFormat_Basic);
+	LoadModelFile(&ht_platform, "ht_platform", ModelFormat_Basic);
+}
+
+void HillPlatform_FreeAssets() {
+	FreeModelFile(&ht_platform);
 }

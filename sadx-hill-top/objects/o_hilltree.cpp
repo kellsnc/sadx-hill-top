@@ -22,7 +22,7 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 
 	if (!MissedFrames && IsVisible(&data->Position, 30.0f * (data->Scale.x + data->Scale.y))) {
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
@@ -98,4 +98,12 @@ void __cdecl HillTree(ObjectMaster* obj) {
 	
 	obj->MainSub = HillTree_Main;
 	obj->DisplaySub = HillTree_Display;
+}
+
+void HillTree_LoadAssets() {
+	LoadModelFile(&ht_tree, "ht_tree", ModelFormat_Basic);
+}
+
+void HillTree_FreeAssets() {
+	FreeModelFile(&ht_tree);
 }

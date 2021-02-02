@@ -94,5 +94,9 @@ void __cdecl PickRock(ObjectMaster* obj) {
 }
 
 void PickRock_LoadAssets() {
-	LoadModel(&ht_pickrock, "ht_pickrock", ModelFormat_Basic);
+	LoadModelFile(&ht_pickrock, "ht_pickrock", ModelFormat_Basic);
+}
+
+void PickRocket_FreeAssets() {
+	FreeModelFile(&ht_pickrock);
 }

@@ -28,7 +28,7 @@ void __cdecl HillFlowers_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
@@ -120,16 +120,16 @@ void __cdecl HillFlowers(ObjectMaster* obj) {
 }
 
 void HillFlowers_LoadAssets() {
-	LoadModel(&ht_flower0, "ht_flower0", ModelFormat_Basic);
-	LoadModel(&ht_flower1, "ht_flower1", ModelFormat_Basic);
-	LoadModel(&ht_flowerpatch0, "ht_flowerpatch0", ModelFormat_Basic);
-	LoadModel(&ht_flowerpatch1, "ht_flowerpatch1", ModelFormat_Basic);
+	LoadModelFile(&ht_flower0, "ht_flower0", ModelFormat_Basic);
+	LoadModelFile(&ht_flower1, "ht_flower1", ModelFormat_Basic);
+	LoadModelFile(&ht_flowerpatch0, "ht_flowerpatch0", ModelFormat_Basic);
+	LoadModelFile(&ht_flowerpatch1, "ht_flowerpatch1", ModelFormat_Basic);
 
 	// Set up animations:
 
-	LoadAnimation(&ht_flower0_anm, "ht_flower0");
-	LoadAnimation(&ht_flower1_anm, "ht_flower1");
-	LoadAnimation(&ht_flowerpatch1_anm, "ht_flowerpatch1");
+	LoadAnimationFile(&ht_flower0_anm, "ht_flower0");
+	LoadAnimationFile(&ht_flower1_anm, "ht_flower1");
+	LoadAnimationFile(&ht_flowerpatch1_anm, "ht_flowerpatch1");
 
 	Flower0_Action.object = ht_flower0->getmodel();
 	Flower0_Action.motion = ht_flower0_anm->getmotion();
@@ -139,4 +139,14 @@ void HillFlowers_LoadAssets() {
 
 	Flowerpatch1_Action.object = ht_flowerpatch1->getmodel();
 	Flowerpatch1_Action.motion = ht_flowerpatch1_anm->getmotion();
+}
+
+void HillFlowers_FreeAssets() {
+	FreeModelFile(&ht_flower0);
+	FreeModelFile(&ht_flower1);
+	FreeModelFile(&ht_flowerpatch0);
+	FreeModelFile(&ht_flowerpatch1);
+	FreeAnimationFile(&ht_flower0_anm);
+	FreeAnimationFile(&ht_flower1_anm);
+	FreeAnimationFile(&ht_flowerpatch1_anm);
 }

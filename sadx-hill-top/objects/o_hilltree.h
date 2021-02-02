@@ -1,5 +1,5 @@
 #pragma once
 
-extern ModelInfo* ht_tree;
-
 void __cdecl HillTree(ObjectMaster* obj);
+void HillTree_LoadAssets();
+void HillTree_FreeAssets();

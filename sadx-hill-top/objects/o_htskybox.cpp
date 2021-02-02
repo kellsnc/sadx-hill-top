@@ -120,6 +120,11 @@ void LoadSkyboxAct(ObjectMaster* obj) {
 		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -200.0f;
 		obj->Data1->Position.y = -200.0f;
 		break;
+	case 3:
+		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -400.0f;
+		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = 1000.0f;
+		obj->Data1->Position.y = -500.0f;
+		break;
 	}
 
 	obj->Data1->Index = CurrentAct;
@@ -199,6 +204,11 @@ void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
 }
 
 void SkyBox_LoadAssets() {
-	LoadModel(&ht_clouds, "ht_clouds", ModelFormat_Basic);
-	LoadModel(&ht_cloudlayers, "ht_cloudlayers", ModelFormat_Basic);
+	LoadModelFile(&ht_clouds, "ht_clouds", ModelFormat_Basic);
+	LoadModelFile(&ht_cloudlayers, "ht_cloudlayers", ModelFormat_Basic);
+}
+
+void SkyBox_FreeAssets() {
+	FreeModelFile(&ht_clouds);
+	FreeModelFile(&ht_cloudlayers);
 }

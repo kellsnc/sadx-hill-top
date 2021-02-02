@@ -45,7 +45,7 @@ void __cdecl LavaEffect_Display(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 
 	if (!MissedFrames) {
-		njSetTexture(LevelObjTexlists[1]);
+		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 
