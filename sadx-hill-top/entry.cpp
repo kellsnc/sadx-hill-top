@@ -3,6 +3,7 @@
 void Level_Init(const HelperFunctions& helperFunctions);
 void Objects_Init(const HelperFunctions& helperFunctions);
 void Cameras_Init(const HelperFunctions& helperFunctions);
+void Boss_Init(const HelperFunctions& helperFunctions);
 
 HelperFunctions HelperFunctionsGlobal;
 
@@ -14,6 +15,7 @@ extern "C"
 		Level_Init(helperFunctions);
 		Objects_Init(helperFunctions);
 		Cameras_Init(helperFunctions);
+		Boss_Init(helperFunctions);
 	}
 
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };

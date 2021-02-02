@@ -29,7 +29,7 @@ typedef struct {
 
 static constexpr NJS_VECTOR SunPositions[2] = {
 	{ 4000, 2000, 500 },
-	{ 4000, 4000, 500 }
+	{ -2000, 600, 1000 }
 };
 
 static NJS_VECTOR EggCarrierPosition;

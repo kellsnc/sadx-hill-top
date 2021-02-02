@@ -5,6 +5,8 @@
 #include "event.h"
 #include "lava.h"
 
+#include "enemies/e_subeggman.h"
+
 Angle HT_WindDirection = 0;
 
 NJS_TEXNAME HillTop_TexNames[5];
@@ -17,10 +19,12 @@ StartPosition StartPoses[] = {
 	{ LevelIDs_RedMountain, 1, { 0.0f, 50.0f, 0.0f }, 0x4000 }, // Sonic Act 2
 	{ LevelIDs_RedMountain, 1, { 15.0f, 700.0f, 225.0f }, 0 }, // Gamma Act 2
 	{ LevelIDs_RedMountain, 2, { 895.0f, 295.0f, 515.0f }, 0 },  // Knuckles Act 3
-	{ LevelIDs_RedMountain, 3, { 0.0f, 0.0f, 0.0f }, 0 }  // Sonic Act 4 (boss)
+	{ LevelIDs_RedMountain, 3, { 0.0f, -20.0f, 0.0f }, 0 }  // Sonic Act 4 (boss)
 };
 
 FogData HillTopFogData[] = {
+	{ 167, 6000, 0x80FFFFFF, 1 },
+	{ 167, 6000, 0x80FFFFFF, 1 },
 	{ 167, 6000, 0x80FFFFFF, 1 },
 	{ 167, 6000, 0x80FFFFFF, 1 }
 };
@@ -72,6 +76,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 				NextAct_IncrementAct(2);
 				MovePlayerToStartPoint(EntityData1Ptrs[0]);
 				HillTop_SetViewData();
+				Boss_SubEggman_Init(obj);
 			}
 			else {
 				// teleport to end of level that's further way
@@ -87,13 +92,19 @@ void __cdecl HillTopZone_Init(ObjectMaster* obj) {
 	HillTop_SetViewData(); // Set fog, view distance, etc.
 	LoadLavaManager(); // Load the object that handles animated lava geometry
 
-	// This initializes the music only if no event is running.
-	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
-	musicobj->Data1->Action = MusicIDs_redmntn1;
-	musicobj->Data1->InvulnerableTime = 3;
+	// If current act is Eggman boss, load that instead
+	if (CurrentAct == 3) {
+		obj->MainSub = Boss_SubEggman_Init;
+	}
+	else {
+		// This initializes the music only if no event is running.
+		ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
+		musicobj->Data1->Action = MusicIDs_redmntn1;
+		musicobj->Data1->InvulnerableTime = 3;
 
-	// Main level function ran every frame, used mostly for act swaps.
-	obj->MainSub = HillTopZone_Main;
+		// Main level function ran every frame, used mostly for act swaps.
+		obj->MainSub = HillTopZone_Main;
+	}
 }
 #pragma endregion
 
@@ -133,6 +144,7 @@ void __cdecl UnloadHillTopFiles() {
 	FreeHillTopLandTables();
 	FreeLavaLandTables();
 	FreeObjectFiles();
+	Boss_FreeAssets();
 }
 
 void __cdecl LoadHillTopFiles() {
@@ -140,6 +152,7 @@ void __cdecl LoadHillTopFiles() {
 	LoadHillTopLandTables();
 	LoadLavaLandTables();
 	LoadObjectFiles();
+	Boss_LoadAssets();
 
 	LevelDestructor = UnloadHillTopFiles;
 }

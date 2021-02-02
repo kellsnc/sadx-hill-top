@@ -31,6 +31,7 @@ VoidFunc(RedMountain_SetViewData, 0x600730);
 DataArray(Color3, GlobalColorsLevel, 0x90BFE8, 43);
 FunctionPointer(void, KillPlayer, (uint8_t ID), 0x440CD0);
 DataArray(NJS_VECTOR, GammaCamBounds, 0x24C8D00, 5);
+FunctionPointer(void, DisplayBossName2, (const char* name, signed int width, signed int height, int a4), 0x4B36D0);
 
 // Event related
 VoidFunc(EV_InitCamera, 0x4303E0);
