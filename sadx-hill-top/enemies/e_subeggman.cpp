@@ -330,6 +330,23 @@ void __cdecl EggmanBossCamera_Init(_OBJ_CAMERAPARAM*) {
 #pragma endregion
 
 #pragma region Attacks
+CollisionData Deflarg_Col = { 0, CollisionShape_Sphere, 0x77, 0x2F, 0, { 0.0f, -5.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
+
+NJS_TEXANIM DEFLARG_TEXS[]{
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 0, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 1, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 2, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 3, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 4, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 5, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 6, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 7, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 8, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 9, 0 }
+};
+
+NJS_SPRITE DEFLARG_SPRITE = { { 0, 0, 0 }, 1.0, 1.0, 0, (NJS_TEXLIST*)0x9891F0, DEFLARG_TEXS };
+
 NJS_VECTOR EggSub_GetAttackPoint(EntityData1* data) {
 	NJS_VECTOR vec;
 	
@@ -353,6 +370,149 @@ void EggSub_FireBall(EntityData1* data, Float scale) {
 	// sound
 }
 
+void __cdecl EggBombInit(ObjectMaster* obj) {
+	obj->MainSub = (ObjectFuncPtr)0x4AC920;
+	obj->MainSub(obj);
+
+	// This is the velocity direction of the bomb, we add some flavour to it
+	ObjectData2* data2 = (ObjectData2*)obj->Data2;
+	data2->field_4.y = 3.0f + static_cast<float>(rand() % 100) / 100.0f;
+	data2->field_4.x *= 1.0f + static_cast<float>(rand() % 100) / 100.0f;
+	data2->field_4.z *= 1.0f + static_cast<float>(rand() % 100) / 100.0f;
+}
+
+void EggSub_Bomb(EntityData1* data) {
+	ObjectMaster* bomb = LoadChildObject(LoadObj_Data1, EggBombInit, CurrentBoss);
+	if (bomb)
+	{
+		EntityData1* bombdata = bomb->Data1;
+		
+		bombdata->NextAction = 1;
+		bombdata->Position = data->Position;
+		bombdata->Rotation = data->Rotation;
+		bombdata->Position.y = 5;
+	}
+
+	// sound
+}
+
+void EggSubDeflarg_Display(ObjectMaster* obj) {
+	if (!MissedFrames) {
+		EntityData1* data = obj->Data1;
+		
+		njPushMatrixEx();
+		njSetTexture((NJS_TEXLIST*)0x9891F0);
+		njTranslateEx(&data->Position);
+		njRotateY_(Camera_Data1->Rotation.y);
+		
+		njColorBlendingMode(NJD_SOURCE_COLOR, NJD_COLOR_BLENDING_SRCALPHA);
+		njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_ONE);
+		njDrawSprite3D(&DEFLARG_SPRITE, data->Index, NJD_SPRITE_ALPHA);
+		njColorBlendingMode(NJD_SOURCE_COLOR, NJD_COLOR_BLENDING_SRCALPHA);
+		njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_INVSRCALPHA);
+
+		njPopMatrixEx();
+	}
+}
+
+void EggSubDeflarg_Main(ObjectMaster* obj) {
+	EntityData1* data = obj->Data1;
+
+	njPushMatrix(_nj_unit_matrix_);
+	njTranslateEx(&data->Position);
+	njRotateY_(data->Rotation.y);
+	njTranslateX(-1.0f);
+	njTranslateY(-0.75f);
+	njGetTranslation(_nj_current_matrix_ptr_, &data->Position);
+	njPopMatrixEx();
+
+	if (data->Index < 9) {
+		if (FrameCounterUnpaused % 10 == 0) ++data->Index;
+	}
+	else {
+		data->Index = 9;
+		DeleteObject_(obj);
+		return;
+	}
+
+	AddToCollisionList(data);
+	obj->DisplaySub(obj);
+}
+
+void EggSub_Deflarg(EntityData1* data) {
+	ObjectMaster* obj = LoadChildObject(LoadObj_Data1, EggSubDeflarg_Main, CurrentBoss);
+	EntityData1* child = obj->Data1;
+
+	child->Position = EggSub_GetAttackPoint(data);
+
+	Collision_Init(obj, &Deflarg_Col, 1, 4);
+	obj->DisplaySub = EggSubDeflarg_Display;
+}
+
+void EggSubFire_Main(ObjectMaster* obj) {
+	EntityData1* data = obj->Data1;
+
+	if (data->Index < 9) {
+		if (FrameCounterUnpaused % 5 == 0) ++data->Index;
+	}
+	else {
+		data->Index = 0;
+	}
+
+	if (data->Action == 0) {
+		njPushMatrix(_nj_unit_matrix_);
+		njTranslateEx(&data->Position);
+		njRotateY_(data->Rotation.y);
+		njRotateX_(data->Rotation.x);
+		njTranslateX(-data->Scale.x);
+		njTranslateY(data->Scale.z - data->Scale.y);
+		njGetTranslation(_nj_current_matrix_ptr_, &data->Position);
+		njPopMatrixEx();
+
+		if (data->Scale.z > 0) {
+			data->Scale.z -= 0.1f;
+		}
+
+		if (++data->InvulnerableTime > 100) {
+			DeleteObject_(obj);
+			return;
+		}
+
+		NJS_VECTOR idk = { 0, 0, 0 };
+		if (DetectDyncolCollision(&data->Position, &idk, &data->Rotation, (ColFlags)(ColFlags_Hurt | 0x08000000), 10.0f)) {
+			data->Action = 1;
+		}
+	}
+	else {
+		if (++data->InvulnerableTime > 5000) {
+			DeleteObject_(obj);
+		}
+	}
+	
+	AddToCollisionList(data);
+	obj->DisplaySub(obj);
+}
+
+void EggSub_Fire(EntityData1* data, int count) {
+	NJS_VECTOR pos = EggSub_GetAttackPoint(data);
+
+	for (int i = 0; i < count; ++i) {
+		ObjectMaster* obj = LoadChildObject(LoadObj_Data1, EggSubFire_Main, CurrentBoss);
+		EntityData1* child = obj->Data1;
+
+		child->Position = pos;
+		child->Scale.x = 1.0f + static_cast<float>(rand() % 100) / 100;
+		child->Scale.y = 0.50 + static_cast<float>(rand() % 25) / 25;
+		child->Scale.z = 2.0f;
+		child->Rotation.x = -(rand() % 1000);
+		child->Rotation.y += (rand() % 500) - 250;
+		
+		Collision_Init(obj, &Deflarg_Col, 1, 4);
+		obj->DisplaySub = EggSubDeflarg_Display;
+	}
+
+	//sound
+}
 #pragma endregion
 
 #pragma region SubEggman
@@ -514,9 +674,17 @@ void SubEgg_GetRandomPosition(EntityData1* data, eggsubwk* wk) {
 		dist = 260;
 	}
 
-	data->Position.x = njCos(ang) * dist;
+	data->Position.x = -(njCos(ang) * dist);
 	data->Position.y = sinkHeight;
-	data->Position.z = njSin(ang) * dist;
+	data->Position.z = -(njSin(ang) * dist);
+
+	if (rand() % 2 == 0) {
+		data->Position.x = fabsf(data->Position.x);
+	}
+
+	if (rand() % 2 == 0) {
+		data->Position.z = fabsf(data->Position.z);
+	}
 
 	data->Rotation.y = static_cast<Angle>(atan2f(data->Position.x, data->Position.z) * 65536.0f * 0.1591549762031479f);
 	data->Rotation.y += dist == 190 ? 0xC000 : 0x4000;
@@ -605,7 +773,7 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 		speed = wk->Level == 1 ? 100 : 70;
 
 		if (++wk->InternalTimer == speed) {
-			// fire
+			EggSub_Fire(data, wk->Level == 1 ? 3 : 5);
 		}
 		else if (wk->InternalTimer > speed * 2) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::sink);
@@ -617,8 +785,13 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::hidden);
 
 			// if untouched during this act, redo or change
-			if (wk->InternalTimer > 200 && rand() % 10 < 2) {
-				SubEgg_ChangeAction(wk, eggsubacts::act2);
+			if (wk->InternalTimer > 200 && rand() % 10 < 8) {
+				if (wk->Level <= 3) {
+					SubEgg_ChangeAction(wk, eggsubacts::act2);
+				}
+				else {
+					SubEgg_ChangeAction(wk, eggsubacts::act4);
+				}
 			}
 			else {
 				if (wk->Level <= 2) {
@@ -639,8 +812,10 @@ inline void SubEggAct3Attack(EntityData1* data, eggsubwk* wk) {
 
 	data->Rotation.y += speed > 0x500 ? 0x500 : speed;
 
-	if (wk->InternalTimer % 10 == 0) {
-		// deflarg
+	//sound
+
+	if (wk->InternalTimer % (wk->Level == 3 ? 2 : 4) == 0) {
+		EggSub_Deflarg(data);
 	}
 
 	if (wk->InternalTimer > 500) {
@@ -707,9 +882,9 @@ void SubEgg_Act4(EntityData1* data, eggsubwk* wk) {
 
 		++wk->InternalTimer;
 
-		if (wk->InternalTimer % 50 == 0) {
+		if (wk->InternalTimer % 10 == 0) {
 			SubEgg_GetRandomPosition(data, wk);
-			// bomb
+			EggSub_Bomb(data);
 		}
 
 		if (wk->InternalTimer > 800) {
@@ -819,6 +994,7 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 
 	wk->Subs = eggsubmtnacts::hidden;
 	wk->Acts = eggsubacts::act1;
+	wk->Acts = eggsubacts::act2;
 
 	data->Position.y = sinkHeight;
 
@@ -838,6 +1014,7 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 
 void __cdecl Boss_SubEggman_Main(ObjectMaster* obj) {
 	//SetCameraControlEnabled(0);
+	SetCameraMode_(1);
 }
 
 void __cdecl Boss_SubEggman_Init(ObjectMaster* obj) {
