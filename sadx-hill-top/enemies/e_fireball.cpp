@@ -14,7 +14,7 @@ void __cdecl FireBall_Display(ObjectMaster* obj) {
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
-		njRotateX_(data->Rotation.x);
+		njRotateZ_(data->Rotation.x);
 		njScalef(data->Scale.x);
 
 		data->Object->basicdxmodel->mats->attr_texId = data->Index;
@@ -40,7 +40,7 @@ void __cdecl FireBall_Main(ObjectMaster* obj) {
 		njTranslateEx(&data->Position);
 		njTranslateY(-(data->Scale.z / 4)); // grav
 		njRotateY_(data->Rotation.y - 0x4000);
-		njRotateX_(data->Rotation.x);
+		njRotateZ_(data->Rotation.x);
 
 		// check direction
 		if (data->Unknown == 0) {
