@@ -536,7 +536,7 @@ NJS_VECTOR EggSub_GetAttackPoint(EntityData1* data) {
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&data->Position);
 	njRotateY_(data->Rotation.y);
-	njTranslate(_nj_current_matrix_ptr_, -20.0f, 50.0f, 0.0f);
+	njTranslate(_nj_current_matrix_ptr_, 0, 35.0f, -3.0f);
 	njGetTranslation(_nj_current_matrix_ptr_, &vec);
 	njPopMatrixEx();
 
@@ -647,7 +647,7 @@ void EggSubFire_Main(ObjectMaster* obj) {
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
 		njRotateX_(data->Rotation.x);
-		njTranslateX(-data->Scale.x);
+		njTranslateZ(data->Scale.x);
 		njTranslateY(data->Scale.z - data->Scale.y);
 		njGetTranslation(_nj_current_matrix_ptr_, &data->Position);
 		njPopMatrixEx();
@@ -800,7 +800,6 @@ void SubEgg_LookAtPlayer(EntityData1* data, eggsubwk* wk) {
 	EntityData1* entity = EntityData1Ptrs[GetClosestPlayerID(&data->Position)];
 
 	njLookAt(&data->Position, &entity->Position, nullptr, &data->Rotation.y);
-	data->Rotation.y += 0x4000;
 }
 
 // Get a random position around the lava outer circle
@@ -830,7 +829,7 @@ void SubEgg_GetRandomPosition(EntityData1* data, eggsubwk* wk) {
 	}
 
 	data->Rotation.y = static_cast<Angle>(atan2f(data->Position.x, data->Position.z) * 65536.0f * 0.1591549762031479f);
-	data->Rotation.y += dist == 190 ? 0xC000 : 0x4000;
+	if (dist == 190) data->Rotation.y += 0x8000;
 }
 
 // Goes out of lava, shoots and turn toward player until touched, then act 2
@@ -1057,7 +1056,7 @@ void __cdecl SubEggman_Display(ObjectMaster* obj) {
 		njSetTexture(&EGGSUB_TEXLIST);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y - 0x4000);
+		njRotateY_(data->Rotation.y);
 		DrawObject(data->Object);
 		njPopMatrixEx();
 	}
