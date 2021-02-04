@@ -6,11 +6,52 @@
 
 static int HillTopBossMusic;
 
+ModelInfo* e_eggsub = nullptr;
 ModelInfo* ht_bosslava = nullptr;
 
 ObjectMaster* CurrentBossLava = nullptr;
 ObjectMaster* CurrentBoss = nullptr;
 ObjectMaster* PlatformsHandlerPtr = nullptr;
+
+NJS_TEXNAME EGGSUB_TEXNAMES[24];
+NJS_TEXLIST EGGSUB_TEXLIST = { arrayptrandlength(EGGSUB_TEXNAMES) };
+
+enum PlatformsActions {
+	PlatformAct_Hidden,
+	PlatformAct_Sink,
+	PlatformAct_Emerge,
+	PlatformAct_EmergeResult,
+	PlatformAct_Float
+};
+
+enum class LavaModes : short {
+	Grow,
+	Normal,
+	Fast,
+	Point
+};
+
+enum eggsubmainacts : Uint8 {
+	eggsubmainact_init,
+	eggsubmainact_run,
+	eggsubmainact_death
+};
+
+enum class eggsubmtnacts : int {
+	emerge,
+	sink,
+	stay,
+	hidden,
+	deflarg,
+	bomb
+};
+
+enum class eggsubacts : int {
+	act1,
+	act2,
+	act3,
+	act4,
+};
 
 struct eggsubwk {
 	bosswk bwk;
@@ -48,43 +89,6 @@ struct lavawk {
 	NJS_VECTOR Position;
 	NJS_POINT2 Point;
 	LavaModes PrevMode;
-};
-
-enum PlatformsActions {
-	PlatformAct_Hidden,
-	PlatformAct_Sink,
-	PlatformAct_Emerge,
-	PlatformAct_EmergeResult,
-	PlatformAct_Float
-};
-
-enum class LavaModes : short {
-	Grow,
-	Normal,
-	Fast,
-	Point
-};
-
-enum eggsubmainacts : Uint8 {
-	eggsubmainact_init,
-	eggsubmainact_run,
-	eggsubmainact_death
-};
-
-enum class eggsubmtnacts : int {
-	emerge,
-	sink,
-	stay,
-	hidden,
-	deflarg,
-	bomb
-};
-
-enum class eggsubacts : int {
-	act1,
-	act2,
-	act3,
-	act4,
 };
 
 BossCam bossCam = {};
@@ -473,7 +477,6 @@ void __cdecl EggSubSunkCam(_OBJ_CAMERAPARAM* param) {
 
 void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* param) {
 	if (CurrentBoss) {
-
 		if (bossCam.Action == 0) {
 			CameraTask.angle.y = bossCam.AngY;
 			CameraTask.angle.x = bossCam.AngX;
@@ -507,6 +510,9 @@ void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* param) {
 				EggSubSunkCam(param);
 			}
 		}
+	}
+	else {
+		Camera_Sonic(param);
 	}
 }
 
@@ -1048,19 +1054,11 @@ void __cdecl SubEggman_Display(ObjectMaster* obj) {
 	eggsubwk* wk = (eggsubwk*)obj->UnknownB_ptr;
 
 	if (!MissedFrames && (wk->HitTimer == 0 || wk->HitTimer % 5) && wk->Subs != eggsubmtnacts::hidden) {
-		njSetTexture(&HillTopOBJ_TexList);
+		njSetTexture(&EGGSUB_TEXLIST);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
-
-		njPushMatrixEx(); {
-			njTranslateX(-15.0f);
-			njDrawModel_SADX(Sphere_Model.basicdxmodel);
-			njPopMatrixEx();
-		}
-
-		njScalef(2.0f);
-		njDrawModel_SADX(Sphere_Model.basicdxmodel);
+		njRotateY_(data->Rotation.y - 0x4000);
+		DrawObject(data->Object);
 		njPopMatrixEx();
 	}
 }
@@ -1135,6 +1133,10 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 
 	data->Position.y = sinkHeight;
 
+	data->Object = e_eggsub->getmodel();
+
+	LoadPVM("EGGSUB", &EGGSUB_TEXLIST);
+
 	obj->MainSub = SubEggman_Main;
 	obj->DeleteSub = SubEggman_Delete;
 	obj->DisplaySub = SubEggman_Display;
@@ -1173,10 +1175,12 @@ void __cdecl Boss_SubEggman_Init(ObjectMaster* obj) {
 
 void Boss_LoadAssets() {
 	LoadModelFile(&ht_bosslava, "ht_bosslava", ModelFormat::ModelFormat_Basic);
+	LoadModelFile(&e_eggsub, "e_eggsub", ModelFormat::ModelFormat_Basic);
 }
 
 void Boss_FreeAssets() {
 	FreeModelFile(&ht_bosslava);
+	FreeModelFile(&e_eggsub);
 }
 
 void Boss_Init(const HelperFunctions& helperFunctions) {
