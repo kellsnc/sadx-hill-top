@@ -54,7 +54,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 2, 0, 0, 0, ColCube_Main, "C CUBE" },
 	{ LoadObj_Data1, 2, 0, 0, 0, Ottotto_Main, "OTTOTTO" },
 	{ LoadObj_Data1, 2, 0, 0, 0, TikalHint_Load, "O TIKAL" },
-	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 3, 0, 0, 0, ItemBoxAir_Main, "O ItemBoxAir" },
+	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 4, 0, 0, 0, ItemBoxAir_Main, "O ItemBoxAir" },
 	{ LoadObj_Data1, 3, 5, 250000, 0, Kiki_Load, "E SARU  " },
 	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerA_Main, "SPINA A" },
 	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerB_Main, "SPINA B" },

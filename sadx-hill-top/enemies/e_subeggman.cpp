@@ -1151,9 +1151,26 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 }
 #pragma endregion
 
+void Boss_SpawnAirItemBox() {
+	ObjectMaster* obj = LoadObject((LoadObj)(LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB), 4, ItemBoxAir_Main);
+	EntityData1* data = obj->Data1;
+
+	int ang = rand() % 0x10000;
+	
+	data->Position.x = rand() % 2 ? -(njCos(ang) * 230.0f) : njCos(ang) * 230.0f;
+	data->Position.y = 50.0f + static_cast<float>(rand() % 20);
+	data->Position.z = rand() % 2 ? -(njSin(ang) * 230.0f) : njSin(ang) * 230.0f;
+	
+	data->Scale.x = rand() % 4;
+}
+
 void __cdecl Boss_SubEggman_Main(ObjectMaster* obj) {
-	//SetCameraControlEnabled(0);
-	SetCameraMode_(1);
+	SetCameraControlEnabled(0);
+
+	// Little help from time to time
+	if (FrameCounterUnpaused % 1800 == 0) {
+		Boss_SpawnAirItemBox();
+	}
 }
 
 void __cdecl Boss_SubEggman_Init(ObjectMaster* obj) {
