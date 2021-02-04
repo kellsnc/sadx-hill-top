@@ -12,19 +12,28 @@ ObjectMaster* CurrentBossLava = nullptr;
 ObjectMaster* CurrentBoss = nullptr;
 ObjectMaster* PlatformsHandlerPtr = nullptr;
 
-#pragma region Lava
+struct eggsubwk {
+	bosswk bwk;
+	int HitPoint;
+	int HitTimer;
+	int InternalTimer;
+	eggsubacts Acts;
+	eggsubmtnacts Subs;
+	bool platformsLoaded;
+	int lastattackscount;
+	int MaxHealth;
+	int Level;
+};
 
-/*
-
-Lava plane with vertex animation
-
-*/
-
-enum class LavaModes : short {
-	Grow,
-	Normal,
-	Fast,
-	Point
+struct BossCam {
+	Uint32 Action;
+	Angle AngY;
+	Angle AngX;
+	Angle AngTargetY;
+	Angle AngTargetX;
+	Float Speed;
+	Float Limit;
+	Float Zoom;
 };
 
 struct lavawk {
@@ -40,6 +49,74 @@ struct lavawk {
 	NJS_POINT2 Point;
 	LavaModes PrevMode;
 };
+
+enum PlatformsActions {
+	PlatformAct_Hidden,
+	PlatformAct_Sink,
+	PlatformAct_Emerge,
+	PlatformAct_EmergeResult,
+	PlatformAct_Float
+};
+
+enum class LavaModes : short {
+	Grow,
+	Normal,
+	Fast,
+	Point
+};
+
+enum eggsubmainacts : Uint8 {
+	eggsubmainact_init,
+	eggsubmainact_run,
+	eggsubmainact_death
+};
+
+enum class eggsubmtnacts : int {
+	emerge,
+	sink,
+	stay,
+	hidden,
+	deflarg,
+	bomb
+};
+
+enum class eggsubacts : int {
+	act1,
+	act2,
+	act3,
+	act4,
+};
+
+BossCam bossCam = {};
+
+CollisionData SubEgg_Col = { 0, CollisionShape_Sphere, 0x77, 0x20, 0x400, {0.0f, 0.0f, 0.0f}, 22.0f, 0.0f, 0.0f };
+CollisionData Deflarg_Col = { 0, CollisionShape_Sphere, 0x77, 0x2F, 0, { 0.0f, -5.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
+
+NJS_TEXANIM DEFLARG_TEXS[]{
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 0, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 1, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 2, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 3, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 4, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 5, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 6, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 7, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 8, 0 },
+	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 9, 0 }
+};
+
+NJS_SPRITE DEFLARG_SPRITE = { { 0, 0, 0 }, 1.0, 1.0, 0, (NJS_TEXLIST*)0x9891F0, DEFLARG_TEXS };
+
+static constexpr float surfaceHeight = 0.0f;
+static constexpr float sinkHeight = -50.0f;
+
+#pragma region Lava
+
+/*
+
+Lava plane with vertex animation
+
+*/
 
 void SetLavaPoint(Float x, Float z) {
 	if (CurrentBossLava) {
@@ -163,7 +240,7 @@ void __cdecl BossLava(ObjectMaster* obj) {
 	NJS_OBJECT* object = ObjectArray_GetFreeObject();
 
 	object->pos[0] = 0;
-	object->pos[1] = -100.0f;
+	object->pos[1] = -80.0f;
 	object->pos[2] = 0;
 
 	object->ang[0] = 0;
@@ -196,13 +273,6 @@ void __cdecl BossLava(ObjectMaster* obj) {
 #pragma endregion
 
 #pragma region Platforms
-enum PlatformsActions {
-	PlatformAct_Hidden,
-	PlatformAct_Sink,
-	PlatformAct_Emerge,
-	PlatformAct_Float
-};
-
 void __cdecl PlatformChild_Delete(ObjectMaster* obj) {
 	if (obj->Data1->Object) {
 		DynamicCOL_Remove(obj, obj->Data1->Object);
@@ -232,7 +302,13 @@ void __cdecl PlatformChild_Main(ObjectMaster* obj) {
 	EntityData1* parent = obj->Parent->Data1;
 
 	if (parent->Action != PlatformAct_Hidden) {
-		data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(FrameCounterUnpaused * data->Scale.z), 2.0f)) * data->Scale.y;
+		if (data->NextAction == 0) {
+			data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(FrameCounterUnpaused * data->Scale.z), 2.0f)) * data->Scale.y;
+		}
+		else {
+			data->Object->pos[1] = parent->Scale.y;
+		}
+
 		obj->DisplaySub(obj);
 	}
 }
@@ -257,6 +333,16 @@ void __cdecl PlatformsHandler_Main(ObjectMaster* obj) {
 		else {
 			data->Action = PlatformAct_Hidden;
 		}
+		break;
+	case PlatformAct_EmergeResult:
+		if (data->Scale.y < 20.0f) {
+			data->Scale.y += 0.5f;
+		}
+		else {
+			data->Action = PlatformAct_Float;
+			// Spawn capsule
+		}
+		break;
 	}
 
 	RunObjectChildren(obj);
@@ -266,6 +352,7 @@ void __cdecl PlatformsHandler(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 
 	data->Position.y = -100;
+	data->Scale.y = -100;
 
 	for (int i = 0; i < 0x10000; ++i) {
 		ObjectMaster* child = LoadChildObject(LoadObj_Data1, PlatformChild_Main, obj);
@@ -303,8 +390,43 @@ void __cdecl PlatformsHandler(ObjectMaster* obj) {
 		i += 0x1000;
 	}
 
+	// Win platform
+
+	ObjectMaster* child = LoadChildObject(LoadObj_Data1, PlatformChild_Main, obj);
+	child->DeleteSub = PlatformChild_Delete;
+	child->DisplaySub = PlatformChild_Display;
+
+	child->Data1->NextAction = 1;
+
+	NJS_OBJECT* object = ObjectArray_GetFreeObject();
+
+	object->pos[0] = 0.0f;
+	object->pos[1] = -100.0f;
+	object->pos[2] = 0.0f;
+
+	object->ang[0] = 0;
+	object->ang[1] = 0;
+	object->ang[2] = 0;
+
+	object->scl[0] = 1.5f;
+	object->scl[1] = 1.5f;
+	object->scl[2] = 1.5f;
+	
+	child->Data1->Scale.x = 1.5f;
+	child->Data1->Object = object;
+	child->Data1->Object->basicdxmodel = ht_platform->getmodel()->getbasicdxmodel();
+
+	DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid), obj, object);
+
 	obj->MainSub = PlatformsHandler_Main;
 	PlatformsHandlerPtr = obj;
+}
+
+void EmergePlatformResult() {
+	if (PlatformsHandlerPtr) {
+		PlatformsHandlerPtr->Data1->Action = PlatformAct_EmergeResult;
+		SetLavaSpeed(10.0f);
+	}
 }
 
 void EmergePlatforms() {
@@ -324,29 +446,84 @@ void SinkPlatforms() {
 #pragma endregion
 
 #pragma region Cameras
-void __cdecl EggmanBossCamera_Init(_OBJ_CAMERAPARAM*) {
+void CameraZoom(float zoom) {
+	njPushMatrix(_nj_unit_matrix_);
+	njTranslateEx(&CameraTask.targetpos);
+	njRotateY(0, CameraTask.angle.y);
+	njRotateX(0, CameraTask.angle.x);
+	njTranslateZ(zoom);
+	njGetTranslation(0, &CameraTask.pos);
+	njPopMatrixEx();
+}
 
+void __cdecl EggSubMainCam(_OBJ_CAMERAPARAM* param) {
+	EntityData1* bossdata = CurrentBoss->Data1;
+	EntityData1* playerdata = EntityData1Ptrs[0];
+
+	*(NJS_VECTOR**)0x3C6AE14 = &bossdata->Position;
+	Camera_E101R(param);
+}
+
+void __cdecl EggSubSunkCam(_OBJ_CAMERAPARAM* param) {
+	EntityData1* bossdata = CurrentBoss->Data1;
+	EntityData1* playerdata = EntityData1Ptrs[0];
+
+	Camera_Sonic(param);
+}
+
+void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* param) {
+	if (CurrentBoss) {
+
+		if (bossCam.Action == 0) {
+			CameraTask.angle.y = bossCam.AngY;
+			CameraTask.angle.x = bossCam.AngX;
+			CameraTask.targetpos = { 0, 0, 0 };
+
+			if (bossCam.AngY < bossCam.AngTargetY) {
+				bossCam.AngY += 0x20;
+			}
+
+			if (bossCam.AngX < bossCam.AngTargetX) {
+				bossCam.AngX += 0x10;
+			}
+
+			CameraZoom(bossCam.Zoom);
+
+			if (sqrtf(CameraTask.pos.x * CameraTask.pos.x + CameraTask.pos.y * CameraTask.pos.y + CameraTask.pos.z * CameraTask.pos.z) > bossCam.Limit) {
+				bossCam.Zoom -= bossCam.Speed;
+			}
+			else {
+				bossCam.Action = 1;
+			}
+		}
+		else {
+			EntityData1* bossdata = CurrentBoss->Data1;
+			eggsubwk* bosswk = (eggsubwk*)CurrentBoss->UnknownB_ptr;
+
+			if (bosswk->Subs == eggsubmtnacts::emerge || bosswk->Subs == eggsubmtnacts::stay) {
+				EggSubMainCam(param);
+			}
+			else {
+				EggSubSunkCam(param);
+			}
+		}
+	}
+}
+
+void EggSubInitCam_Load(Angle y, Angle x, Angle targetY, Angle targetX, float speed, float zoom, float limit) {
+	SetCameraEvent(EggSubInitCam, CameraAdjustsIDs::None, CameraDirectIDs::Target);
+	bossCam.Action = 0;
+	bossCam.AngY = y;
+	bossCam.AngX = x;
+	bossCam.AngTargetY = targetY;
+	bossCam.AngTargetX = targetX;
+	bossCam.Speed = speed;
+	bossCam.Limit = limit;
+	bossCam.Zoom = zoom;
 }
 #pragma endregion
 
 #pragma region Attacks
-CollisionData Deflarg_Col = { 0, CollisionShape_Sphere, 0x77, 0x2F, 0, { 0.0f, -5.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
-
-NJS_TEXANIM DEFLARG_TEXS[]{
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 0, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 1, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 2, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 3, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 4, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 5, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 6, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 7, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 8, 0 },
-	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 9, 0 }
-};
-
-NJS_SPRITE DEFLARG_SPRITE = { { 0, 0, 0 }, 1.0, 1.0, 0, (NJS_TEXLIST*)0x9891F0, DEFLARG_TEXS };
-
 NJS_VECTOR EggSub_GetAttackPoint(EntityData1* data) {
 	NJS_VECTOR vec;
 	
@@ -516,46 +693,6 @@ void EggSub_Fire(EntityData1* data, int count) {
 #pragma endregion
 
 #pragma region SubEggman
-enum eggsubmainacts : Uint8 {
-	eggsubmainact_init,
-	eggsubmainact_run,
-	eggsubmainact_death
-};
-
-enum class eggsubmtnacts : int {
-	emerge,
-	sink,
-	stay,
-	hidden,
-	deflarg,
-	bomb
-};
-
-enum class eggsubacts : int {
-	act1,
-	act2,
-	act3,
-	act4,
-};
-
-struct eggsubwk {
-	bosswk bwk;
-	int HitPoint;
-	int HitTimer;
-	int InternalTimer;
-	eggsubacts Acts;
-	eggsubmtnacts Subs;
-	bool platformsLoaded;
-	int lastattackscount;
-	int MaxHealth;
-	int Level;
-};
-
-CollisionData SubEgg_Col = { 0, CollisionShape_Sphere, 0x77, 0x20, 0x400, {0.0f, 0.0f, 0.0f}, 22.0f, 0.0f, 0.0f };
-
-static constexpr float surfaceHeight = 0.0f;
-static constexpr float sinkHeight = -50.0f;
-
 void SubEgg_ChangeAction(eggsubwk* wk, eggsubacts action) {
 	wk->Acts = action;
 	wk->InternalTimer = 0;
@@ -725,7 +862,7 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 
 		SubEgg_LookAtPlayer(data, wk);
 
-		if (++wk->InternalTimer % (wk->Level == 0 ? 80 : 45) == 0 || wk->InternalTimer == 1) {
+		if (++wk->InternalTimer % (wk->Level == 0 ? 80 : 45) == 0) {
 			EggSub_FireBall(data, wk->Level == 0 ? 3.5f : 4.5f);
 		}
 
@@ -970,6 +1107,7 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 		if (wk->HitTimer == 0 && Egg1ExplosionTask) {
 			CheckThingButThenDeleteObject(Egg1ExplosionTask);
 			DeleteObject_(obj);
+			EmergePlatformResult();
 		}
 
 		break;
@@ -994,7 +1132,6 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 
 	wk->Subs = eggsubmtnacts::hidden;
 	wk->Acts = eggsubacts::act1;
-	wk->Acts = eggsubacts::act2;
 
 	data->Position.y = sinkHeight;
 
@@ -1006,7 +1143,7 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 
 	Collision_Init(obj, &SubEgg_Col, 1, 2);
 
-	//SetCameraEvent(EggmanBossCamera_Init, CameraAdjustsIDs::None, CameraDirectIDs::Sonic);
+	EggSubInitCam_Load(0x1000, -0x2000, 0x4000, -0x1000, 1.0f, 500.0f, 200.0f);
 
 	CurrentBoss = obj;
 }

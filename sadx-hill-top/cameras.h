@@ -80,6 +80,9 @@ CameraAdjustFunc(CameraAdjust_Normal, 0x467DC0);
 CameraAdjustFunc(CameraAdjust_ForFreeCam, 0x468800);
 
 CameraFunc(Camera_Knuckles, 0x469590);
+CameraFunc(Camera_Sonic, 0x46A760);
+CameraFunc(Camera_E101R, 0x56CBF0);
+CameraFunc(Camera_E103, 0x467990);
 
 enum class CameraModesIDs : Uint16 {
 	Follow,
