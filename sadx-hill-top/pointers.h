@@ -89,3 +89,19 @@ enum CollisionShapes {
     CollisionShape_Capsule,
     CollisionShape_Capsule2
 };
+
+enum AnimDataProperties {
+    AnimProp_NoAnimation,
+    AnimProp_FirstFrame,
+    AnimProp_Skip,
+    AnimProp_Loop,
+    AnimProp_OnceT,
+    AnimProp_Once,
+    AnimProp_ReverseT,
+    AnimProp_Reverse,
+    AnimProp_OnceCut,
+    AnimProp_Input1,
+    AnimProp_Input2,
+    AnimProp_Input3,
+    AnimProp_Custom
+};

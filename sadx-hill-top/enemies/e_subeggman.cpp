@@ -16,11 +16,21 @@ ObjectMaster* PlatformsHandlerPtr = nullptr;
 NJS_TEXNAME EGGSUB_TEXNAMES[24];
 NJS_TEXLIST EGGSUB_TEXLIST = { arrayptrandlength(EGGSUB_TEXNAMES) };
 
+AnimationFile* EggSub_LidAnmInfo = nullptr;
+AnimationFile* EggSub_IdleAnmInfo = nullptr;
+AnimationFile* EggSub_AttackAnmInfo = nullptr;
+
+NJS_ACTION EggSub_LidAnm = {};
+NJS_ACTION EggSub_IdleAnm = {};
+NJS_ACTION EggSub_AttackAnm = {};
+
+static constexpr float surfaceHeight = 5.0f;
+static constexpr float sinkHeight = -50.0f;
+
 enum PlatformsActions {
 	PlatformAct_Hidden,
 	PlatformAct_Sink,
 	PlatformAct_Emerge,
-	PlatformAct_EmergeResult,
 	PlatformAct_Float
 };
 
@@ -51,6 +61,15 @@ enum class eggsubacts : int {
 	act2,
 	act3,
 	act4,
+};
+
+enum ESubAnms {
+	ESubAnm_None,
+	ESubAnm_LidOpen,
+	ESubAnm_LidClose,
+	ESubAnm_Idle,
+	ESubAnm_Attack,
+	ESubAnm_AttackSpree
 };
 
 struct eggsubwk {
@@ -93,8 +112,17 @@ struct lavawk {
 
 BossCam bossCam = {};
 
+PL_ACTION EggSubAnimList[] = {
+	{ &EggSub_LidAnm, 0, AnimProp_Loop, ESubAnm_None, 0.0f, 0.0f },				// ESubAnm_None
+	{ &EggSub_LidAnm, 0, AnimProp_OnceT, ESubAnm_Idle, 1.0f, 0.0f },			// ESubAnm_LidOpen
+	{ &EggSub_LidAnm, 0, AnimProp_Reverse, ESubAnm_Idle, 2.0f, 0.0f },			// ESubAnm_LidClose
+	{ &EggSub_IdleAnm, 0, AnimProp_Loop, ESubAnm_Idle, 2.0f, 0.0f },			// ESubAnm_Idle
+	{ &EggSub_AttackAnm, 0, AnimProp_OnceT, ESubAnm_Idle, 4.0f, 0.0f },			// ESubAnm_Attack
+	{ &EggSub_AttackAnm, 0, AnimProp_Loop, ESubAnm_AttackSpree, 4.0f, 0.0f }	// ESubAnm_AttackSpree
+};
+
 CollisionData SubEgg_Col = { 0, CollisionShape_Sphere, 0x77, 0x20, 0x400, {0.0f, 0.0f, 0.0f}, 22.0f, 0.0f, 0.0f };
-CollisionData Deflarg_Col = { 0, CollisionShape_Sphere, 0x77, 0x2F, 0, { 0.0f, -5.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
+CollisionData Deflarg_Col = { 0, CollisionShape_Sphere, 0xF0, 0x2F, 0, { 0.0f, -5.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
 
 NJS_TEXANIM DEFLARG_TEXS[]{
 	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 0, 0 },
@@ -110,9 +138,6 @@ NJS_TEXANIM DEFLARG_TEXS[]{
 };
 
 NJS_SPRITE DEFLARG_SPRITE = { { 0, 0, 0 }, 1.0, 1.0, 0, (NJS_TEXLIST*)0x9891F0, DEFLARG_TEXS };
-
-static constexpr float surfaceHeight = 0.0f;
-static constexpr float sinkHeight = -50.0f;
 
 #pragma region Lava
 
@@ -244,7 +269,7 @@ void __cdecl BossLava(ObjectMaster* obj) {
 	NJS_OBJECT* object = ObjectArray_GetFreeObject();
 
 	object->pos[0] = 0;
-	object->pos[1] = -80.0f;
+	object->pos[1] = -70.0f;
 	object->pos[2] = 0;
 
 	object->ang[0] = 0;
@@ -306,13 +331,7 @@ void __cdecl PlatformChild_Main(ObjectMaster* obj) {
 	EntityData1* parent = obj->Parent->Data1;
 
 	if (parent->Action != PlatformAct_Hidden) {
-		if (data->NextAction == 0) {
-			data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(FrameCounterUnpaused * data->Scale.z), 2.0f)) * data->Scale.y;
-		}
-		else {
-			data->Object->pos[1] = parent->Scale.y;
-		}
-
+		data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(FrameCounterUnpaused * data->Scale.z), 2.0f)) * data->Scale.y;
 		obj->DisplaySub(obj);
 	}
 }
@@ -336,15 +355,6 @@ void __cdecl PlatformsHandler_Main(ObjectMaster* obj) {
 		}
 		else {
 			data->Action = PlatformAct_Hidden;
-		}
-		break;
-	case PlatformAct_EmergeResult:
-		if (data->Scale.y < 20.0f) {
-			data->Scale.y += 0.5f;
-		}
-		else {
-			data->Action = PlatformAct_Float;
-			// Spawn capsule
 		}
 		break;
 	}
@@ -394,43 +404,8 @@ void __cdecl PlatformsHandler(ObjectMaster* obj) {
 		i += 0x1000;
 	}
 
-	// Win platform
-
-	ObjectMaster* child = LoadChildObject(LoadObj_Data1, PlatformChild_Main, obj);
-	child->DeleteSub = PlatformChild_Delete;
-	child->DisplaySub = PlatformChild_Display;
-
-	child->Data1->NextAction = 1;
-
-	NJS_OBJECT* object = ObjectArray_GetFreeObject();
-
-	object->pos[0] = 0.0f;
-	object->pos[1] = -100.0f;
-	object->pos[2] = 0.0f;
-
-	object->ang[0] = 0;
-	object->ang[1] = 0;
-	object->ang[2] = 0;
-
-	object->scl[0] = 1.5f;
-	object->scl[1] = 1.5f;
-	object->scl[2] = 1.5f;
-	
-	child->Data1->Scale.x = 1.5f;
-	child->Data1->Object = object;
-	child->Data1->Object->basicdxmodel = ht_platform->getmodel()->getbasicdxmodel();
-
-	DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid), obj, object);
-
 	obj->MainSub = PlatformsHandler_Main;
 	PlatformsHandlerPtr = obj;
-}
-
-void EmergePlatformResult() {
-	if (PlatformsHandlerPtr) {
-		PlatformsHandlerPtr->Data1->Action = PlatformAct_EmergeResult;
-		SetLavaSpeed(10.0f);
-	}
 }
 
 void EmergePlatforms() {
@@ -530,26 +505,29 @@ void EggSubInitCam_Load(Angle y, Angle x, Angle targetY, Angle targetX, float sp
 #pragma endregion
 
 #pragma region Attacks
-NJS_VECTOR EggSub_GetAttackPoint(EntityData1* data) {
+void SubEgg_ChangeAnimation(eggsubwk* wk, int anim);
+
+NJS_VECTOR EggSub_GetAttackPoint(EntityData1* data, float dist) {
 	NJS_VECTOR vec;
 	
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&data->Position);
 	njRotateY_(data->Rotation.y);
-	njTranslate(_nj_current_matrix_ptr_, 0, 35.0f, -3.0f);
+	njTranslate(_nj_current_matrix_ptr_, 0, 35.0f, -3.0f + dist);
 	njGetTranslation(_nj_current_matrix_ptr_, &vec);
 	njPopMatrixEx();
 
 	return vec;
 }
 
-void EggSub_FireBall(EntityData1* data, Float scale) {
-	NJS_VECTOR pos = EggSub_GetAttackPoint(data);
+void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale) {
+	NJS_VECTOR pos = EggSub_GetAttackPoint(data, 0.0f);
 	Angle y;
 	Angle x;
 
 	njLookAt(&pos, &EntityData1Ptrs[GetClosestPlayerID(&pos)]->Position, &x, &y);
 	LoadFireBall(CurrentBoss, &pos, y, -x, 5.0f, 4.0f, 0.0f, 0);
+	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
 	// sound
 }
 
@@ -604,8 +582,8 @@ void EggSubDeflarg_Main(ObjectMaster* obj) {
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&data->Position);
 	njRotateY_(data->Rotation.y);
-	njTranslateX(-1.0f);
-	njTranslateY(-0.75f);
+	njTranslateZ(1.5f);
+	njTranslateY(-0.5f);
 	njGetTranslation(_nj_current_matrix_ptr_, &data->Position);
 	njPopMatrixEx();
 
@@ -626,7 +604,7 @@ void EggSub_Deflarg(EntityData1* data) {
 	ObjectMaster* obj = LoadChildObject(LoadObj_Data1, EggSubDeflarg_Main, CurrentBoss);
 	EntityData1* child = obj->Data1;
 
-	child->Position = EggSub_GetAttackPoint(data);
+	child->Position = EggSub_GetAttackPoint(data, 10.0f);
 
 	Collision_Init(obj, &Deflarg_Col, 1, 4);
 	obj->DisplaySub = EggSubDeflarg_Display;
@@ -676,8 +654,10 @@ void EggSubFire_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void EggSub_Fire(EntityData1* data, int count) {
-	NJS_VECTOR pos = EggSub_GetAttackPoint(data);
+void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count) {
+	NJS_VECTOR pos = EggSub_GetAttackPoint(data, 0.3f);
+
+	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
 
 	for (int i = 0; i < count; ++i) {
 		ObjectMaster* obj = LoadChildObject(LoadObj_Data1, EggSubFire_Main, CurrentBoss);
@@ -699,12 +679,54 @@ void EggSub_Fire(EntityData1* data, int count) {
 #pragma endregion
 
 #pragma region SubEggman
+void SubEgg_ChangeAnimation(eggsubwk* wk, int anim) {
+	wk->bwk.action = anim;
+	wk->bwk.lastaction = anim;
+	wk->bwk.nframe = EggSubAnimList[anim].mtnmode == AnimProp_Reverse ? 1.0f : 0.0f;
+}
+
+void SubEgg_PlayAnimation(eggsubwk* wk) {
+	PL_ACTION* pl = &wk->bwk.plactptr[wk->bwk.action];
+
+	bool Loop = pl->mtnmode == AnimProp_Loop;
+	bool Next = pl->mtnmode == AnimProp_OnceT || pl->mtnmode == AnimProp_ReverseT;
+	bool Reverse = pl->mtnmode == AnimProp_Reverse || pl->mtnmode == AnimProp_ReverseT;
+	float frame = static_cast<float>(pl->actptr->motion->nbFrame) - 1;
+
+	if (Reverse) {
+		if (wk->bwk.nframe > frame) {
+			wk->bwk.nframe -= pl->frame;
+		}
+		else if (Loop) {
+			wk->bwk.nframe = frame;
+		}
+		else if (Next) {
+			SubEgg_ChangeAnimation(wk, pl->next);
+		}
+	}
+	else {
+		if (wk->bwk.nframe < frame) {
+			wk->bwk.nframe += pl->frame;
+		}
+		else if (Loop) {
+			wk->bwk.nframe = 0.0f;
+		}
+		else if (Next) {
+			SubEgg_ChangeAnimation(wk, pl->next);
+		}
+	}
+}
+
 void SubEgg_ChangeAction(eggsubwk* wk, eggsubacts action) {
 	wk->Acts = action;
 	wk->InternalTimer = 0;
 }
 
 void SubEgg_ChangeSub(eggsubwk* wk, eggsubmtnacts action) {
+	if (action == eggsubmtnacts::sink) {
+		SubEgg_ChangeAnimation(wk, ESubAnm_LidClose);
+	}
+
 	wk->Subs = action;
 }
 
@@ -733,6 +755,7 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 				wk->HitTimer = 200;
 				data->Action = eggsubmainact_death;
 				EmergePlatforms();
+				SubEgg_ChangeAnimation(wk, ESubAnm_Idle);
 
 			}
 			else if (wk->HitPoint == 1) {
@@ -785,11 +808,12 @@ bool SubEgg_Sink(EntityData1* data, float speed) {
 	return false;
 }
 
-bool SubEgg_Emerge(EntityData1* data, float speed) {
+bool SubEgg_Emerge(EntityData1* data, eggsubwk* wk, float speed) {
 	if (data->Position.y < surfaceHeight) {
 		data->Position.y += speed;
 	}
 	else {
+		SubEgg_ChangeAnimation(wk, ESubAnm_LidOpen);
 		return true;
 	}
 
@@ -851,7 +875,7 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, 0.2f)) {
+		if (SubEgg_Emerge(data, wk, 0.2f)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
 		}
 
@@ -868,12 +892,12 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 		SubEgg_LookAtPlayer(data, wk);
 
 		if (++wk->InternalTimer % (wk->Level == 0 ? 80 : 45) == 0) {
-			EggSub_FireBall(data, wk->Level == 0 ? 3.5f : 4.5f);
+			EggSub_FireBall(data, wk, wk->Level == 0 ? 3.5f : 4.5f);
 		}
 
 		break;
 	case eggsubmtnacts::sink:
-		if (SubEgg_Sink(data, 0.1f)) {
+		if (SubEgg_Sink(data, 0.5f)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::hidden);
 			SubEgg_ChangeAction(wk, eggsubacts::act2);
 		}
@@ -901,7 +925,7 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, 0.5f)) {
+		if (SubEgg_Emerge(data, wk, 0.5f)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
 		}
 
@@ -915,7 +939,7 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 		speed = wk->Level == 1 ? 100 : 70;
 
 		if (++wk->InternalTimer == speed) {
-			EggSub_Fire(data, wk->Level == 1 ? 3 : 5);
+			EggSub_Fire(data, wk, wk->Level == 1 ? 3 : 5);
 		}
 		else if (wk->InternalTimer > speed * 2) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::sink);
@@ -980,9 +1004,9 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, 0.5f)) {
+		if (SubEgg_Emerge(data, wk, 0.5f)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
-			
+			SubEgg_ChangeAnimation(wk, ESubAnm_AttackSpree);
 		}
 
 		SubEggAct3Attack(data, wk);
@@ -1057,7 +1081,7 @@ void __cdecl SubEggman_Display(ObjectMaster* obj) {
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
-		DrawObject(data->Object);
+		njAction(wk->bwk.plactptr[wk->bwk.action].actptr, wk->bwk.nframe);
 		njPopMatrixEx();
 	}
 }
@@ -1070,6 +1094,7 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 	CharObj2* pco2 = CharObj2Ptrs[0];
 
 	SubEgg_UpdateStatus(data, wk);
+	SubEgg_PlayAnimation(wk);
 
 	switch (data->Action) {
 	case eggsubmainact_init:
@@ -1101,15 +1126,23 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 	case eggsubmainact_death:
 		data->Position.y -= 0.1f;
 
-		if (wk->HitTimer == 0 && Egg1ExplosionTask) {
-			CheckThingButThenDeleteObject(Egg1ExplosionTask);
-			DeleteObject_(obj);
-			EmergePlatformResult();
+		if (wk->HitTimer == 0 && data->Position.y < sinkHeight) {
+			if (Egg1ExplosionTask) {
+				Egg1ExplosionTask = nullptr;
+				CheckThingButThenDeleteObject(Egg1ExplosionTask);
+			}
+			
+			// If the player is on ground and not on lava or dying, launch win
+			if (player->Status & Status_Ground && !(pco2->Powerups & Powerups_Dead) && !(pco2->SurfaceFlags & ColFlags_Hurt)) {
+				DeleteObject_(obj);
+				LoadLevelResults();
+				return;
+			}
 		}
 
 		break;
 	}
-
+	
 	RunObjectChildren(obj);
 	AddToCollisionList(data);
 	obj->DisplaySub(obj);
@@ -1126,22 +1159,19 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 	obj->UnknownB_ptr = (void*)wk;
 	wk->HitPoint = 5;
 	wk->MaxHealth = 5;
-
 	wk->Subs = eggsubmtnacts::hidden;
 	wk->Acts = eggsubacts::act1;
+	wk->bwk.plactptr = EggSubAnimList;
 
-	data->Position.y = sinkHeight;
-
+	data->Position.y = sinkHeight - 20;
 	data->Object = e_eggsub->getmodel();
-
-	LoadPVM("EGGSUB", &EGGSUB_TEXLIST);
 
 	obj->MainSub = SubEggman_Main;
 	obj->DeleteSub = SubEggman_Delete;
 	obj->DisplaySub = SubEggman_Display;
 
+	LoadPVM("EGGSUB", &EGGSUB_TEXLIST);
 	DisplayBossName2("Egg Sub", -1, 240, 80);
-
 	Collision_Init(obj, &SubEgg_Col, 1, 2);
 
 	EggSubInitCam_Load(0x1000, -0x2000, 0x4000, -0x1000, 1.0f, 500.0f, 200.0f);
@@ -1192,11 +1222,28 @@ void __cdecl Boss_SubEggman_Init(ObjectMaster* obj) {
 void Boss_LoadAssets() {
 	LoadModelFile(&ht_bosslava, "ht_bosslava", ModelFormat::ModelFormat_Basic);
 	LoadModelFile(&e_eggsub, "e_eggsub", ModelFormat::ModelFormat_Basic);
+
+	LoadAnimationFile(&EggSub_LidAnmInfo, "e_eggsub_lid");
+	LoadAnimationFile(&EggSub_IdleAnmInfo, "e_eggsub_idle");
+	LoadAnimationFile(&EggSub_AttackAnmInfo, "e_eggsub_attack");
+
+	EggSub_LidAnm.motion = EggSub_LidAnmInfo->getmotion();
+	EggSub_LidAnm.object = e_eggsub->getmodel();
+
+	EggSub_IdleAnm.motion = EggSub_IdleAnmInfo->getmotion();
+	EggSub_IdleAnm.object = e_eggsub->getmodel();
+
+	EggSub_AttackAnm.motion = EggSub_AttackAnmInfo->getmotion();
+	EggSub_AttackAnm.object = e_eggsub->getmodel();
 }
 
 void Boss_FreeAssets() {
 	FreeModelFile(&ht_bosslava);
 	FreeModelFile(&e_eggsub);
+
+	FreeAnimationFile(&EggSub_LidAnmInfo);
+	FreeAnimationFile(&EggSub_IdleAnmInfo);
+	FreeAnimationFile(&EggSub_AttackAnmInfo);
 }
 
 void Boss_Init(const HelperFunctions& helperFunctions) {
