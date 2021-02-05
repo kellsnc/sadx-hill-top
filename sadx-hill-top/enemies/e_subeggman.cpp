@@ -755,6 +755,7 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 			wk->HitPoint -= 1;
 			PlaySound(463, 0, 0, 0);
 			SetLavaSpeed(15.0f);
+			PlayVoiceCheckSetting(172);
 
 			if (wk->HitPoint == 0) {
 				NonStaticFunctionPointer(void, sub_574460, (NJS_VECTOR * pos), 0x574460);
@@ -763,13 +764,6 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 				data->Action = eggsubmainact_death;
 				EmergePlatforms();
 				SubEgg_ChangeAnimation(wk, ESubAnm_Idle);
-
-			}
-			else if (wk->HitPoint == 1) {
-				PlayVoiceCheckSetting(176);
-			}
-			else {
-				PlayVoiceCheckSetting(172);
 			}
 
 			return true;
@@ -1170,7 +1164,7 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 	wk->Acts = eggsubacts::act1;
 	wk->bwk.plactptr = EggSubAnimList;
 
-	data->Position.y = sinkHeight - 20;
+	data->Position.y = sinkHeight;
 	data->Object = e_eggsub->getmodel();
 
 	obj->MainSub = SubEggman_Main;
@@ -1220,7 +1214,7 @@ void __cdecl Boss_SubEggman_Init(ObjectMaster* obj) {
 
 	if (co2) {
 		co2->Speed = { 4, 4, 0 };
-		co2->field_A = 100; // no control timer
+		co2->field_A = 300; // no control timer
 
 		obj->MainSub = Boss_SubEggman_Main;
 	}
