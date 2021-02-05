@@ -302,6 +302,10 @@ void __cdecl BossLava(ObjectMaster* obj) {
 #pragma endregion
 
 #pragma region Platforms
+bool IsEggSubAlive() {
+	return CurrentBoss != nullptr && CurrentBoss->Data1->Action != eggsubmainact_death;
+}
+
 void __cdecl PlatformChild_Delete(ObjectMaster* obj) {
 	if (obj->Data1->Object) {
 		DynamicCOL_Remove(obj, obj->Data1->Object);
@@ -331,7 +335,10 @@ void __cdecl PlatformChild_Main(ObjectMaster* obj) {
 	EntityData1* parent = obj->Parent->Data1;
 
 	if (parent->Action != PlatformAct_Hidden) {
-		data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(FrameCounterUnpaused * data->Scale.z), 2.0f)) * data->Scale.y;
+		if (IsEggSubAlive() == true) {
+			data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(FrameCounterUnpaused * data->Scale.z), 2.0f)) * data->Scale.y;
+		}
+
 		obj->DisplaySub(obj);
 	}
 }
@@ -1197,7 +1204,7 @@ void __cdecl Boss_SubEggman_Main(ObjectMaster* obj) {
 	SetCameraControlEnabled(0);
 
 	// Little help from time to time
-	if (FrameCounterUnpaused % 1800 == 0) {
+	if (FrameCounterUnpaused % 1800 == 0 && IsEggSubAlive() == true) {
 		Boss_SpawnAirItemBox();
 	}
 }
