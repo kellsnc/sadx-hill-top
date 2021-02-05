@@ -138,6 +138,7 @@
     <ClCompile Include="event.cpp" />
     <ClCompile Include="lava.cpp" />
     <ClCompile Include="level.cpp" />
+    <ClCompile Include="menu.cpp" />
     <ClCompile Include="ninja-utils.cpp" />
     <ClCompile Include="object-utils.cpp" />
     <ClCompile Include="objects.cpp" />
