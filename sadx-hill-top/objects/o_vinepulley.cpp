@@ -56,6 +56,7 @@ void __cdecl VinePulley_Main(ObjectMaster* obj) {
 				if (player) {
 					data->CharIndex = player->CharIndex;
 					ForcePlayerAction(0, 16);
+					PlaySound(463, nullptr, 0, 0);
 					data->Action = 1;
 				}
 			}

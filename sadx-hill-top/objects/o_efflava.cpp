@@ -83,6 +83,10 @@ void __cdecl LavaEffect_Main(ObjectMaster* obj) {
 		NJS_VECTOR* vecs = (NJS_VECTOR*)data->LoopData;
 		int count = static_cast<int>(data->Rotation.z) / 10;
 
+		if (FrameCounterUnpaused % 100 == 0) {
+			PlaySound3D(459, nullptr, 0, 60, 120, data);
+		}
+
 		// Divide sprites in a group of ten different speeds
 		for (int i = 0; i < 10; ++i) {
 			for (Uint16 j = 0; j < count; ++j) {

@@ -535,7 +535,7 @@ void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale) {
 	njLookAt(&pos, &EntityData1Ptrs[GetClosestPlayerID(&pos)]->Position, &x, &y);
 	LoadFireBall(CurrentBoss, &pos, y, -x, 5.0f, 4.0f, 0.0f, 0);
 	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
-	// sound
+	PlaySound(461, 0, 0, 0);
 }
 
 void __cdecl EggBombInit(ObjectMaster* obj) {
@@ -561,7 +561,7 @@ void EggSub_Bomb(EntityData1* data) {
 		bombdata->Position.y = 5;
 	}
 
-	// sound
+	PlaySound3D(465, nullptr, 0, 80, 120, data);
 }
 
 void EggSubDeflarg_Display(ObjectMaster* obj) {
@@ -665,6 +665,7 @@ void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count) {
 	NJS_VECTOR pos = EggSub_GetAttackPoint(data, 0.3f);
 
 	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
+	PlaySound(461, 0, 0, 0);
 
 	for (int i = 0; i < count; ++i) {
 		ObjectMaster* obj = LoadChildObject(LoadObj_Data1, EggSubFire_Main, CurrentBoss);
@@ -680,8 +681,6 @@ void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count) {
 		Collision_Init(obj, &Deflarg_Col, 1, 4);
 		obj->DisplaySub = EggSubDeflarg_Display;
 	}
-
-	//sound
 }
 #pragma endregion
 
@@ -753,7 +752,7 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 		if (playerHurting || GetCollidingEntityB(data)) {
 			wk->HitTimer = 50;
 			wk->HitPoint -= 1;
-			PlaySound(463, 0, 0, 0);
+			PlaySound(461, 0, 0, 0);
 			SetLavaSpeed(15.0f);
 			PlayVoiceCheckSetting(172);
 
@@ -765,6 +764,8 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 				EmergePlatforms();
 				SubEgg_ChangeAnimation(wk, ESubAnm_Idle);
 			}
+
+			BossHealth = static_cast<float>(wk->HitPoint);
 
 			return true;
 		}
@@ -979,8 +980,6 @@ inline void SubEggAct3Attack(EntityData1* data, eggsubwk* wk) {
 
 	data->Rotation.y += speed > 0x500 ? 0x500 : speed;
 
-	//sound
-
 	if (wk->InternalTimer % (wk->Level == 3 ? 2 : 4) == 0) {
 		EggSub_Deflarg(data);
 	}
@@ -1002,6 +1001,8 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 		SubEgg_LookAtPlayer(data, wk);
 
 		SubEgg_ChangeSub(wk, eggsubmtnacts::emerge);
+		PlaySound(464, 0, 0, 0);
+
 		break;
 	case eggsubmtnacts::emerge:
 	default:
@@ -1102,7 +1103,7 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 		if (player->Status & Status_Ground && pco2->field_A == 0) {
 			SetLavaPoint(0.0f, 0.0f);
 			EnableTimeThing();
-			LoadLifeGauge(0, 0, wk->HitPoint);
+			LoadLifeGauge(600, 0x18, wk->HitPoint);
 			data->Action = 1;
 		}
 
@@ -1218,6 +1219,8 @@ void __cdecl Boss_SubEggman_Init(ObjectMaster* obj) {
 
 		obj->MainSub = Boss_SubEggman_Main;
 	}
+
+	LoadSoundList(42);
 }
 
 void Boss_LoadAssets() {

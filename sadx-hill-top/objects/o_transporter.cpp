@@ -193,6 +193,7 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 	case TranspPlatformActs::Input: // If the player is on the dyncol of our object, launch
 		if (IsPlayerOnDyncol(obj)) {
 			data->Action = TranspPlatformActs::Move;
+			PlaySound(466, nullptr, 0, (void*)160);
 		}
 
 		break;
