@@ -85,6 +85,8 @@ struct eggsubwk {
 	int lastattackscount;
 	int MaxHealth;
 	int Level;
+	bool Voice1;
+	bool Voice2;
 };
 
 struct BossCam {
@@ -535,7 +537,7 @@ void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale) {
 	Angle x;
 
 	njLookAt(&pos, &EntityData1Ptrs[GetClosestPlayerID(&pos)]->Position, &x, &y);
-	LoadFireBall(CurrentBoss, &pos, y, -x, 5.0f, 4.0f, 0.0f, 0);
+	LoadFireBall(CurrentBoss, &pos, y, -x, 5.0f, 5.0f, 0.0f, 0);
 	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
 	PlaySound(461, 0, 0, 0);
 }
@@ -756,8 +758,21 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 			wk->HitPoint -= 1;
 			PlaySound(461, 0, 0, 0);
 			SetLavaSpeed(15.0f);
-			PlayVoiceCheckSetting(172);
 
+			if (wk->Level == 1) {
+				if (wk->Voice1 == false) {
+					PlayVoiceCheckSetting(1986);
+					wk->Voice1 = true;
+				}
+			}
+
+			if (wk->Level == 2) {
+				if (wk->Voice2 == false) {
+					PlayVoiceCheckSetting(224);
+					wk->Voice2 = true;
+				}
+			}
+			
 			if (wk->HitPoint == 0) {
 				NonStaticFunctionPointer(void, sub_574460, (NJS_VECTOR * pos), 0x574460);
 				sub_574460(&data->Position); // explosion effect
@@ -765,6 +780,10 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 				data->Action = eggsubmainact_death;
 				EmergePlatforms();
 				SubEgg_ChangeAnimation(wk, ESubAnm_Idle);
+				PlayVoiceCheckSetting(177);
+			}
+			else {
+				PlayVoiceCheckSetting(rand() % 2 == 0 ? 172 : 1230);
 			}
 
 			BossHealth = static_cast<float>(wk->HitPoint);
@@ -881,8 +900,12 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, wk, 0.2f)) {
+		if (SubEgg_Emerge(data, wk, 0.35f)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
+
+			if (wk->HitPoint != wk->MaxHealth) {
+				PlayVoiceCheckSetting(1903);
+			}
 		}
 
 		SubEgg_LookAtPlayer(data, wk);
@@ -909,7 +932,7 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 
 		break;
 	case eggsubmtnacts::sink:
-		if (SubEgg_Sink(data, 0.5f)) {
+		if (SubEgg_Sink(data, 0.6f)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::hidden);
 			SubEgg_ChangeAction(wk, eggsubacts::act2);
 		}
@@ -937,8 +960,9 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, wk, 0.5f)) {
+		if (SubEgg_Emerge(data, wk, 0.7f)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
+			PlayVoiceCheckSetting(173);
 		}
 
 		break;
@@ -948,10 +972,10 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 			break;
 		}
 
-		speed = wk->Level == 1 ? 100 : 70;
+		speed = wk->Level == 1 ? 80 : 40;
 
 		if (CFG_HardBoss == true) {
-			speed -= 40;
+			speed -= 20;
 		}
 
 		if (++wk->InternalTimer == speed) {
@@ -959,15 +983,16 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 		}
 		else if (wk->InternalTimer > speed * 2) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::sink);
+			wk->InternalTimer = -1;
 		}
 
 		break;
 	case eggsubmtnacts::sink:
-		if (SubEgg_Sink(data, 0.8f)) {
+		if (SubEgg_Sink(data, 0.9f)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::hidden);
 
 			// if untouched during this act, redo or change
-			if (wk->InternalTimer > 200 && rand() % 10 < 8) {
+			if (wk->InternalTimer == -1 && rand() % 10 < 8) {
 				if (wk->Level <= 3) {
 					SubEgg_ChangeAction(wk, eggsubacts::act2);
 				}
@@ -1024,7 +1049,7 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, wk, 0.5f)) {
+		if (SubEgg_Emerge(data, wk, 0.7)) {
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
 			SubEgg_ChangeAnimation(wk, ESubAnm_AttackSpree);
 		}
@@ -1042,15 +1067,18 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 
 		break;
 	case eggsubmtnacts::sink:
-		if (SubEgg_Sink(data, 0.5f)) {
+		if (SubEgg_Sink(data, 0.9f)) {
 			++wk->lastattackscount;
 
 			SubEgg_ChangeSub(wk, eggsubmtnacts::hidden);
-			SubEgg_ChangeAction(wk, eggsubacts::act4);
-
+			
 			if (wk->lastattackscount > 6) {
 				SubEgg_ChangeAction(wk, eggsubacts::act1);
 				EmergePlatforms();
+			}
+			else {
+				SubEgg_ChangeAction(wk, eggsubacts::act4);
+				PlayVoiceCheckSetting(174);
 			}
 			
 			return;
@@ -1126,7 +1154,10 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 
 	switch (data->Action) {
 	case eggsubmainact_init:
-		if (player->Status & Status_Ground && pco2->field_A == 0) {
+		// Necessary to spam the camera after act transition somehow
+		SetCameraEvent(EggSubInitCam, CameraAdjustsIDs::None, CameraDirectIDs::Target);
+
+		if (player->Status & Status_Ground && pco2->field_A < 150) {
 			SetLavaPoint(0.0f, 0.0f);
 			EnableTimeThing();
 			LoadLifeGauge(600, 0x18, wk->HitPoint);

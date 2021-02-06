@@ -138,6 +138,24 @@ void LoadSkyboxAct(ObjectMaster* obj) {
 		break;
 	}
 
+	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false
+		&& CurrentCharacter != Characters_Gamma && CurrentAct < 2) {
+
+		if (CurrentAct == 0) {
+			EggCarrierPosition = { 1215.0f, 839.0f, 3520.0f };
+			EggCarrierRotation = { 0, 0x8725, 0 };
+		}
+		else if (EntityData1Ptrs[0]->Position.z < 2200.0f) {
+			EggCarrierPosition = { 3100.0f, 1400.0f, -1300.0f };
+			EggCarrierRotation = { 0x1000, 0xF725, 0 };
+		}
+
+		obj->Data1->field_A = 1; // display egg carrier
+	}
+	else {
+		obj->Data1->field_A = 0;
+	}
+
 	obj->Data1->Index = CurrentAct;
 }
 
@@ -234,21 +252,6 @@ void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
 	
 	obj->MainSub = HillTopZone_SkyBox_Main;
 	obj->DisplaySub = HillTopZone_SkyBox_Display;
-
-	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false
-		&& CurrentCharacter != Characters_Gamma && CurrentAct < 2) {
-
-		if (CurrentAct == 0) {
-			EggCarrierPosition = { 1215.0f, 839.0f, 3520.0f };
-			EggCarrierRotation = { 0, 0x8725, 0 };
-		}
-		else if (EntityData1Ptrs[0]->Position.z < 2200.0f) {
-			EggCarrierPosition = { 3100.0f, 1400.0f, -1300.0f };
-			EggCarrierRotation = { 0x1000, 0xF725, 0 };
-		}
-
-		data->field_A = 1; // Show Egg Carrier
-	}
 
 	LoadSkyboxAct(obj);
 }
