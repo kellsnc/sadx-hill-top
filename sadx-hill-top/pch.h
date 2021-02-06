@@ -7,6 +7,7 @@
 #include "LandTableInfo.h"
 #include "ModelInfo.h"
 #include "AnimationFile.h"
+#include "IniFile.hpp"
 
 #include "pointers.h"
 #include "ninja-utils.h"

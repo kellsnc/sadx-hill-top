@@ -24,6 +24,8 @@ NJS_ACTION EggSub_LidAnm = {};
 NJS_ACTION EggSub_IdleAnm = {};
 NJS_ACTION EggSub_AttackAnm = {};
 
+static bool CFG_HardBoss = false;
+
 static constexpr float surfaceHeight = 5.0f;
 static constexpr float sinkHeight = -50.0f;
 
@@ -860,11 +862,13 @@ void SubEgg_GetRandomPosition(EntityData1* data, eggsubwk* wk) {
 
 // Goes out of lava, shoots and turn toward player until touched, then act 2
 void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
+	int speed;
+
 	switch (wk->Subs) {
 	case eggsubmtnacts::hidden:
 		SinkPlatforms();
 
-		if (wk->HitPoint == 5) {
+		if (wk->HitPoint == wk->MaxHealth) {
 			data->Position = { 0, sinkHeight, 0 };
 		}
 		else {
@@ -893,7 +897,13 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 
 		SubEgg_LookAtPlayer(data, wk);
 
-		if (++wk->InternalTimer % (wk->Level == 0 ? 80 : 45) == 0) {
+		speed = wk->Level == 0 ? 80 : 45;
+
+		if (CFG_HardBoss == true) {
+			speed -= 15;
+		}
+
+		if (++wk->InternalTimer % speed == 0) {
 			EggSub_FireBall(data, wk, wk->Level == 0 ? 3.5f : 4.5f);
 		}
 
@@ -940,6 +950,10 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 
 		speed = wk->Level == 1 ? 100 : 70;
 
+		if (CFG_HardBoss == true) {
+			speed -= 40;
+		}
+
 		if (++wk->InternalTimer == speed) {
 			EggSub_Fire(data, wk, wk->Level == 1 ? 3 : 5);
 		}
@@ -977,6 +991,10 @@ inline void SubEggAct3Attack(EntityData1* data, eggsubwk* wk) {
 	++wk->InternalTimer;
 
 	int speed = wk->InternalTimer * 10;
+
+	if (CFG_HardBoss == true) {
+		speed *= 1.5f;
+	}
 
 	data->Rotation.y += speed > 0x500 ? 0x500 : speed;
 
@@ -1044,13 +1062,21 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 
 // Launches bombs around while under lava
 void SubEgg_Act4(EntityData1* data, eggsubwk* wk) {
+	int speed;
+
 	switch (wk->Subs) {
 	case eggsubmtnacts::hidden:
 		SinkPlatforms();
 
 		++wk->InternalTimer;
 
-		if (wk->InternalTimer % 10 == 0) {
+		speed = 14;
+
+		if (CFG_HardBoss == true) {
+			speed = 8;
+		}
+
+		if (wk->InternalTimer % speed == 0) {
 			SubEgg_GetRandomPosition(data, wk);
 			EggSub_Bomb(data);
 		}
@@ -1159,8 +1185,9 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 	musicobj->Data1->InvulnerableTime = 100;
 
 	obj->UnknownB_ptr = (void*)wk;
-	wk->HitPoint = 5;
-	wk->MaxHealth = 5;
+
+	wk->HitPoint = CFG_HardBoss == true ? 10 : 5;
+	wk->MaxHealth = wk->HitPoint;
 	wk->Subs = eggsubmtnacts::hidden;
 	wk->Acts = eggsubacts::act1;
 	wk->bwk.plactptr = EggSubAnimList;
@@ -1250,6 +1277,9 @@ void Boss_FreeAssets() {
 	FreeAnimationFile(&EggSub_AttackAnmInfo);
 }
 
-void Boss_Init(const HelperFunctions& helperFunctions) {
+void Boss_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
 	HillTopBossMusic = helperFunctions.RegisterMusicFile({ "hilltopboss", true });
+
+	// Read config
+	CFG_HardBoss = config->getBool("Boss", "HardBoss", false);
 }

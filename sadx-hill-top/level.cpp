@@ -12,6 +12,8 @@ Angle HT_WindDirection = 0;
 NJS_TEXNAME HillTop_TexNames[5];
 NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 
+static bool CFG_NoBoss = false;
+
 LandTableInfo* HillTopLands[3] = { nullptr };
 
 StartPosition StartPoses[] = {
@@ -69,7 +71,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 			ForcePlayerAction(player, 24);
 
 			// If level has been completed once, go to boss instead
-			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true) {
+			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true && CFG_NoBoss == false) {
 				NextAct_FreeLandTable(2);
 				NextAct_IncrementCurrentStageAndAct(2);
 				NextAct_SetCameraData(2);
@@ -179,7 +181,7 @@ void __cdecl RunLevelDestructor_r(int mode) {
 	}
 }
 
-void Level_Init(const HelperFunctions& helperFunctions) {
+void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
 	// Replace the Red Mountain switch case from LoadLevelFiles to use our own set/cam/level files
 	// This effectively removes what Dreamcast Conversion does in it
 	WriteJump((void*)0x422D0A, HookLoadLevelFilesRM);
@@ -220,4 +222,7 @@ void Level_Init(const HelperFunctions& helperFunctions) {
 
 	// Fix skybox transparency
 	WriteJump(LoadSkyboxObject, LoadSkyboxObject_r);
+
+	// Read config
+	CFG_NoBoss = config->getBool("Boss", "NoBoss", false);
 }
