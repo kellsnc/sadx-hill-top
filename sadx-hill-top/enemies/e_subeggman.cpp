@@ -1200,7 +1200,7 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 	obj->DisplaySub = SubEggman_Display;
 
 	LoadPVM("EGGSUB", &EGGSUB_TEXLIST);
-	DisplayBossName2("Egg Sub", -1, 240, 80);
+	DisplayBossName2("EGGSUB", -1, 240, 80);
 	Collision_Init(obj, &SubEgg_Col, 1, 2);
 
 	EggSubInitCam_Load(0x1000, -0x2000, 0x4000, -0x1000, 1.0f, 500.0f, 200.0f);

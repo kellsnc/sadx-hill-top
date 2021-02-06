@@ -244,6 +244,8 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 				}
 				else {
 					TriggerIndex = data->Rotation.z;
+					PlaySound(462, nullptr, 0, 0);
+					data->field_A = 0;
 					data->Action = 1;
 				}
 			}
@@ -262,6 +264,10 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 
 		++data->field_A;
 
+		if (data->field_A % 100 == 0) {
+			PlaySound(462, nullptr, 0, 0);
+		}
+
 		if (data->field_A < 90) {
 			float sin = (static_cast<float>(data->field_A) / 90.0f) * 1.5f;
 
@@ -273,10 +279,6 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 			}
 
 			ShakeOffset = njSin((static_cast<float>(data->field_A) * 40.0f * 182.0444488525391f)) * (sin * 4.0f);
-
-			if (data->field_A == 2) {
-				// Sound
-			}
 		}
 		else 
 		{

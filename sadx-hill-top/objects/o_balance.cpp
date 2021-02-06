@@ -138,6 +138,7 @@ void __cdecl HillBalance_Main(ObjectMaster* obj) {
 				if (playerid) {
 					CharObj2Ptrs[playerid - 1]->Speed.y = data->Scale.x;
 					EntityData2Ptrs[playerid - 1]->VelocityDirection.y = data->Scale.x;
+					PlaySound3D(458, nullptr, 0, 100, 120, data);
 				}
 
 				data->Action = 0;

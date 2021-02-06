@@ -25,7 +25,7 @@ struct TransporterPathData1 {
 	Float Progress;
 	NJS_OBJECT* Object;
 	NJS_OBJECT* VineObject;
-	LoopHead* PathData; // "LoopData"
+	LoopHead* PathData;
 	Rotation3 Rotation;
 	NJS_VECTOR Position;
 	NJS_VECTOR Scale;
@@ -112,6 +112,10 @@ void __cdecl ZipVine_Display(ObjectMaster* obj) {
 void __cdecl ZipVine_Main(ObjectMaster* obj) {
 	TransporterPathData1* data = (TransporterPathData1*)obj->Data1;
 
+	if (obj->UnknownB_ptr != (void*)CurrentAct) {
+		DeleteObject_(obj);
+	}
+
 	switch (data->Action) {
 	case ZipVineActs::Wait:
 		if (IsSpecificPlayerInSphere(&data->Position, 14.0f, 0)) {
@@ -139,6 +143,10 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 		if (data->PlayerDetached == false) {
 			SetPlayerPosition(0, &data->Position); // Update player position
 			RotatePlayer(0, data->Rotation.y); // Update player rotation
+
+			if (FrameCounterUnpaused % 300 == 0) {
+				PlaySound3D(456, nullptr, 0, 200, 120, EntityData1Ptrs[0]);
+			}
 
 			if (CheckJump(0)) {
 				data->PlayerDetached = true;
@@ -196,5 +204,7 @@ void __cdecl ZipVine(ObjectMaster* obj) {
 	// Start position of the hanging vine
 	data->Progress = 0.01f;
 	GetVinePoint(&data->Position, &data->Rotation.y, data->PathData, 0, data->Progress);
+
+	obj->UnknownB_ptr = (void*)CurrentAct;
 }
 #pragma endregion
