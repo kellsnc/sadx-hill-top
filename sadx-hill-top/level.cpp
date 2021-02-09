@@ -32,7 +32,7 @@ FogData HillTopFogData[] = {
 };
 
 DrawDistance HillTopSkyDrawDist[] = {
-	{ -1.0f, -10000.0f },
+	{ -1.0f, -9500.0f },
 	{ -1.0f, -5000.0f },
 	{ -1.0f, -2000.0f }
 };

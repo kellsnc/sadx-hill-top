@@ -2,13 +2,28 @@
 #include "e_epsilon.h"
 
 int __cdecl E104_CheckPlayer(ObjectMaster* obj) {
-	EntityData1* player = GetCharacterObject(0)->Data1;
-	EntityData1* data = obj->Data1; // eax
+	return IsSpecificPlayerInSphere(&obj->Data1->Position, 150.0f, 0) == true && (GetCharacterObject(0)->Data1->Status & Status_Ground);
+}
 
-	float x = data->Position.x - player->Position.x;
-	float z = data->Position.z - player->Position.z;
+void GammaOutOfBounds(EntityData1* data) {
+	if (data->Position.y < 945.0f) {
+		data->Index = 1;
+	}
 
-	return (z * z + x * x) < 22500.0f && player->Status & Status_Ground && player->Position.y > 960.0f;
+	if (data->Index == 1) {
+		data->Position.y += 1.0f;
+
+		if (data->Position.y > 970.0f) {
+			data->Index = 0;
+		}
+	}
+}
+
+void __cdecl E104Enemy_Main_r(ObjectMaster* obj) {
+	GammaOutOfBounds(obj->Data1);
+
+	ObjectFunc(original, 0x605A90);
+	original(obj);
 }
 
 void EpsilonBoss_Init() {
@@ -21,4 +36,5 @@ void EpsilonBoss_Init() {
 
 	// Only start the fight if the player is above of the platform
 	WriteJump((void*)0x604650, E104_CheckPlayer);
+	WriteData((ObjectFuncPtr*)0x605C25, E104Enemy_Main_r);
 }
