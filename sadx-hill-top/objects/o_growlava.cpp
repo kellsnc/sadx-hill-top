@@ -317,7 +317,7 @@ void __cdecl KillCeiling(ObjectMaster* obj) {
 		EntityData1* entity = GetCollidingEntityA(data);
 
 		// if the player colldies while being on ground
-		if (entity && entity->Status & (Status_Ground | Status_Unknown1)) {
+		if (entity && (entity->Status & Status_Ground) && (CharObj2Ptrs[entity->CharIndex]->SurfaceFlags & 0x08000000)) {
 			KillPlayer(entity->CharIndex);
 		}
 
