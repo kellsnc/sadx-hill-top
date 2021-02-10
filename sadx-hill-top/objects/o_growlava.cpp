@@ -232,9 +232,9 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 
 	if (data->Action == 0) {
 		if (!ClipSetObject(obj)) {
-			EntityData1* entity = EntityData1Ptrs[IsPlayerInsideSphere_(&data->Position, data->Scale.x) - 1];
+			if (IsSpecificPlayerInSphere(&data->Position, data->Scale.x, 0)) {
+				EntityData1* entity = EntityData1Ptrs[0];
 
-			if (entity && entity->CharIndex == 0) {
 				LavaHeight = data->Scale.y;
 				LavaSpeed = static_cast<float>(data->Rotation.x) / 100;
 				
@@ -258,8 +258,10 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 			DeleteObject_(obj);
 		}
 
-		LavaHeight += LavaSpeed;
-
+		if (!(CharObj2Ptrs[0]->Powerups & Powerups_Dead)) {
+			LavaHeight += LavaSpeed;
+		}
+		
 		// Shake everything
 
 		++data->field_A;
