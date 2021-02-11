@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "o_vinepulley.h"
+#include "o_lantern.h"
 
 /*
 
@@ -19,6 +20,7 @@ CollisionData VinePulley_Col = {
 
 void __cdecl VinePulleyTarget(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
+	RunObjectChildren(obj);
 	AddToCollisionList(data);
 }
 
@@ -90,6 +92,7 @@ void __cdecl VinePulley(ObjectMaster* obj) {
 	ObjectMaster* child = LoadChildObject(LoadObj_Data1, VinePulleyTarget, obj);
 	child->Data1->Position.y = data->Position.y - data->Scale.x;
 	Collision_Init(child, &VinePulley_Col, 1, 3);
+	FireFly_Load(child, 3);
 
 	data->Scale.z = data->Scale.x;
 	
