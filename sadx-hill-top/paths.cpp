@@ -77,8 +77,6 @@ LoopHead* hilltop1_paths[]{
 PathDataPtr hilltop1_pathdata = { LevelAndActIDs_RedMountain2, hilltop1_paths };
 
 LoopHead* hilltop2_paths[]{
-	&HT0_LoopPath1,
-	&HT0_LoopPath2,
 	nullptr
 };
 

@@ -148,7 +148,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj) {
 				PlaySound3D(456, nullptr, 0, 200, 120, EntityData1Ptrs[0]);
 			}
 
-			if (CheckJump(0)) {
+			if ((data->State > 0 || data->Progress > 0.3f) && CheckJump(0)) {
 				data->PlayerDetached = true;
 			}
 		}

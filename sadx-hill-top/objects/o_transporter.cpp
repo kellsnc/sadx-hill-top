@@ -248,9 +248,9 @@ void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progres
 	child->DisplaySub = TranspPlatform_Display;
 	child->DeleteSub = TranspPlatform_Delete;
 	cdata->Object = ht_transporter->getmodel()->child;
-	cdata->Rotation.y += 0x4000;	// todo: apply rotations in blender
+	cdata->Rotation.y += 0x4000;
 
-	cdata->progress = progress;	// Set parameter to position the platform manually
+	cdata->progress = progress;
 	data->progress = progress;
 	MovePlatform(data, cdata, data->progress);
 

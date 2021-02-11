@@ -50,10 +50,17 @@ void HillTop_SetViewData() {
 }
 
 #pragma region Level Handler
+void LoadCurrentActMusic() {
+	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
+	musicobj->Data1->Action = CurrentAct == 1 ? MusicIDs_redmntn2 : MusicIDs_redmntn1;
+	musicobj->Data1->InvulnerableTime = 3;
+}
+
 void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 	if (CurrentAct == 0) {
 		// Act 1-2 swap
 		if (IsSpecificPlayerInSphere(301.0f, 164.0f, 3145.0f, 100.0f, 0)) {
+			SoundManager_Delete2();
 			NextAct_FreeLandTable(1);
 			NextAct_IncrementCurrentStageAndAct(1);
 			NextAct_SetCameraData(1);
@@ -61,6 +68,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 			ForcePlayerAction(0, 24);
 			MovePlayerToStartPoint(EntityData1Ptrs[0]);
 			HillTop_SetViewData();
+			LoadCurrentActMusic();
 		}
 	}
 	else if (CurrentAct == 1) {
@@ -72,6 +80,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 
 			// If level has been completed once, go to boss instead
 			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true && CFG_NoBoss == false) {
+				SoundManager_Delete2();
 				NextAct_FreeLandTable(2);
 				NextAct_IncrementCurrentStageAndAct(2);
 				NextAct_SetCameraData(2);
@@ -100,9 +109,7 @@ void __cdecl HillTopZone_Init(ObjectMaster* obj) {
 	}
 	else {
 		// This initializes the music only if no event is running.
-		ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
-		musicobj->Data1->Action = MusicIDs_redmntn1;
-		musicobj->Data1->InvulnerableTime = 3;
+		LoadCurrentActMusic();
 
 		// Main level function ran every frame, used mostly for act swaps.
 		obj->MainSub = HillTopZone_Main;
@@ -212,7 +219,8 @@ void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
 	DeathZoneList[LevelIDs_RedMountain][3] = hilltope0_deathzones;
 
 	// Music
-	MusicList[MusicIDs_redmntn1].Name = "hilltop";
+	MusicList[MusicIDs_redmntn1].Name = "hilltop1";
+	MusicList[MusicIDs_redmntn2].Name = "hilltop2";
 
 	// Sky color
 	GlobalColorsLevel[LevelIDs_RedMountain] = { 0xFF1844FF, 0xFF2149FF, 0xFF002EFF };
