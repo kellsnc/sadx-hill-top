@@ -357,9 +357,8 @@ void __cdecl Rexon_Main(ObjectMaster* obj) {
 	if (!ClipSetObject(obj)) {
 		EntityData1* data = obj->Data1;
 		
+		// Handle growing lava in act 2
 		int lava_id = data->Rotation.x;
-		lava_id = 2;
-
 		if (CurrentAct == 1 && LavaHeight[lava_id] != 0.0f) {
 			if (data->Scale.z < LavaHeight[lava_id]) {
 				data->Scale.z = LavaHeight[lava_id];

@@ -32,6 +32,7 @@ static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_VECTOR* pos, int id) {
 
 Lava that goes up when the trigger is trigged
 ScaleX: model ID
+ScaleY: lava (0) or ground (1)
 
 */
 
@@ -125,6 +126,7 @@ void __cdecl GrowLava(ObjectMaster* obj) {
 
 Platform that moves with lava height
 
+RotX: lava id
 RotZ: speed
 ScaleX: scale
 ScaleY: movement radius
@@ -303,6 +305,7 @@ void __cdecl GrowLavaTrigger(ObjectMaster* obj) {
 
 Object that kills the player if standing while colliding with this.
 Scale: box scale
+RotX: lava id
 
 */
 
