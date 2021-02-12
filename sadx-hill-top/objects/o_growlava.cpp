@@ -14,18 +14,16 @@ extern ModelInfo* ht_platform;
 static ModelInfo* ht_growlava = nullptr;
 
 static CollisionData GrowLavaTrigger_Col = { 0, CollisionShape_Sphere, 0xF0, 0, 0, { 0, 0, 0 }, 0, 0, 0, 0, 0 };
-static int TriggerIndex = -1;
-static float LavaHeight = 0.0f;
-static float LavaSpeed = 0.0f;
 
-static float ShakeOffset = 0.0f;
+float LavaHeight[3] = { 0.0f };
+static float ShakeOffset[3] = { 0.0f };
 
-static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_VECTOR* pos) {
+static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_VECTOR* pos, int id) {
 	dyncol->pos[0] = pos->x;
 	dyncol->pos[1] = pos->y;
 	dyncol->pos[2] = pos->z;
 	
-	dyncol->pos[1] += ShakeOffset;
+	dyncol->pos[1] += ShakeOffset[id];
 }
 
 #pragma region GrowLava
@@ -50,10 +48,16 @@ void __cdecl GrowLava_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(&CurrentLavaTex);
+		if (data->Scale.y == 1.0f) {
+			njSetTexture(&HillTop_TexList);
+		}
+		else {
+			njSetTexture(&CurrentLavaTex);
+		}
+		
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njTranslateY(ShakeOffset);
+		njTranslateY(ShakeOffset[data->Rotation.z]);
 		njDrawModel_SADX(data->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
@@ -62,14 +66,14 @@ void __cdecl GrowLava_Display(ObjectMaster* obj) {
 void __cdecl GrowLava_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 
-	if (LavaHeight != 0.0f) {
-		data->Position.y = LavaHeight;
+	if (LavaHeight[data->Rotation.z] != 0.0f) {
+		data->Position.y = LavaHeight[data->Rotation.z];
 
 		if (data->Position.y < data->Scale.z) {
 			data->Position.y = data->Scale.z;
 		}
 
-		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position);
+		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, data->Rotation.z);
 	}
 	else {
 		data->Position.y = data->Scale.z;
@@ -80,7 +84,7 @@ void __cdecl GrowLava_Main(ObjectMaster* obj) {
 
 void __cdecl GrowLava(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
-
+	
 	data->Object = GetModelSibling(ht_growlava->getmodel()->child, static_cast<int>(data->Scale.x));
 
 	NJS_OBJECT* object = ObjectArray_GetFreeObject();
@@ -99,8 +103,13 @@ void __cdecl GrowLava(ObjectMaster* obj) {
 
 	object->basicdxmodel = data->Object->basicdxmodel;
 
-	DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid | ColFlags_Hurt), obj, object);
-
+	if (data->Scale.y == 1.0f) {
+		DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid), obj, object);
+	}
+	else {
+		DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid | ColFlags_Hurt), obj, object);
+	}
+	
 	data->LoopData = (Loop*)object;
 	data->Scale.z = data->Position.y;
 	
@@ -138,7 +147,7 @@ void __cdecl GrowLavaPlatform_Display(ObjectMaster* obj) {
 		njSetTexture(&HillTop_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njTranslateY(ShakeOffset);
+		njTranslateY(ShakeOffset[data->Rotation.x]);
 		njRotateY_(data->Rotation.y);
 		njScalef(data->Scale.x);
 		njDrawModel_SADX(data->Object->basicdxmodel);
@@ -150,13 +159,13 @@ void __cdecl GrowLavaPlatform_Main(ObjectMaster* obj) {
 	if (!ClipSetObject(obj)) {
 		EntityData1* data = obj->Data1;
 
-		if (TriggerIndex == -data->Rotation.x) {
-			data->Scale.z += LavaSpeed;
+		if (LavaHeight[data->Rotation.x] != 0.0f && LavaHeight[data->Rotation.x] > data->Scale.z - data->Scale.y - 10.0f) {
+			data->Scale.z = LavaHeight[data->Rotation.x] + data->Scale.y + 10.0f;
 		}
-		
+
 		data->Position.y = data->Scale.z + (1.0f - powf(njSin(FrameCounterUnpaused * data->Rotation.z), 2.0f) * data->Scale.y);
 		
-		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position);
+		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, data->Rotation.x);
 		obj->DisplaySub(obj);
 	}
 }
@@ -208,7 +217,7 @@ void __cdecl GrowLavaPlatform(ObjectMaster* obj) {
 Trigger that launches the lava & plaforms
 
 RotX: grow speed (divided by 100)
-RotY: if 1, force lava to position in scale y on restart
+RotY: if 1, reset lava id on restart
 RotZ: index
 ScaleX: radius
 ScaleY: start height
@@ -217,9 +226,7 @@ ScaleZ: end height
 */
 
 void __cdecl GrowLavaTrigger_Delete(ObjectMaster* obj) {
-	if (TriggerIndex == obj->Data1->Rotation.z) {
-		TriggerIndex = -1;
-	}
+	LavaHeight[obj->Data1->Rotation.z] = 0.0f;
 }
 
 void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
@@ -231,35 +238,24 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 	}
 
 	if (data->Action == 0) {
-		if (!ClipSetObject(obj)) {
-			if (IsSpecificPlayerInSphere(&data->Position, data->Scale.x, 0)) {
-				EntityData1* entity = EntityData1Ptrs[0];
+		if (IsSpecificPlayerInSphere(&data->Position, data->Scale.x, 0)) {
+			EntityData1* entity = EntityData1Ptrs[0];
 
-				LavaHeight = data->Scale.y;
-				LavaSpeed = static_cast<float>(data->Rotation.x) / 100;
-				
-				if (data->Rotation.y == 1) {
-					TriggerIndex = -1;
-					UpdateSetDataAndDelete(obj);
-				}
-				else {
-					TriggerIndex = data->Rotation.z;
-					PlaySound(462, nullptr, 0, 0);
-					data->field_A = 0;
-					data->Action = 1;
-				}
-			}
-
-			AddToCollisionList(data);
+			LavaHeight[data->Rotation.z] = data->Scale.y;
+			PlaySound(462, nullptr, 0, 0);
+			data->field_A = 0;
+			data->Action = 1;
 		}
+
+		AddToCollisionList(data);
 	}
 	else {
-		if (TriggerIndex != data->Rotation.z || LavaHeight >= data->Scale.z) {
-			DeleteObject_(obj);
+		if (LavaHeight[data->Rotation.z] >= data->Scale.z) {
+			data->Action = 0;
 		}
 
 		if (!(CharObj2Ptrs[0]->Powerups & Powerups_Dead)) {
-			LavaHeight += LavaSpeed;
+			LavaHeight[data->Rotation.z] += static_cast<float>(data->Rotation.x) / 100.0f;
 		}
 		
 		// Shake everything
@@ -280,11 +276,11 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 				sin = 0.0f;
 			}
 
-			ShakeOffset = njSin((static_cast<float>(data->field_A) * 40.0f * 182.0444488525391f)) * (sin * 4.0f);
+			ShakeOffset[data->Rotation.z] = njSin((static_cast<float>(data->field_A) * 40.0f * 182.0444488525391f)) * (sin * 4.0f);
 		}
 		else 
 		{
-			ShakeOffset = njSin(((static_cast<float>(data->field_A) - 90.0f) * 48.0f * 182.0444488525391f)) * 0.1800000071525574f;
+			ShakeOffset[data->Rotation.z] = njSin(((static_cast<float>(data->field_A) - 90.0f) * 48.0f * 182.0444488525391f)) * 0.1800000071525574f;
 		}
 	}
 }
@@ -319,7 +315,7 @@ void __cdecl KillCeiling(ObjectMaster* obj) {
 		EntityData1* entity = GetCollidingEntityA(data);
 
 		// if the player colldies while being on ground
-		if (entity && (entity->Status & Status_Ground) && (CharObj2Ptrs[entity->CharIndex]->SurfaceFlags & 0x08000000)) {
+		if (LavaHeight[data->Rotation.x] != 0 && entity && (entity->Status & Status_Ground) && (CharObj2Ptrs[entity->CharIndex]->SurfaceFlags & 0x08000000)) {
 			KillPlayer(entity->CharIndex);
 		}
 
@@ -343,7 +339,7 @@ void __cdecl KillCeiling(ObjectMaster* obj) {
 #pragma endregion
 
 void GrowLava_LoadAssets() {
-	LoadModelFile(&ht_growlava, "ht_growlava", ModelFormat_Basic);
+	LoadModelFile(&ht_growlava, "ht_grow", ModelFormat_Basic);
 }
 
 void GrowLava_FreeAssets() {

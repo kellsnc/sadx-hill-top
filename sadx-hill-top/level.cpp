@@ -18,7 +18,7 @@ LandTableInfo* HillTopLands[3] = { nullptr };
 
 StartPosition StartPoses[] = {
 	{ LevelIDs_RedMountain, 0, { 0.0f, 0.0f, 0.0f }, 0x8000 }, // Sonic Act 1
-	{ LevelIDs_RedMountain, 1, { 0.0f, 50.0f, 0.0f }, 0x4000 }, // Sonic Act 2
+	{ LevelIDs_RedMountain, 1, { -1018.0f, -50.0f, -1235.0f }, 0 }, // Sonic Act 2
 	{ LevelIDs_RedMountain, 1, { 15.0f, 700.0f, 225.0f }, 0 }, // Gamma Act 2
 	{ LevelIDs_RedMountain, 2, { 895.0f, 295.0f, 515.0f }, 0 },  // Knuckles Act 3
 	{ LevelIDs_RedMountain, 3, { 0.0f, -20.0f, 0.0f }, 0 }  // Sonic Act 4 (boss)

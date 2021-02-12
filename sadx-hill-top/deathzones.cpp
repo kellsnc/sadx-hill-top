@@ -39,10 +39,10 @@ NJS_MESHSET_SADX meshlist_020BFCC4[] = {
 };
 
 NJS_VECTOR vertex_020BFCE0[] = {
-	{ -4059.6f, -29, -490 },
-	{ -3979.5f, -29, 4531.4f },
-	{ 1288.9f, -29, 4826.6f },
-	{ 1376.7f, -29, -474.7f }
+	{ -4059.6f, 0, -490 },
+	{ -3979.5f, 0, 4531.4f },
+	{ 1288.9f, 0, 4826.6f },
+	{ 1376.7f, 0, -474.7f }
 };
 
 NJS_VECTOR normal_020BFD10[] = {
@@ -54,7 +54,7 @@ NJS_VECTOR normal_020BFD10[] = {
 
 NJS_MODEL_SADX attach_020BFD40 = { vertex_020BFCE0, normal_020BFD10, LengthOfArray<Sint32>(vertex_020BFCE0), meshlist_020BFCC4, mat_material_colli, LengthOfArray<Uint16>(meshlist_020BFCC4), LengthOfArray<Uint16>(mat_material_colli), { -1341.45f, -29, 2168.3f }, 3801.96f, NULL };
 
-NJS_OBJECT ht1_dz0 = { NJD_EVAL_UNIT_ANG | NJD_EVAL_UNIT_SCL | NJD_EVAL_BREAK, &attach_020BFD40, 1855.125f, 0, -2084.625f, 0, 0, 0, 1, 1, 1, NULL, NULL };
+NJS_OBJECT ht1_dz0 = { NJD_EVAL_UNIT_ANG | NJD_EVAL_UNIT_SCL | NJD_EVAL_BREAK, &attach_020BFD40, 1855.125f, -210.0f, -2084.625f, 0, 0, 0, 1, 1, 1, NULL, NULL };
 
 Sint16 poly_020BFDB4[] = {
 	0, 2, 1

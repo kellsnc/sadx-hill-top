@@ -11,7 +11,7 @@ Draw a secondary landtable for animated lava geometries
 static NJS_TEXNAME CurrentLavaNames[2] = { 0 };
 NJS_TEXLIST CurrentLavaTex = { CurrentLavaNames, 2 };
 
-static LandTableInfo* LavaTableInfos[2] = { nullptr };
+static LandTableInfo* LavaTableInfos[1] = { nullptr };
 static LandTable* LavaLands[4] = { nullptr };
 
 void __cdecl HillTopLava_Display(ObjectMaster* obj) {
@@ -62,11 +62,10 @@ void LoadLavaManager() {
 
 void LoadLavaLandTables() {
 	LoadLandTableFile(&LavaTableInfos[0], "system\\hilltopzone0_lava.sa1lvl", &CurrentLavaTex);
-	LoadLandTableFile(&LavaTableInfos[1], "system\\hilltopzone1_lava.sa1lvl", &CurrentLavaTex);
 
 	LavaLands[0] = LavaTableInfos[0]->getlandtable();
-	LavaLands[1] = LavaTableInfos[1]->getlandtable();
-	LavaLands[2] = LavaTableInfos[0]->getlandtable();
+	LavaLands[1] = nullptr;
+	LavaLands[2] = LavaLands[0];
 }
 
 void FreeLavaLandTables() {

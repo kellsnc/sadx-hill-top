@@ -7,3 +7,5 @@ void __cdecl GrowLava(ObjectMaster* obj);
 void __cdecl GrowLavaPlatform(ObjectMaster* obj);
 void __cdecl GrowLavaTrigger(ObjectMaster* obj);
 void __cdecl KillCeiling(ObjectMaster* obj);
+
+extern float LavaHeight[3];

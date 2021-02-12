@@ -127,8 +127,7 @@ void LoadSkyboxAct(ObjectMaster* obj) {
 		obj->Data1->Position.y = -300.0f;
 		break;
 	case 1:
-		LoadChildObject(LoadObj_Data1, CloudHandler, obj)->Data1->Position.y = -200.0f;
-		obj->Data1->Position.y = -200.0f;
+		obj->Data1->Position.y = -300.0f;
 		break;
 	case 3:
 		LoadLenseFlareAtPosition(&SunPositions[1]);

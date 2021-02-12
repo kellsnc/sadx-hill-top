@@ -1,11 +1,13 @@
 #include "pch.h"
 #include "e_rexon.h"
-#include "enemies/e_fireball.h"
+#include "e_fireball.h"
+#include "..\objects\o_growlava.h"
 
 /*
 
 REXON ENEMY
 
+RotX = lava ID
 RotZ = Emerald ID
 ScaleX = Size;
 ScaleY = Move Radius (stand if 0);
@@ -221,7 +223,7 @@ void Rexon_GetHeadPos(EntityData1* data, NJS_VECTOR* headpos) {
 
 		if (i > 0) {
 			njPushMatrixEx();
-			njTranslateZ(Rexon_NeckMovement(i, data->Action, data->Scale.z));
+			njTranslateZ(Rexon_NeckMovement(i, data->Action, data->InvulnerableTime));
 			
 			// get the head position
 			if (i == 3) {
@@ -250,7 +252,7 @@ void Rexon_MoveColliNeck(EntityData1* data) {
 
 		if (i > 0) {
 			njPushMatrixEx();
-			njTranslateZ(Rexon_NeckMovement(i, data->Action, data->Scale.z));
+			njTranslateZ(Rexon_NeckMovement(i, data->Action, data->InvulnerableTime));
 			njGetTranslation(nullptr, &data->CollisionInfo->CollisionArray[i - 1].center);
 			njPopMatrixEx();
 		}
@@ -264,7 +266,7 @@ void Rexon_MoveColliNeck(EntityData1* data) {
 void Rexon_MoveDynCol(ObjectMaster* obj, EntityData1* data) {
 	// Move up and down, like floating
 	data->field_A += 200;
-	data->Position.y = obj->SETData.SETData->SETEntry->Position.y + 1.0f + (1.0f * njSin(data->field_A));
+	data->Position.y = data->Scale.z + 1.0f + (1.0f * njSin(data->field_A));
 
 	// Move the dyncol
 	NJS_OBJECT* dyncol = (NJS_OBJECT*)data->LoopData;
@@ -343,8 +345,8 @@ void __cdecl Rexon_Display(ObjectMaster* obj) {
 		njDrawModel_SADX(data->Object->basicdxmodel);
 
 		if (data->Action != RexonAct_Dead) {
-			Rexon_DrawFins(data, data->Object->child, data->Scale.z);
-			Rexon_DrawNeck(data, data->Object->child->sibling->sibling->sibling->sibling, data->Scale.z);
+			Rexon_DrawFins(data, data->Object->child, data->InvulnerableTime);
+			Rexon_DrawNeck(data, data->Object->child->sibling->sibling->sibling->sibling, data->InvulnerableTime);
 		}
 		
 		njPopMatrixEx();
@@ -355,8 +357,17 @@ void __cdecl Rexon_Main(ObjectMaster* obj) {
 	if (!ClipSetObject(obj)) {
 		EntityData1* data = obj->Data1;
 		
+		int lava_id = data->Rotation.x;
+		lava_id = 2;
+
+		if (CurrentAct == 1 && LavaHeight[lava_id] != 0.0f) {
+			if (data->Scale.z < LavaHeight[lava_id]) {
+				data->Scale.z = LavaHeight[lava_id];
+			}
+		}
+
 		if (data->Action != RexonAct_Dead) {
-			data->Scale.z += 1.0f;
+			data->InvulnerableTime += 1;
 
 			// If the rexon is a moving one
 			if (data->Action == RexonAct_Move) {
@@ -422,6 +433,8 @@ void __cdecl Rexon(ObjectMaster* obj) {
 	if (data->Scale.y != 0.0f) {
 		data->Action = RexonAct_Move;
 	}
+
+	data->Scale.z = data->Position.y;
 
 	data->Object = e_rexon->getmodel();
 
