@@ -135,7 +135,7 @@ void __cdecl SpikerSpike_Main(ObjectMaster* obj) {
 		}
 	}
 	else {
-		if (++data->field_A > 400 || GetCollidingEntityA(data)) {
+		if (++data->field_A > 200 || GetCollidingEntityA(data)) {
 			LoadEnemyExplosion(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
 			DeleteObject_(obj);
 			return;
