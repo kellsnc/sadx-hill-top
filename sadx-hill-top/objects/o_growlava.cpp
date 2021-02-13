@@ -15,15 +15,14 @@ static ModelInfo* ht_growlava = nullptr;
 
 static CollisionData GrowLavaTrigger_Col = { 0, CollisionShape_Sphere, 0xF0, 0, 0, { 0, 0, 0 }, 0, 0, 0, 0, 0 };
 
-float LavaHeight[3] = { 0.0f };
-static float ShakeOffset[3] = { 0.0f };
+Grow_WK grow_workers[3] = { };
 
 static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_VECTOR* pos, int id) {
 	dyncol->pos[0] = pos->x;
 	dyncol->pos[1] = pos->y;
 	dyncol->pos[2] = pos->z;
 	
-	dyncol->pos[1] += ShakeOffset[id];
+	dyncol->pos[1] += grow_workers[id].Offset;
 }
 
 #pragma region GrowLava
@@ -49,6 +48,8 @@ void __cdecl GrowLava_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
+		int trigger_id = data->Rotation.z;
+
 		if (data->Scale.y == 1.0f) {
 			njSetTexture(&HillTop_TexList);
 		}
@@ -59,8 +60,8 @@ void __cdecl GrowLava_Display(ObjectMaster* obj) {
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 
-		if (LavaHeight[data->Rotation.z] != 0.0f) {
-			njTranslateY(ShakeOffset[data->Rotation.z]);
+		if (grow_workers[trigger_id].Enabled == true) {
+			njTranslateY(grow_workers[trigger_id].Offset);
 		}
 
 		njDrawModel_SADX(data->Object->basicdxmodel);
@@ -71,14 +72,16 @@ void __cdecl GrowLava_Display(ObjectMaster* obj) {
 void __cdecl GrowLava_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 
-	if (LavaHeight[data->Rotation.z] != 0.0f) {
-		data->Position.y = LavaHeight[data->Rotation.z];
+	int trigger_id = data->Rotation.z;
+
+	if (grow_workers[trigger_id].Enabled == true) {
+		data->Position.y = grow_workers[trigger_id].Height;
 
 		if (data->Position.y < data->Scale.z) {
 			data->Position.y = data->Scale.z;
 		}
 
-		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, data->Rotation.z);
+		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, trigger_id);
 	}
 	else {
 		data->Position.y = data->Scale.z;
@@ -150,10 +153,16 @@ void __cdecl GrowLavaPlatform_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
+		int trigger_id = data->Rotation.x;
+
 		njSetTexture(&HillTop_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njTranslateY(ShakeOffset[data->Rotation.x]);
+
+		if (grow_workers[trigger_id].Enabled == true) {
+			njTranslateY(grow_workers[trigger_id].Offset);
+		}
+		
 		njRotateY_(data->Rotation.y);
 		njScalef(data->Scale.x);
 		njDrawModel_SADX(data->Object->basicdxmodel);
@@ -165,13 +174,15 @@ void __cdecl GrowLavaPlatform_Main(ObjectMaster* obj) {
 	if (!ClipSetObject(obj)) {
 		EntityData1* data = obj->Data1;
 
-		if (LavaHeight[data->Rotation.x] != 0.0f && LavaHeight[data->Rotation.x] > data->Scale.z - data->Scale.y - 10.0f) {
-			data->Scale.z = LavaHeight[data->Rotation.x] + data->Scale.y + 10.0f;
+		int trigger_id = data->Rotation.x;
+
+		if (grow_workers[trigger_id].Enabled == true && grow_workers[trigger_id].Height > data->Scale.z - data->Scale.y - 10.0f) {
+			data->Scale.z = grow_workers[trigger_id].Height + data->Scale.y + 10.0f;
 		}
 
 		data->Position.y = data->Scale.z + (1.0f - powf(njSin(FrameCounterUnpaused * data->Rotation.z), 2.0f) * data->Scale.y);
 		
-		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, data->Rotation.x);
+		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, trigger_id);
 		obj->DisplaySub(obj);
 	}
 }
@@ -232,36 +243,47 @@ ScaleZ: end height
 */
 
 void __cdecl GrowLavaTrigger_Delete(ObjectMaster* obj) {
-	LavaHeight[obj->Data1->Rotation.z] = 0.0f;
+	grow_workers[obj->Data1->Rotation.z].Enabled = false;
+	grow_workers[obj->Data1->Rotation.z].Height = 0.0f;
+	grow_workers[obj->Data1->Rotation.z].Offset = 0.0f;
 }
 
 void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 
+	int trigger_id = data->Rotation.z;
+
 	// only reset lava if restarting
 	if (data->Rotation.y == 1 && GameState != 4) {
-		UpdateSetDataAndDelete(obj);
+		data->Action = 2;
 	}
 
 	if (data->Action == 0) {
 		if (IsSpecificPlayerInSphere(&data->Position, data->Scale.x, 0)) {
 			EntityData1* entity = EntityData1Ptrs[0];
 
-			LavaHeight[data->Rotation.z] = data->Scale.y;
-			PlaySound(462, nullptr, 0, 0);
-			data->field_A = 0;
-			data->Action = 1;
+			if (data->Rotation.y == 1) {
+				UpdateSetDataAndDelete(obj);
+			}
+			else {
+				grow_workers[trigger_id].Enabled = true;
+				grow_workers[trigger_id].Height = data->Scale.y;
+				PlaySound(462, nullptr, 0, 0);
+				data->field_A = 0;
+				data->Action = 1;
+			}
 		}
 
 		AddToCollisionList(data);
 	}
 	else if (data->Action == 1) {
-		if (LavaHeight[data->Rotation.z] >= data->Scale.z) {
+		if (grow_workers[trigger_id].Height >= data->Scale.z) {
+			grow_workers[trigger_id].Enabled = false;
 			data->Action = 2;
 		}
 
 		if (!(CharObj2Ptrs[0]->Powerups & Powerups_Dead)) {
-			LavaHeight[data->Rotation.z] += static_cast<float>(data->Rotation.x) / 100.0f;
+			grow_workers[trigger_id].Height += static_cast<float>(data->Rotation.x) / 100.0f;
 		}
 		
 		// Shake everything
@@ -282,11 +304,11 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 				sin = 0.0f;
 			}
 
-			ShakeOffset[data->Rotation.z] = njSin((static_cast<float>(data->field_A) * 40.0f * 182.0444488525391f)) * (sin * 4.0f);
+			grow_workers[trigger_id].Offset = njSin((static_cast<float>(data->field_A) * 40.0f * 182.0444488525391f)) * (sin * 4.0f);
 		}
 		else 
 		{
-			ShakeOffset[data->Rotation.z] = njSin(((static_cast<float>(data->field_A) - 90.0f) * 48.0f * 182.0444488525391f)) * 0.1800000071525574f;
+			grow_workers[trigger_id].Offset = njSin(((static_cast<float>(data->field_A) - 90.0f) * 48.0f * 182.0444488525391f)) * 0.1800000071525574f;
 		}
 	}
 }
@@ -322,7 +344,7 @@ void __cdecl KillCeiling(ObjectMaster* obj) {
 		EntityData1* entity = GetCollidingEntityA(data);
 
 		// if the player colldies while being on ground
-		if (LavaHeight[data->Rotation.x] != 0 && entity && (entity->Status & Status_Ground) && (CharObj2Ptrs[entity->CharIndex]->SurfaceFlags & 0x08000000)) {
+		if (grow_workers[data->Rotation.z].Enabled == true && entity && (entity->Status & Status_Ground) && (CharObj2Ptrs[entity->CharIndex]->SurfaceFlags & 0x08000000)) {
 			KillPlayer(entity->CharIndex);
 		}
 

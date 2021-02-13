@@ -359,9 +359,9 @@ void __cdecl Rexon_Main(ObjectMaster* obj) {
 		
 		// Handle growing lava in act 2
 		int lava_id = data->Rotation.x;
-		if (CurrentAct == 1 && LavaHeight[lava_id] != 0.0f) {
-			if (data->Scale.z < LavaHeight[lava_id]) {
-				data->Scale.z = LavaHeight[lava_id];
+		if (CurrentAct == 1 && grow_workers[lava_id].Enabled == true) {
+			if (data->Scale.z < grow_workers[lava_id].Height) {
+				data->Scale.z = grow_workers[lava_id].Height;
 			}
 		}
 
