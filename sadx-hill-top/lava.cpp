@@ -14,7 +14,7 @@ NJS_TEXLIST CurrentLavaTex = { CurrentLavaNames, 2 };
 static LandTableInfo* LavaTableInfo = nullptr;
 
 void __cdecl HillTopLava_Display(ObjectMaster* obj) {
-	if (!MissedFrames && CurrentAct == 0) {
+	if (!MissedFrames && (CurrentAct == 0 || CurrentAct == 2)) {
 		EntityData1* data = obj->Data1;
 		LandTable* land = LavaTableInfo->getlandtable();
 
