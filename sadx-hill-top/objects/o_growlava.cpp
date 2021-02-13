@@ -58,7 +58,11 @@ void __cdecl GrowLava_Display(ObjectMaster* obj) {
 		
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njTranslateY(ShakeOffset[data->Rotation.z]);
+
+		if (LavaHeight[data->Rotation.z] != 0.0f) {
+			njTranslateY(ShakeOffset[data->Rotation.z]);
+		}
+
 		njDrawModel_SADX(data->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
@@ -108,7 +112,7 @@ void __cdecl GrowLava(ObjectMaster* obj) {
 		DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid), obj, object);
 	}
 	else {
-		DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid | ColFlags_Hurt), obj, object);
+		DynamicCOL_Add((ColFlags)(0x08004000 | ColFlags_Solid | ColFlags_Hurt), obj, object);
 	}
 	
 	data->LoopData = (Loop*)object;
@@ -251,9 +255,9 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj) {
 
 		AddToCollisionList(data);
 	}
-	else {
+	else if (data->Action == 1) {
 		if (LavaHeight[data->Rotation.z] >= data->Scale.z) {
-			data->Action = 0;
+			data->Action = 2;
 		}
 
 		if (!(CharObj2Ptrs[0]->Powerups & Powerups_Dead)) {

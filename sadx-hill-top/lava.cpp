@@ -11,17 +11,12 @@ Draw a secondary landtable for animated lava geometries
 static NJS_TEXNAME CurrentLavaNames[2] = { 0 };
 NJS_TEXLIST CurrentLavaTex = { CurrentLavaNames, 2 };
 
-static LandTableInfo* LavaTableInfos[1] = { nullptr };
-static LandTable* LavaLands[4] = { nullptr };
+static LandTableInfo* LavaTableInfo = nullptr;
 
 void __cdecl HillTopLava_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+	if (!MissedFrames && CurrentAct == 0) {
 		EntityData1* data = obj->Data1;
-		LandTable* land = LavaLands[CurrentAct];
-
-		// Hacky thing to draw the texture we want
-		CurrentLavaNames[0] = YOUGAN_ANIM_TEXNAMES[data->Index];
-		CurrentLavaNames[1] = LAVAFALL_TexList.textures[data->Index];
+		LandTable* land = LavaTableInfo->getlandtable();
 
 		if (land) {
 			njSetTexture(land->TexList);
@@ -42,8 +37,6 @@ void __cdecl HillTopLava_Display(ObjectMaster* obj) {
 void __cdecl HillTopLava_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 
-	// Texture Animation
-
 	if (FrameCounterUnpaused % 2 == 0) {
 		++data->Index; // Texture ID
 	}
@@ -51,6 +44,9 @@ void __cdecl HillTopLava_Main(ObjectMaster* obj) {
 	if (data->Index >= 12) {
 		data->Index = 0;
 	}
+
+	CurrentLavaNames[0] = YOUGAN_ANIM_TEXNAMES[data->Index];
+	CurrentLavaNames[1] = LAVAFALL_TexList.textures[data->Index];
 
 	obj->DisplaySub(obj);
 }
@@ -61,14 +57,9 @@ void LoadLavaManager() {
 }
 
 void LoadLavaLandTables() {
-	LoadLandTableFile(&LavaTableInfos[0], "system\\hilltopzone0_lava.sa1lvl", &CurrentLavaTex);
-
-	LavaLands[0] = LavaTableInfos[0]->getlandtable();
-	LavaLands[1] = nullptr;
-	LavaLands[2] = LavaLands[0];
+	LoadLandTableFile(&LavaTableInfo, "system\\hilltopzone0_lava.sa1lvl", &CurrentLavaTex);
 }
 
 void FreeLavaLandTables() {
-	FreeLandTableFile(&LavaTableInfos[0]);
-	FreeLandTableFile(&LavaTableInfos[1]);
+	FreeLandTableFile(&LavaTableInfo);
 }
