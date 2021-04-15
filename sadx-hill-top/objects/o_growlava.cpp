@@ -83,9 +83,6 @@ void __cdecl GrowLava_Main(ObjectMaster* obj) {
 
 		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, trigger_id);
 	}
-	else {
-		data->Position.y = data->Scale.z;
-	}
 
 	obj->DisplaySub(obj);
 }

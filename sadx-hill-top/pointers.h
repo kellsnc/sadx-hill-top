@@ -40,6 +40,7 @@ FunctionPointer(void, PlayVoiceCheckSetting, (int voice), 0x571990);
 DataPointer(ObjectMaster*, Egg1ExplosionTask, 0x3C6C940);
 DataPointer(float, BossHealth, 0x3C58158);
 FunctionPointer(void, PlaySound3D, (int ID, void* entity, int a3, int volume, int length, EntityData1* data), 0x424880);
+FunctionPointer(void, SetCircleLimit, (NJS_VECTOR* pos, NJS_VECTOR* center, float radius), 0x7AF3E0);
 
 // Event related
 VoidFunc(EV_InitCamera, 0x4303E0);

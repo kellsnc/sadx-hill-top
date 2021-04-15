@@ -80,7 +80,6 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 
 			// If level has been completed once, go to boss instead
 			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true && CFG_NoBoss == false) {
-				SoundManager_Delete2();
 				NextAct_FreeLandTable(2);
 				NextAct_IncrementCurrentStageAndAct(2);
 				NextAct_SetCameraData(2);

@@ -1211,10 +1211,15 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	eggsubwk* wk = (eggsubwk*)BossAlloc(data, sizeof(eggsubwk));
 
-	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
-	musicobj->Data1->Action = HillTopBossMusic;
-	musicobj->Data1->InvulnerableTime = 100;
+	PlayMusic((MusicIDs)HillTopBossMusic);
 
+	// Set the limit of the arena
+	for (int i = 0; i < MaxPlayers; ++i) {
+		if (EntityData1Ptrs[i]) {
+			SetCircleLimit(&EntityData1Ptrs[i]->Position, &data->Position, 405.0f);
+		}
+	}
+	
 	obj->UnknownB_ptr = (void*)wk;
 
 	wk->HitPoint = CFG_HardBoss == true ? 10 : 5;
@@ -1309,7 +1314,7 @@ void Boss_FreeAssets() {
 }
 
 void Boss_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
-	HillTopBossMusic = helperFunctions.RegisterMusicFile({ "hilltopboss", true });
+	HillTopBossMusic = helperFunctions.RegisterMusicFile({ "eggboss", true });
 
 	// Read config
 	CFG_HardBoss = config->getBool("Boss", "HardBoss", false);
