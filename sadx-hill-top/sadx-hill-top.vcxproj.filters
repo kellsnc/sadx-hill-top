@@ -87,7 +87,7 @@
     <ClInclude Include="enemies\e_fireball.h">
       <Filter>Header Files\Enemies</Filter>
     </ClInclude>
-    <ClInclude Include="objects\o_balance.h">
+    <ClInclude Include="objects\o_seesaw.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="objects\o_zipvine.h">
@@ -191,7 +191,7 @@
     <ClCompile Include="enemies\e_fireball.cpp">
       <Filter>Source Files\Enemies</Filter>
     </ClCompile>
-    <ClCompile Include="objects\o_balance.cpp">
+    <ClCompile Include="objects\o_seesaw.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
     <ClCompile Include="objects\o_zipvine.cpp">

@@ -20,6 +20,7 @@ bool IsSpecificPlayerInSphere(float x, float y, float z, float radius, int playe
 bool IsSpecificPlayerInSphere(NJS_VECTOR* center, float radius, int player);
 bool AreSpheresColliding(NJS_VECTOR* sphereA, float radiusA, NJS_VECTOR* sphereB, float radiusB);
 EntityData1* IsPlayerOnDyncol(ObjectMaster* obj);
+void ForEveryCollidingPlayer(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*));
 void ForEveryPlayerOnDyncol(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*));
 int IsPlayerInGlobalCylinder(NJS_VECTOR* center, float x, float y);
 void SetPlayerPosition(int id, float x, float y, float z);

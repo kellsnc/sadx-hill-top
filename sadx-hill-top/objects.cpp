@@ -10,7 +10,7 @@
 #include "objects/o_lantern.h"
 #include "objects/o_hillbush.h"
 #include "objects/o_pickrock.h"
-#include "objects/o_balance.h"
+#include "objects/o_seesaw.h"
 #include "objects/o_hillpole.h"
 #include "objects/o_vinepulley.h"
 #include "objects/o_hillplatform.h"
@@ -81,7 +81,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 4, 1, MinDistance, 0, HillBush, "O HILLBUSH" },
 	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, MinDistance, 0, PickRock, "O PICKROCK" },
 	{ LoadObj_Data1, 3, 0, 0, 0, FireBallLauncher, "E FIREBALL" },
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillBalance, "O HILLBALANCE" },
+	{ LoadObj_Data1, 3, 1, MinDistance, 0, HillSeesaw, "O HILLSEESAW" },
 	{ LoadObj_Data1, 3, 1, 640000, 0, HillPole, "O HILLPOLE" },
 	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" },
 	{ LoadObj_Data1, 3, 1, 1280000, 0, HillPlatform, "O HILLPLATFORM" },
@@ -143,7 +143,7 @@ void LoadObjectFiles() {
 	Lantern_LoadAssets();
 	HillBush_LoadAssets();
 	PickRock_LoadAssets();
-	HillBalance_LoadAssets();
+	HillSeesaw_LoadAssets();
 	HillPlatform_LoadAssets();
 	GrowLava_LoadAssets();
 
@@ -162,7 +162,7 @@ void FreeObjectFiles() {
 	Lantern_FreeAssets();
 	HillBush_FreeAssets();
 	PickRocket_FreeAssets();
-	HillBalance_FreeAssets();
+	HillSeesaw_FreeAssets();
 	HillPlatform_FreeAssets();
 	GrowLava_FreeAssets();
 

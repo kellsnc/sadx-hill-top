@@ -9,10 +9,16 @@
 
 Angle HT_WindDirection = 0;
 
+static bool CFG_NoBoss = false;
+
+static int MusicIDs_hilltop1 = MusicIDs_redmntn1;
+static int MusicIDs_hilltop2 = MusicIDs_redmntn2;
+
+MusicInfo Music_HillTop1 = { "hilltop1", true };
+MusicInfo Music_HillTop2 = { "hilltop2", true };
+
 NJS_TEXNAME HillTop_TexNames[5];
 NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
-
-static bool CFG_NoBoss = false;
 
 LandTableInfo* HillTopLands[3] = { nullptr };
 
@@ -52,7 +58,7 @@ void HillTop_SetViewData() {
 #pragma region Level Handler
 void LoadCurrentActMusic() {
 	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
-	musicobj->Data1->Action = CurrentAct == 1 ? MusicIDs_redmntn2 : MusicIDs_redmntn1;
+	musicobj->Data1->Action = CurrentAct == 1 ? MusicIDs_hilltop2 : MusicIDs_hilltop1;
 	musicobj->Data1->InvulnerableTime = 3;
 }
 
@@ -218,9 +224,15 @@ void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
 	DeathZoneList[LevelIDs_RedMountain][3] = hilltope0_deathzones;
 
 	// Music
-	MusicList[MusicIDs_redmntn1].Name = "hilltop1";
-	MusicList[MusicIDs_redmntn2].Name = "hilltop2";
-
+	if (helperFunctions.Version >= 9) {
+		MusicIDs_hilltop1 = helperFunctions.RegisterMusicFile(Music_HillTop1);
+		MusicIDs_hilltop2 = helperFunctions.RegisterMusicFile(Music_HillTop2);
+	}
+	else {
+		MusicList[MusicIDs_redmntn1] = Music_HillTop1;
+		MusicList[MusicIDs_redmntn2] = Music_HillTop2;
+	}
+	
 	// Sky color
 	GlobalColorsLevel[LevelIDs_RedMountain] = { 0xFF1844FF, 0xFF2149FF, 0xFF002EFF };
 

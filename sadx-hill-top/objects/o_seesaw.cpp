@@ -1,45 +1,56 @@
 #include "pch.h"
-#include "o_hillflowers.h"
+#include "o_seesaw.h"
 
 /*
 
-Unidus balance
+Unidus seesaw
 
 ScaleX: Height power
 
 */
 
-ModelInfo* ht_balance = nullptr;
+ModelInfo* ht_seesaw = nullptr;
 
-CollisionData HillTBalance_Col[] = {
+CollisionData HillSeesaw_Col[] = {
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0.0f, 1.3f, 0.0f}, 1.3f, 4.5f, 0, 0, 0x4000, 0, 0 },
 	{ 0, CollisionShape_Cube2, 0x77, 0, 0, {0.0f, 3.0f, 0.0f}, 18.0f, 0.35f, 3.7f, 0, 0, 0, 0 }
 };
 
-int Balance_IsOnBalance(EntityData1* data, float radius) {
-	EntityData1* entity = GetCollidingEntityA(data);
+bool IsOnSeesaw(EntityData1* data, NJS_VECTOR* pos) {
+	NJS_VECTOR newpos = { 0 };
 
-	if (entity && entity->Action <= 2) {
-		NJS_VECTOR newpos = { 0 };
+	njPushMatrix(_nj_unit_matrix_);
+	njTranslateEx(&data->Position);
+	njRotateY_(data->Rotation.y);
+	njRotateZ_(data->Rotation.x);
+	njTranslateX(-16.0f);
+	njTranslateY(10.0f);
+	njGetTranslation(0, &newpos);
+	njPopMatrixEx();
 
-		njPushMatrix(_nj_unit_matrix_);
-		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
-		njRotateX_(data->Rotation.x);
-		njTranslateX(-16.0f);
-		njTranslateY(10.0f);
-		njGetTranslation(0, &newpos);
-		njPopMatrixEx();
-
-		if (IsPointInsideSphere(&newpos, &entity->Position, radius)) {
-			return entity->CharIndex + 1;
-		}
-	}
-
-	return 0;
+	return IsPointInsideSphere(&newpos, pos, 12.0f);
 }
 
-void __cdecl UnidusBalance_Display(ObjectMaster* obj) {
+void Seesaw_Check(ObjectMaster* obj, EntityData1* player) {
+	EntityData1* data = obj->Data1;
+
+	if (player->Action == 2 && IsOnSeesaw(data, &player->Position)) {
+		data->Action = 1;
+		obj->Child->Data1->Action = 1;
+	}
+}
+
+void Seesaw_Launch(ObjectMaster* obj, EntityData1* player) {
+	EntityData1* data = obj->Data1;
+
+	if (IsOnSeesaw(data, &player->Position)) {
+		CharObj2Ptrs[player->CharIndex]->Speed.y = data->Scale.x;
+		EntityData2Ptrs[player->CharIndex]->VelocityDirection.y = data->Scale.x;
+		PlaySound3D(458, nullptr, 0, 100, 120, data);
+	}
+}
+
+void __cdecl UnidusSeesaw_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
@@ -54,7 +65,7 @@ void __cdecl UnidusBalance_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl UnidusBalance_Main(ObjectMaster* obj) {
+void __cdecl UnidusSeesaw_Main(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	Float orig = obj->Parent->SETData.SETData->SETEntry->Position.y + 4.0f;
 
@@ -77,8 +88,8 @@ void __cdecl UnidusBalance_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void LoadUnidusBalance(ObjectMaster* obj, EntityData1* data) {
-	ObjectMaster* child = LoadChildObject(LoadObj_Data1, UnidusBalance_Main, obj);
+void LoadUnidusSeesaw(ObjectMaster* obj, EntityData1* data) {
+	ObjectMaster* child = LoadChildObject(LoadObj_Data1, UnidusSeesaw_Main, obj);
 
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&data->Position);
@@ -88,14 +99,14 @@ void LoadUnidusBalance(ObjectMaster* obj, EntityData1* data) {
 	njGetTranslation(0, &child->Data1->Position);
 	njPopMatrixEx();
 
-	child->DisplaySub = UnidusBalance_Display;
+	child->DisplaySub = UnidusSeesaw_Display;
 
 	Collision_Init(child, Unidus_Collision, Unidus_Collision_Length, 4);
 
 	child->Data1->field_A = 0.0f;
 }
 
-void __cdecl HillBalance_Display(ObjectMaster* obj) {
+void __cdecl HillSeesaw_Display(ObjectMaster* obj) {
 	if (!MissedFrames) {
 		EntityData1* data = obj->Data1;
 
@@ -114,15 +125,15 @@ void __cdecl HillBalance_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillBalance_Main(ObjectMaster* obj) {
+void __cdecl HillSeesaw_Main(ObjectMaster* obj) {
 	if (!ClipSetObject(obj)) {
 		EntityData1* data = obj->Data1;
 
+
+		IsOnSeesaw(data, &data->Position);
+
 		if (data->Action == 0) {
-			if (Balance_IsOnBalance(data, 10.0f)) {
-				data->Action = 1;
-				obj->Child->Data1->Action = 1;
-			}
+			ForEveryCollidingPlayer(obj, Seesaw_Check);
 		}
 		else if (data->Action == 1) {
 			if (data->Rotation.x < 0x880) {
@@ -133,14 +144,7 @@ void __cdecl HillBalance_Main(ObjectMaster* obj) {
 			}
 
 			if (obj->Child->Data1->Action == 0) {
-				int playerid = Balance_IsOnBalance(data, 15.0f);
-
-				if (playerid) {
-					CharObj2Ptrs[playerid - 1]->Speed.y = data->Scale.x;
-					EntityData2Ptrs[playerid - 1]->VelocityDirection.y = data->Scale.x;
-					PlaySound3D(458, nullptr, 0, 100, 120, data);
-				}
-
+				ForEveryCollidingPlayer(obj, Seesaw_Launch);
 				data->Action = 0;
 				data->Rotation.x = -0x880;
 			}
@@ -155,24 +159,24 @@ void __cdecl HillBalance_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillBalance(ObjectMaster* obj) {
+void __cdecl HillSeesaw(ObjectMaster* obj) {
 	EntityData1* data = obj->Data1;
 	
 	data->Rotation.x = -0x880;
-	data->Object = ht_balance->getmodel();
+	data->Object = ht_seesaw->getmodel();
 
-	Collision_Init(obj, arrayptrandlength(HillTBalance_Col), 4);
+	Collision_Init(obj, arrayptrandlength(HillSeesaw_Col), 4);
 
-	obj->MainSub = HillBalance_Main;
-	obj->DisplaySub = HillBalance_Display;
+	obj->MainSub = HillSeesaw_Main;
+	obj->DisplaySub = HillSeesaw_Display;
 
-	LoadUnidusBalance(obj, data);
+	LoadUnidusSeesaw(obj, data);
 }
 
-void HillBalance_LoadAssets() {
-	LoadModelFile(&ht_balance, "ht_balance", ModelFormat_Basic);
+void HillSeesaw_LoadAssets() {
+	LoadModelFile(&ht_seesaw, "ht_seesaw", ModelFormat_Basic);
 }
 
-void HillBalance_FreeAssets() {
-	FreeModelFile(&ht_balance);
+void HillSeesaw_FreeAssets() {
+	FreeModelFile(&ht_seesaw);
 }

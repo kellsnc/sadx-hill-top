@@ -161,6 +161,20 @@ EntityData1* IsPlayerOnDyncol(ObjectMaster* obj) {
 	return nullptr;
 }
 
+void ForEveryCollidingPlayer(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*)) {
+	CollisionInfo* colinfo = obj->Data1->CollisionInfo;
+
+	for (uint8_t i = 0; i < 16; ++i) {
+		CollisionThing* colthing = &colinfo->CollisionThings[i];
+
+		if (colthing->hit_num == -1) break;
+
+		if (colthing->hit_twp->CollisionInfo->id == 0) {
+			function(obj, colthing->hit_twp);
+		}
+	}
+}
+
 void ForEveryPlayerOnDyncol(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*)) {
 	for (int i = 0; i < MaxPlayers; ++i) {
 		CharObj2* co2 = CharObj2Ptrs[i];
