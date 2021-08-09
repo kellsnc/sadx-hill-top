@@ -11,7 +11,7 @@ RotZ = speed (default to 150)
 
 */
 
-static ModelInfo* ht_platform = nullptr;
+ModelInfo* ht_platform = nullptr;
 
 static void __cdecl HillPlatform_Delete(ObjectMaster* obj)
 {
@@ -46,7 +46,7 @@ static void __cdecl HillPlatform_Main(ObjectMaster* obj)
 	{
 		auto data = obj->Data1;
 		
-		data->Position.y = data->Scale.z + static_cast<float>(1.0 - pow(sin(FrameCounterUnpaused * data->Rotation.z), 2.0)) * data->Scale.y;
+		data->Position.y = data->Scale.z + static_cast<float>(1.0 - pow(njSin(FrameCounterUnpaused * data->Rotation.z), 2.0)) * data->Scale.y;
 
 		reinterpret_cast<NJS_OBJECT*>(data->LoopData)->pos[1] = data->Position.y;
 

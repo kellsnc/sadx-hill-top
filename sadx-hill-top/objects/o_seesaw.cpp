@@ -9,14 +9,15 @@ ScaleX: Height power
 
 */
 
-ModelInfo* ht_seesaw = nullptr;
+static ModelInfo* ht_seesaw = nullptr;
 
-CollisionData HillSeesaw_Col[] = {
+static CollisionData HillSeesaw_Col[] = {
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0.0f, 1.3f, 0.0f}, 1.3f, 4.5f, 0, 0, 0x4000, 0, 0 },
-	{ 0, CollisionShape_Cube2, 0x77, 0, 0, {0.0f, 3.0f, 0.0f}, 18.0f, 0.35f, 3.7f, 0, 0, 0, 0 }
+	{ 0, CollisionShape_Cube2, 0x77, 0, 0, {0.0f, 2.5f, 0.0f}, 19.0f, 0.75f, 5.0f, 0, 0, 0, 0 }
 };
 
-bool IsOnSeesaw(EntityData1* data, NJS_VECTOR* pos) {
+static bool IsOnSeesaw(EntityData1* data, NJS_VECTOR* pos)
+{
 	NJS_VECTOR newpos = { 0 };
 
 	njPushMatrix(_nj_unit_matrix_);
@@ -31,55 +32,63 @@ bool IsOnSeesaw(EntityData1* data, NJS_VECTOR* pos) {
 	return IsPointInsideSphere(&newpos, pos, 12.0f);
 }
 
-void Seesaw_Check(ObjectMaster* obj, EntityData1* player) {
-	EntityData1* data = obj->Data1;
+static void Seesaw_Check(ObjectMaster* obj, EntityData1* player)
+{
+	auto data = obj->Data1;
 
-	if (player->Action == 2 && IsOnSeesaw(data, &player->Position)) {
+	if (player->Action == 2 && IsOnSeesaw(data, &player->Position))
+	{
 		data->Action = 1;
 		obj->Child->Data1->Action = 1;
 	}
 }
 
-void Seesaw_Launch(ObjectMaster* obj, EntityData1* player) {
-	EntityData1* data = obj->Data1;
+static void Seesaw_Launch(ObjectMaster* obj, EntityData1* player)
+{
+	auto data = obj->Data1;
 
-	if (IsOnSeesaw(data, &player->Position)) {
+	if (IsOnSeesaw(data, &player->Position))
+	{
 		CharObj2Ptrs[player->CharIndex]->Speed.y = data->Scale.x;
 		EntityData2Ptrs[player->CharIndex]->VelocityDirection.y = data->Scale.x;
 		PlaySound3D(458, nullptr, 0, 100, 120, data);
 	}
 }
 
-void __cdecl UnidusSeesaw_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
-		EntityData1* data = obj->Data1;
+static void __cdecl UnidusSeesaw_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
+		auto data = obj->Data1;
 
 		njSetTexture(&UNI_A_UNIBODY_TEXLIST);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
-
 		DrawObject((NJS_OBJECT*)0x96DBF0);
-
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl UnidusSeesaw_Main(ObjectMaster* obj) {
-	EntityData1* data = obj->Data1;
+static void __cdecl UnidusSeesaw_Main(ObjectMaster* obj)
+{
+	auto data = obj->Data1;
 	Float orig = obj->Parent->SETData.SETData->SETEntry->Position.y + 4.0f;
 
-	if (data->Action == 1) {
+	if (data->Action == 1)
+	{
 		data->field_A += 500;
 
 		unsigned int sin = static_cast<unsigned int>(data->field_A);
 
-		if (sin > 0x8000) {
+		if (sin > 0x8000)
+		{
 			data->Action = 0;
 			data->field_A = 0;
 			data->Position.y = orig;
 		}
-		else {
+		else
+		{
 			data->Position.y = orig + 50.0f * njSin(sin);
 		}
 	}
@@ -88,8 +97,9 @@ void __cdecl UnidusSeesaw_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void LoadUnidusSeesaw(ObjectMaster* obj, EntityData1* data) {
-	ObjectMaster* child = LoadChildObject(LoadObj_Data1, UnidusSeesaw_Main, obj);
+static void LoadUnidusSeesaw(ObjectMaster* obj, EntityData1* data)
+{
+	auto child = LoadChildObject(LoadObj_Data1, UnidusSeesaw_Main, obj);
 
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&data->Position);
@@ -106,9 +116,11 @@ void LoadUnidusSeesaw(ObjectMaster* obj, EntityData1* data) {
 	child->Data1->field_A = 0.0f;
 }
 
-void __cdecl HillSeesaw_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
-		EntityData1* data = obj->Data1;
+static void __cdecl HillSeesaw_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
+		auto data = obj->Data1;
 
 		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
@@ -125,25 +137,31 @@ void __cdecl HillSeesaw_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillSeesaw_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
-		EntityData1* data = obj->Data1;
-
+static void __cdecl HillSeesaw_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
+		auto data = obj->Data1;
 
 		IsOnSeesaw(data, &data->Position);
 
-		if (data->Action == 0) {
+		if (data->Action == 0)
+		{
 			ForEveryCollidingPlayer(obj, Seesaw_Check);
 		}
-		else if (data->Action == 1) {
-			if (data->Rotation.x < 0x880) {
+		else if (data->Action == 1)
+		{
+			if (data->Rotation.x < 0x880)
+			{
 				data->Rotation.x += 0x200;
 			}
-			else {
+			else
+			{
 				data->Rotation.x = 0x880;
 			}
 
-			if (obj->Child->Data1->Action == 0) {
+			if (obj->Child->Data1->Action == 0)
+			{
 				ForEveryCollidingPlayer(obj, Seesaw_Launch);
 				data->Action = 0;
 				data->Rotation.x = -0x880;
@@ -159,8 +177,9 @@ void __cdecl HillSeesaw_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillSeesaw(ObjectMaster* obj) {
-	EntityData1* data = obj->Data1;
+void __cdecl HillSeesaw(ObjectMaster* obj)
+{
+	auto data = obj->Data1;
 	
 	data->Rotation.x = -0x880;
 	data->Object = ht_seesaw->getmodel();
@@ -173,10 +192,12 @@ void __cdecl HillSeesaw(ObjectMaster* obj) {
 	LoadUnidusSeesaw(obj, data);
 }
 
-void HillSeesaw_LoadAssets() {
+void HillSeesaw_LoadAssets()
+{
 	LoadModelFile(&ht_seesaw, "ht_seesaw", ModelFormat_Basic);
 }
 
-void HillSeesaw_FreeAssets() {
+void HillSeesaw_FreeAssets()
+{
 	FreeModelFile(&ht_seesaw);
 }
