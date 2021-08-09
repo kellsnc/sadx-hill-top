@@ -65,7 +65,7 @@ void RexonHead_DrawMouth(EntityData1* data, NJS_OBJECT* object, float mouthopen)
 	njTranslate(nullptr, Pos3(object->pos));
 	njRotateXYZ(nullptr, Pos3(object->ang));
 	njRotateX(0, static_cast<Angle>(mouthopen));
-	njDrawModel_SADX(object->basicdxmodel);
+	DrawModel(object->basicdxmodel);
 	njPopMatrixEx();
 
 	DrawObjectRoot(object->sibling);
@@ -96,7 +96,7 @@ void __cdecl RexonHead_Display(ObjectMaster* obj) {
 		njRotateY_(pdata->Rotation.y);
 		njScalef(pdata->Scale.x);
 
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 
 		RexonHead_DrawMouth(data, data->Object->child, data->Scale.x);
 
@@ -307,7 +307,7 @@ void Rexon_DrawFins(EntityData1* data, NJS_OBJECT* object, float timer) {
 		njRotateY_(rot);
 		njRotateX_(rot / 4);
 		njScale(nullptr, Pos3(object->scl));
-		njDrawModel_SADX(object->basicdxmodel);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 
 		object = object->sibling;
@@ -323,7 +323,7 @@ void Rexon_DrawNeck(EntityData1* data, NJS_OBJECT* object, float timer) {
 
 		njPushMatrixEx();
 		njTranslateZ(Rexon_NeckMovement(i, data->Action, timer));
-		njDrawModel_SADX(object->basicdxmodel);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 
 		object = object->child;
@@ -342,7 +342,7 @@ void __cdecl Rexon_Display(ObjectMaster* obj) {
 		njRotateY_(data->Rotation.y);
 		njScalef(data->Scale.x);
 
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 
 		if (data->Action != RexonAct_Dead) {
 			Rexon_DrawFins(data, data->Object->child, data->InvulnerableTime);

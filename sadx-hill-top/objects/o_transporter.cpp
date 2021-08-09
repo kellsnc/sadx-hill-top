@@ -85,16 +85,16 @@ void DrawPoles(NJS_OBJECT* PoleObject) {
 
 	njPushMatrixEx(); {
 		njTranslateX(-10.f);
-		njDrawModel_SADX(PoleObject->basicdxmodel); // Pole model
-		njDrawModel_SADX(PoleObject->child->basicdxmodel); // Pole vine model
+		DrawModel(PoleObject->basicdxmodel); // Pole model
+		DrawModel(PoleObject->child->basicdxmodel); // Pole vine model
 		njPopMatrixEx();
 	}
 
 	njPushMatrixEx(); {
 		njTranslateX(10.f);
-		njDrawModel_SADX(PoleObject->basicdxmodel); // Pole model
+		DrawModel(PoleObject->basicdxmodel); // Pole model
 		njScaleX(-1.0f);
-		njDrawModel_SADX(PoleObject->child->basicdxmodel); // Pole vine model
+		DrawModel(PoleObject->child->basicdxmodel); // Pole vine model
 		njPopMatrixEx();
 	}
 }
@@ -172,16 +172,16 @@ void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
 			njTranslateY(data->PreviousPosition.y); // I use this to offset the platform
 		}
 
-		njDrawModel_SADX(data->Object->basicdxmodel); // Platform
+		DrawModel(data->Object->basicdxmodel); // Platform
 		njPopMatrixEx();
 	}
 
 	// Draw vines
 	njTranslateY(data->Object->child->pos[1]);
 	njTranslateZ(-10.0f);
-	njDrawModel_SADX(data->Object->child->basicdxmodel);
+	DrawModel(data->Object->child->basicdxmodel);
 	njTranslateZ(20.0f);
-	njDrawModel_SADX(data->Object->child->basicdxmodel);
+	DrawModel(data->Object->child->basicdxmodel);
 	njPopMatrixEx();
 }
 

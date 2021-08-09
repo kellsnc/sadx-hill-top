@@ -64,7 +64,7 @@ void __cdecl GrowLava_Display(ObjectMaster* obj) {
 			njTranslateY(grow_workers[trigger_id].Offset);
 		}
 
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
@@ -162,7 +162,7 @@ void __cdecl GrowLavaPlatform_Display(ObjectMaster* obj) {
 		
 		njRotateY_(data->Rotation.y);
 		njScalef(data->Scale.x);
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }

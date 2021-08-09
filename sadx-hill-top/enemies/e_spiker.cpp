@@ -87,7 +87,7 @@ void __cdecl SpikerSpike_Display(ObjectMaster* obj) {
 		}
 
 		njRotateY(0, 0x8000);
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }

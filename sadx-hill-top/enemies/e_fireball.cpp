@@ -18,7 +18,7 @@ void __cdecl FireBall_Display(ObjectMaster* obj) {
 		njScalef(data->Scale.x);
 
 		data->Object->basicdxmodel->mats->attr_texId = data->Index;
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 
 		njPopMatrixEx();
 	}

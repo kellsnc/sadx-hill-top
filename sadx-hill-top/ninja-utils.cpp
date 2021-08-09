@@ -13,7 +13,7 @@ void DrawObjectRoot(NJS_OBJECT* object) {
 	njTranslate(nullptr, Pos3(object->pos));
 	njRotateXYZ(nullptr, Pos3(object->ang));
 	njScale(nullptr, Pos3(object->scl));
-	njDrawModel_SADX(object->basicdxmodel);
+	DrawModel(object->basicdxmodel);
 	njPopMatrixEx();
 }
 

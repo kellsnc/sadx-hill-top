@@ -29,7 +29,7 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 
 		njPushMatrixEx();
 		njScale(nullptr, data->Scale.x, data->Scale.x + data->Scale.y, data->Scale.x);
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 		njPopMatrixEx();
 
 		NJS_OBJECT* branch = data->Object->child;

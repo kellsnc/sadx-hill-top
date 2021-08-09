@@ -66,7 +66,7 @@ void __cdecl CloudHandler_Display(ObjectMaster* obj) {
 			data->Object->basicdxmodel->mats->diffuse.argb.a = static_cast<Uint8>(clouds[i].spawn * 255);
 
 			Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
-			njDrawModel_SADX(data->Object->basicdxmodel);
+			DrawModel(data->Object->basicdxmodel);
 			Direct3D_SetNearFarPlanes(LevelDrawDistance.Minimum, LevelDrawDistance.Maximum);
 
 			njPopMatrixEx();
@@ -177,7 +177,7 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 
 				njPushMatrixEx();
 				njRotateY(0, 0xC000 + HT_WindDirection); // Rotated in direction of the wind
-				njDrawModel_SADX(clouds->basicdxmodel);
+				DrawModel(clouds->basicdxmodel);
 				njPopMatrixEx();
 
 				clouds = clouds->child;

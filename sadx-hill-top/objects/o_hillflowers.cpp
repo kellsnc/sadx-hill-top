@@ -41,7 +41,7 @@ void __cdecl HillFlowers_Display(ObjectMaster* obj) {
 			njAction((NJS_ACTION*)data->LoopData, data->Scale.z);
 		}
 		else {
-			njDrawModel_SADX(data->Object->basicdxmodel);
+			DrawModel(data->Object->basicdxmodel);
 		}
 		
 		njPopMatrixEx();

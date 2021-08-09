@@ -81,7 +81,7 @@ void __cdecl Lantern_Display(ObjectMaster* obj) {
 
 		njRotateX_(static_cast<int>(rot));
 
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 
 		njPopMatrixEx();
 	}

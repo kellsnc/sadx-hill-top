@@ -20,7 +20,7 @@ void __cdecl HillPole_Display(ObjectMaster* obj) {
 		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }

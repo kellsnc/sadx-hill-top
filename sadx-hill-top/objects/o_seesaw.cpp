@@ -115,11 +115,11 @@ void __cdecl HillSeesaw_Display(ObjectMaster* obj) {
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
 
-		njDrawModel_SADX(data->Object->basicdxmodel);
+		DrawModel(data->Object->basicdxmodel);
 
 		njTranslateY(3.0f);
 		njRotateZ_(data->Rotation.x);
-		njDrawModel_SADX(data->Object->child->basicdxmodel);
+		DrawModel(data->Object->child->basicdxmodel);
 
 		njPopMatrixEx();
 	}

@@ -20,7 +20,7 @@ void __cdecl HillBush_Display(ObjectMaster* obj) {
 		// Draw root
 		njPushMatrixEx(); {
 			njRotateEx((Angle*)&data->Rotation, false);
-			njDrawModel_SADX(data->Object->basicdxmodel);
+			DrawModel(data->Object->basicdxmodel);
 			njPopMatrixEx();
 		}
 		
@@ -33,7 +33,7 @@ void __cdecl HillBush_Display(ObjectMaster* obj) {
 		njRotateX_(static_cast<int>(rot));
 		njScaleY(1.0f + (1.0f - njSin(data->Status * 1500)) / 50.0f);
 
-		njDrawModel_SADX(data->Object->child->basicdxmodel); // draw bush
+		DrawModel(data->Object->child->basicdxmodel); // draw bush
 
 		njPopMatrixEx();
 	}
