@@ -14,20 +14,20 @@ Also handles the Egg Carrier if the level has never been completed.
 
 extern Angle HT_WindDirection;
 
-NJS_TEXNAME HillTopBG_TexNames[2];
+static NJS_TEXNAME HillTopBG_TexNames[2];
 NJS_TEXLIST HillTopBG_TexList = { arrayptrandlength(HillTopBG_TexNames) };
 
-ModelInfo* ht_clouds = nullptr;
-ModelInfo* ht_cloudlayers = nullptr;
+static ModelInfo* ht_clouds = nullptr;
+static ModelInfo* ht_cloudlayers = nullptr;
 
-typedef struct {
+struct CloudData {
 	NJS_VECTOR pos;
 	Float size;
 	Float speed;
 	Float spawn;
-} CloudData;
+};
 
-static constexpr NJS_VECTOR SunPositions[2] = {
+static const NJS_VECTOR SunPositions[2] = {
 	{ 4000, 2000, 500 },
 	{ -2000, 600, 1000 }
 };
@@ -36,7 +36,8 @@ static NJS_VECTOR EggCarrierPosition;
 static Rotation3 EggCarrierRotation;
 
 #pragma region Clouds
-void SpawnCloud(CloudData* cloud) {
+static void SpawnCloud(CloudData* cloud)
+{
 	cloud->pos.x = Camera_Data1->Position.x + 2000 - rand() % 4000;
 	cloud->pos.y = -150 + rand() % 150;
 	cloud->pos.z = Camera_Data1->Position.z + 2000 - rand() % 4000;
@@ -45,18 +46,25 @@ void SpawnCloud(CloudData* cloud) {
 	cloud->size = 0.5f + (static_cast<float>(rand() % 100) / 100.0f);
 }
 
-void __cdecl CloudHandler_Delete(ObjectMaster* obj) {
-	delete[] obj->Data1->LoopData;
+static void __cdecl CloudHandler_Delete(ObjectMaster* obj)
+{
+	if (obj->Data1->LoopData)
+	{
+		delete[] obj->Data1->LoopData;
+	}
 }
 
-void __cdecl CloudHandler_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
-		EntityData1* data = obj->Data1;
+static void __cdecl CloudHandler_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
+		auto data = obj->Data1;
 		CloudData* clouds = (CloudData*)data->LoopData;
 
 		njSetTexture(&HillTopBG_TexList);
 
-		for (int i = 0; i < 30; ++i) {
+		for (int i = 0; i < 30; ++i)
+		{
 			njPushMatrixEx();
 			njTranslateY(data->Position.y);
 			njTranslateEx(&clouds[i].pos);
@@ -74,12 +82,14 @@ void __cdecl CloudHandler_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl CloudHandler_Main(ObjectMaster* obj) {
-	EntityData1* data = obj->Data1;
-	CloudData* clouds = (CloudData*)data->LoopData;
+static void __cdecl CloudHandler_Main(ObjectMaster* obj)
+{
+	auto data = obj->Data1;
+	auto clouds = reinterpret_cast<CloudData*>(data->LoopData);
 
-	for (int i = 0; i < 30; ++i) {
-		EntityData1* player = EntityData1Ptrs[GetClosestPlayerID(&clouds[i].pos)];
+	for (int i = 0; i < 30; ++i)
+	{
+		auto player = EntityData1Ptrs[GetClosestPlayerID(&clouds[i].pos)];
 
 		njPushMatrix(_nj_unit_matrix_);
 		njTranslateEx(&clouds[i].pos);
@@ -88,11 +98,13 @@ void __cdecl CloudHandler_Main(ObjectMaster* obj) {
 		njGetTranslation(nullptr, &clouds[i].pos);
 		njPopMatrixEx();
 
-		if (clouds[i].spawn < 0.8f) {
+		if (clouds[i].spawn < 0.8f)
+		{
 			clouds[i].spawn += 0.01f;
 		}
 
-		if (GetDistance(&player->Position, &clouds[i].pos) > 2000.0f) {
+		if (GetDistance(&player->Position, &clouds[i].pos) > 2000.0f)
+		{
 			SpawnCloud(&clouds[i]);
 		}
 	}
@@ -100,9 +112,10 @@ void __cdecl CloudHandler_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void CloudHandler(ObjectMaster* obj) {
-	EntityData1* data = obj->Data1;
-	CloudData* clouds = new CloudData[30];
+static void CloudHandler(ObjectMaster* obj)
+{
+	auto data = obj->Data1;
+	auto clouds = new CloudData[30];
 
 	data->LoopData = (Loop*)clouds;
 	data->Object = ht_clouds->getmodel();
@@ -111,13 +124,15 @@ void CloudHandler(ObjectMaster* obj) {
 	obj->DisplaySub = CloudHandler_Display;
 	obj->DeleteSub = CloudHandler_Delete;
 
-	for (int i = 0; i < 30; ++i) {
+	for (int i = 0; i < 30; ++i)
+	{
 		SpawnCloud(&clouds[i]);
 	}
 }
 #pragma endregion
 
-void LoadSkyboxAct(ObjectMaster* obj) {
+static void LoadSkyboxAct(ObjectMaster* obj)
+{
 	switch (CurrentAct) {
 	case 0:
 	case 2:
@@ -138,40 +153,48 @@ void LoadSkyboxAct(ObjectMaster* obj) {
 	}
 
 	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false
-		&& CurrentCharacter != Characters_Gamma && CurrentAct < 2) {
-
-		if (CurrentAct == 0) {
+		&& CurrentCharacter != Characters_Gamma && CurrentAct < 2)
+	{
+		if (CurrentAct == 0)
+		{
 			EggCarrierPosition = { 1215.0f, 839.0f, 3520.0f };
 			EggCarrierRotation = { 0, 0x8725, 0 };
 		}
-		else if (EntityData1Ptrs[0]->Position.z < 2200.0f) {
+		else if (EntityData1Ptrs[0]->Position.z < 2200.0f)
+		{
 			EggCarrierPosition = { 3100.0f, 1400.0f, -1300.0f };
 			EggCarrierRotation = { 0x1000, 0xF725, 0 };
 		}
 
 		obj->Data1->field_A = 1; // display egg carrier
 	}
-	else {
+	else
+	{
 		obj->Data1->field_A = 0;
 	}
 
 	obj->Data1->Index = CurrentAct;
 }
 
-void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
-		EntityData1* data = obj->Data1;
-		NJS_OBJECT* clouds = data->Object;
+static void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
+		auto data = obj->Data1;
+		auto clouds = data->Object;
+		auto skybox = reinterpret_cast<NJS_OBJECT*>(data->LoopData);
 
 		njSetTexture(&HillTopBG_TexList);
 
 		Direct3D_SetNearFarPlanes(SkyboxDrawDistance.Minimum, SkyboxDrawDistance.Maximum);
 
 		// Cloud layers
-		njPushMatrixEx(); {
+		njPushMatrixEx();
+		{
 			njTranslate(0, Camera_Data1->Position.x, data->Position.y, Camera_Data1->Position.z);
 
-			while (clouds) {
+			while (clouds)
+			{
 				njTranslateEx((NJS_VECTOR*)&clouds->pos);
 				njScaleEx((NJS_VECTOR*)&clouds->scl);
 
@@ -187,7 +210,8 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 		}
 		
 		// Egg Carrier display
-		if (data->field_A == 1) {
+		if (data->field_A == 1)
+		{
 			njPushMatrixEx();
 			njSetTexture((NJS_TEXLIST*)0x2BF4F2C); // EC_Light (Low poly Egg Carrier textures)
 			njTranslateEx(&EggCarrierPosition);
@@ -201,23 +225,28 @@ void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj) {
-	EntityData1* data = obj->Data1;
-	NJS_OBJECT* clouds = data->Object;
+static void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj)
+{
+	auto data = obj->Data1;
+	auto clouds = data->Object;
 	
-	if (data->Index != CurrentAct) {
+	if (data->Index != CurrentAct)
+	{
 		LoadSkyboxAct(obj);
 		return;
 	}
 
 	// Move the cloud layers texture to simulate wind
-	if (FrameCounterUnpaused % 2 == 0) {
+	if (FrameCounterUnpaused % 2 == 0)
+	{
 		int speed = 0;
 
-		while (clouds) {
+		while (clouds)
+		{
 			NJS_MESHSET_SADX* mesh = &clouds->basicdxmodel->meshsets[0];
 
-			for (int i = 0; i < 96; ++i) {
+			for (int i = 0; i < 96; ++i)
+			{
 				mesh->vertuv[i].u += 1 + speed;
 				mesh->vertuv[i].v += 2 - speed;
 			}
@@ -228,11 +257,13 @@ void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj) {
 	}
 
 	// Egg Carrier animation frame
-	if (data->field_A == 1) {
+	if (data->field_A == 1)
+	{
 		obj->Data1->Scale.x += 0.5f;
 
 		// Remove the Egg Carrier at the end of act 1
-		if (CurrentAct == 1 && EntityData1Ptrs[0]->Position.z > 2200) {
+		if (CurrentAct == 1 && EntityData1Ptrs[0]->Position.z > 2200)
+		{
 			data->field_A = 0;
 		}
 	}
@@ -244,8 +275,9 @@ void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj) {
 	RunObjectChildren(obj);
 }
 
-void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
-	EntityData1* data = obj->Data1;
+void __cdecl HillTopZone_SkyBox(ObjectMaster* obj)
+{
+	auto data = obj->Data1;
 
 	data->Object = ht_cloudlayers->getmodel();
 	
@@ -255,12 +287,14 @@ void __cdecl HillTopZone_SkyBox(ObjectMaster* obj) {
 	LoadSkyboxAct(obj);
 }
 
-void SkyBox_LoadAssets() {
+void SkyBox_LoadAssets()
+{
 	LoadModelFile(&ht_clouds, "ht_clouds", ModelFormat_Basic);
 	LoadModelFile(&ht_cloudlayers, "ht_cloudlayers", ModelFormat_Basic);
 }
 
-void SkyBox_FreeAssets() {
+void SkyBox_FreeAssets()
+{
 	FreeModelFile(&ht_clouds);
 	FreeModelFile(&ht_cloudlayers);
 }
