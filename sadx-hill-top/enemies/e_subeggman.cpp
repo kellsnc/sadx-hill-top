@@ -126,8 +126,8 @@ PL_ACTION EggSubAnimList[] = {
 	{ &EggSub_AttackAnm, 0, AnimProp_Loop, ESubAnm_AttackSpree, 4.0f, 0.0f }	// ESubAnm_AttackSpree
 };
 
-CollisionData SubEgg_Col = { 0, CollisionShape_Sphere, 0x77, 0x20, 0x400, {0.0f, 0.0f, 0.0f}, 22.0f, 0.0f, 0.0f };
-CollisionData Deflarg_Col = { 0, CollisionShape_Sphere, 0xF0, 0x2F, 0, { 0.0f, -5.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
+CollisionData SubEgg_Col = { 0, CI_FORM_SPHERE, 0x77, 0x20, 0x400, {0.0f, 0.0f, 0.0f}, 22.0f, 0.0f, 0.0f };
+CollisionData Deflarg_Col = { 0, CI_FORM_SPHERE, 0xF0, 0x2F, 0, { 0.0f, -5.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
 
 NJS_TEXANIM DEFLARG_TEXS[]{
 	{ 0x20, 0x20, 0x10, 0x10, 0, 0xFF, 0xFF, 0, 0, 0 },

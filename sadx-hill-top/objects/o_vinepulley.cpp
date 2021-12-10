@@ -15,7 +15,7 @@ Scale Y: distance to where the vine stops
 extern ModelInfo* ht_transporter;
 
 CollisionData VinePulley_Col = {
-	0, CollisionShape_Sphere, 0xF0, 0, 0, {0.0f, 0.0f, 0.0f}, 8.0f, 0.0f, 0.0f, 0, 0, 0, 0
+	0, CI_FORM_SPHERE, 0xF0, 0, 0, {0.0f, 0.0f, 0.0f}, 8.0f, 0.0f, 0.0f, 0, 0, 0, 0
 };
 
 void __cdecl VinePulleyTarget(ObjectMaster* obj)

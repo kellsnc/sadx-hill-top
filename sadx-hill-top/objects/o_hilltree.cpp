@@ -14,8 +14,8 @@ ScaleZ: Tree ID
 ModelInfo* ht_tree = nullptr;
 
 CollisionData HillTree_Col[] = {
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0, 25.0f, 0}, 5.0f, 25.0f, 0, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0, 20.0f, 0}, 1.0f, 20.0f, 0, 0, 0, 0, 0 }
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0, 25.0f, 0}, 5.0f, 25.0f, 0, 0, 0, 0, 0 },
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0, 20.0f, 0}, 1.0f, 20.0f, 0, 0, 0, 0, 0 }
 };
 
 void __cdecl HillTree_Display(ObjectMaster* obj)

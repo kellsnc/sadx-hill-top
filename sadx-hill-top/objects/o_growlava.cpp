@@ -13,7 +13,7 @@ extern NJS_TEXLIST HillTop_TexList;
 extern ModelInfo* ht_platform;
 static ModelInfo* ht_growlava = nullptr;
 
-static CollisionData GrowLavaTrigger_Col = { 0, CollisionShape_Sphere, 0xF0, 0, 0, { 0, 0, 0 }, 0, 0, 0, 0, 0 };
+static CollisionData GrowLavaTrigger_Col = { 0, CI_FORM_SPHERE, 0xF0, 0, 0, { 0, 0, 0 }, 0, 0, 0, 0, 0 };
 
 Grow_WK grow_workers[3] = { };
 

@@ -48,8 +48,8 @@ ModelInfo* ht_transportercol = nullptr;
 ModelInfo* ht_vine = nullptr;
 
 CollisionData HillTransporter_Col[] = {
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {-10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 }
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {-10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 },
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 }
 };
 
 void DrawVine(NJS_OBJECT* vine, NJS_VECTOR* orig, float Y, float Z, float progress)

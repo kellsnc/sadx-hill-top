@@ -22,12 +22,12 @@ ModelInfo* e_rexoncol = nullptr;
 
 CollisionData Rexon_Col[] =
 {
-	{ 0, CollisionShape_Sphere, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Sphere, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Sphere, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 }
+	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 },
+	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 },
+	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 }
 };
 
-CollisionData RexonHead_Col = { 0, CollisionShape_Sphere, 0x10, 0x21, 0x400, { 0, 3.0f, 1.0f }, 3.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
+CollisionData RexonHead_Col = { 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0, 3.0f, 1.0f }, 3.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
 
 enum RexonHeadActs
 {

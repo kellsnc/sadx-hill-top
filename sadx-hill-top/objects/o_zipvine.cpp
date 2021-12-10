@@ -33,9 +33,9 @@ struct TransporterPathData1 {
 };
 
 CollisionData ZipVine_Col[] = {
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
-	{ 1, CollisionShape_Sphere, 0xF0, 0, 0, { 0 }, 14.0f, 0, 0, 0, 0, 0, 0 }
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
+	{ 1, CI_FORM_SPHERE, 0xF0, 0, 0, { 0 }, 14.0f, 0, 0, 0, 0, 0, 0 }
 };
 
 void GetVinePoint(NJS_VECTOR* vec, Angle* angle, LoopHead* PathData, int state, float progress)

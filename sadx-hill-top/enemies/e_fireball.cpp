@@ -4,7 +4,7 @@
 
 ModelInfo* e_fireball = nullptr;
 
-CollisionData FireBall_Col = { 0, CollisionShape_Sphere, 0x77, 0x2F, 0, { 0.0f, 1.0f, 0.0f }, 1.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
+CollisionData FireBall_Col = { 0, CI_FORM_SPHERE, 0x77, 0x2F, 0, { 0.0f, 1.0f, 0.0f }, 1.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
 
 void __cdecl FireBall_Display(ObjectMaster* obj)
 {

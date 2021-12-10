@@ -10,7 +10,7 @@ Simple object that just draw poles (for bridges.)
 extern ModelInfo* ht_transporter;
 
 CollisionData HillPole_Col = {
-	0, CollisionShape_Capsule2, 0x77, 0, 0, {0.0f, 20.0f, 0.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0
+	0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 20.0f, 0.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0
 };
 
 void __cdecl HillPole_Display(ObjectMaster* obj)

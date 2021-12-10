@@ -30,9 +30,9 @@ NJS_TEXLIST LAVAFALL_TexList = { arrayptrandlength(LAVAFALL_TexNames) };
 static NJS_TEXLIST CurrentLavaTex = { nullptr, 1 };
 
 CollisionData LavaFall_Col[] = {
-	{ 0, CollisionShape_Cylinder, 0x77, 0x2F /* Hurt flag */, 0, {0, -25.0f, 0}, 8.0f, 25.0f, 0, 0, 0, 0, 0 },
-	{ 0, CollisionShape_Capsule2, 0x77, 0x2F, 0, {0, -14.0f, -13.0f}, 10.0f, 8.0f, 0, 0, 0x2000, 0, 0 },
-	{ 0, CollisionShape_Capsule2, 0x77, 0x2F, 0, {0, -15.0f, -24.0f}, 10.0f, 8.0f, 0, 0, 0x3000, 0, 0 }
+	{ 0, CI_FORM_CYLINDER, 0x77, 0x2F /* Hurt flag */, 0, {0, -25.0f, 0}, 8.0f, 25.0f, 0, 0, 0, 0, 0 },
+	{ 0, CI_FORM_CAPSULE, 0x77, 0x2F, 0, {0, -14.0f, -13.0f}, 10.0f, 8.0f, 0, 0, 0x2000, 0, 0 },
+	{ 0, CI_FORM_CAPSULE, 0x77, 0x2F, 0, {0, -15.0f, -24.0f}, 10.0f, 8.0f, 0, 0, 0x3000, 0, 0 }
 };
 
 void __cdecl LavaFall_Display(ObjectMaster* obj)

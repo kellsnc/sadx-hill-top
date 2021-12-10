@@ -12,8 +12,8 @@ ScaleX: Height power
 static ModelInfo* ht_seesaw = nullptr;
 
 static CollisionData HillSeesaw_Col[] = {
-	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0.0f, 1.3f, 0.0f}, 1.3f, 4.5f, 0, 0, 0x4000, 0, 0 },
-	{ 0, CollisionShape_Cube2, 0x77, 0, 0, {0.0f, 2.5f, 0.0f}, 19.0f, 0.75f, 5.0f, 0, 0, 0, 0 }
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 1.3f, 0.0f}, 1.3f, 4.5f, 0, 0, 0x4000, 0, 0 },
+	{ 0, CI_FORM_RECTANGLE2, 0x77, 0, 0, {0.0f, 2.5f, 0.0f}, 19.0f, 0.75f, 5.0f, 0, 0, 0, 0 }
 };
 
 static bool IsOnSeesaw(EntityData1* data, NJS_VECTOR* pos)

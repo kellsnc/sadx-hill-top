@@ -21,8 +21,8 @@ ModelInfo* e_spiker = nullptr;
 AnimationFile* e_spiker_stand = nullptr;
 AnimationFile* e_spiker_walk = nullptr;
 
-CollisionData Spiker_Col = { 0, CollisionShape_Sphere, 0x10, 0x21, 0x400, { 0.0, 8.0f, 0.0 }, 4.5f, 0.0f, 0.0f, 0, 0, 0, 0 };
-CollisionData Spike_Col = { 0, CollisionShape_Sphere, 0x77, 0x2F, 0, { 0.0, 20.0f, 0.0 }, 4.5f, 6.0f, 0.0f, 0, 0, 0, 0 };
+CollisionData Spiker_Col = { 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0, 8.0f, 0.0 }, 4.5f, 0.0f, 0.0f, 0, 0, 0, 0 };
+CollisionData Spike_Col = { 0, CI_FORM_SPHERE, 0x77, 0x2F, 0, { 0.0, 20.0f, 0.0 }, 4.5f, 6.0f, 0.0f, 0, 0, 0, 0 };
 
 NJS_ACTION SpikerActions[2] = { 0 };
 

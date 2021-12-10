@@ -83,16 +83,6 @@ static inline void SetObjectStatusNotHeld(task* tp)
     tp->ocp->ssCondition &= ~0x4000u;
 }
 
-enum CollisionShapes {
-    CollisionShape_Sphere,
-    CollisionShape_Cylinder,
-    CollisionShape_PushCylinder,
-    CollisionShape_Cube,
-    CollisionShape_Cube2,
-    CollisionShape_Capsule,
-    CollisionShape_Capsule2
-};
-
 enum AnimDataProperties {
     AnimProp_NoAnimation,
     AnimProp_FirstFrame,
