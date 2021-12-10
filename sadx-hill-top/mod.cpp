@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "mod.h"
 
 void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config);
 void Objects_Init(const HelperFunctions& helperFunctions);

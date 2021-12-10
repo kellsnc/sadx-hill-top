@@ -39,7 +39,7 @@
     <ClInclude Include="deathzones.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pointers.h">
+    <ClInclude Include="sadx-utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="objects\o_htskybox.h">
@@ -123,6 +123,9 @@
     <ClInclude Include="camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -131,7 +134,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="entry.cpp">
+    <ClCompile Include="mod.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="level.cpp">

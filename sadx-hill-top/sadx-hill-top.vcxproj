@@ -102,6 +102,7 @@
     <ClInclude Include="event.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="lava.h" />
+    <ClInclude Include="mod.h" />
     <ClInclude Include="ninja-utils.h" />
     <ClInclude Include="object-utils.h" />
     <ClInclude Include="objects.h" />
@@ -123,7 +124,7 @@
     <ClInclude Include="objects\o_zipvine.h" />
     <ClInclude Include="paths.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="pointers.h" />
+    <ClInclude Include="sadx-utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
@@ -134,7 +135,7 @@
     <ClCompile Include="enemies\e_rexon.cpp" />
     <ClCompile Include="enemies\e_spiker.cpp" />
     <ClCompile Include="enemies\e_subeggman.cpp" />
-    <ClCompile Include="entry.cpp" />
+    <ClCompile Include="mod.cpp" />
     <ClCompile Include="event.cpp" />
     <ClCompile Include="lava.cpp" />
     <ClCompile Include="level.cpp" />
