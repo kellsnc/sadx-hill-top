@@ -595,7 +595,7 @@ void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale)
 	Angle y;
 	Angle x;
 
-	njLookAt(&pos, &EntityData1Ptrs[GetClosestPlayerID(&pos)]->Position, &x, &y);
+	njLookAt(&pos, &EntityData1Ptrs[GetTheNearestPlayerNumber(&pos)]->Position, &x, &y);
 	LoadFireBall(CurrentBoss, &pos, y, -x, 5.0f, 5.0f, 0.0f, 0);
 	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
 	PlaySound(461, 0, 0, 0);
@@ -959,7 +959,7 @@ bool SubEgg_Emerge(EntityData1* data, eggsubwk* wk, float speed)
 
 void SubEgg_LookAtPlayer(EntityData1* data, eggsubwk* wk)
 {
-	EntityData1* entity = EntityData1Ptrs[GetClosestPlayerID(&data->Position)];
+	EntityData1* entity = EntityData1Ptrs[GetTheNearestPlayerNumber(&data->Position)];
 
 	njLookAt(&data->Position, &entity->Position, nullptr, &data->Rotation.y);
 }

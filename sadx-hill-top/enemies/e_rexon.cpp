@@ -58,7 +58,7 @@ void RexonHead_LoadFireBall(ObjectMaster* obj, EntityData1* data)
 	njGetTranslation(nullptr, &pos);
 	njPopMatrixEx();
 
-	njLookAt(&pos, &EntityData1Ptrs[GetClosestPlayerID(&data->Position)]->Position, &rotx, &roty);
+	njLookAt(&pos, &EntityData1Ptrs[GetTheNearestPlayerNumber(&data->Position)]->Position, &rotx, &roty);
 
 	LoadFireBall(obj, &pos, roty, rotx, 1.5f, 1.5f, 0.01f, 0);
 

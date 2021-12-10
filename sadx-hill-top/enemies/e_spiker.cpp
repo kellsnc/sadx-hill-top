@@ -167,7 +167,7 @@ void __cdecl SpikerSpike_Main(ObjectMaster* obj)
 				data->Scale.x += 0.01f;
 			}
 
-			njLookAt(&data->Position, &EntityData1Ptrs[GetClosestPlayerID(&data->Position)]->Position, &rotx, &roty);
+			njLookAt(&data->Position, &EntityData1Ptrs[GetTheNearestPlayerNumber(&data->Position)]->Position, &rotx, &roty);
 			rotx += 0x4000;
 
 			data->Rotation.y = BAMS_SubWrap(data->Rotation.y, roty, 0x300);
@@ -250,13 +250,13 @@ void Spiker_MoveForward(SpikerData1* data, float speed)
 
 bool Spiker_AttachFloor(SpikerData1* data)
 {
-	Rotation3 rot = { 0, data->Rotation.y, 0 };
-	float posy = GetGroundYPosition(data->Position.x, data->Position.y + 5.0f, data->Position.z, &rot);
+	Angle3 rot = { 0, data->Rotation.y, 0 };
+	float posy = GetShadowPos(data->Position.x, data->Position.y + 5.0f, data->Position.z, &rot);
 
 	if (posy > -100000)
 	{
 		data->Position.y = posy;
-		data->Rotation = rot;
+		data->Rotation = *(Rotation3*)&rot;
 	}
 	else
 	{
@@ -322,7 +322,7 @@ void Spiker_ActionWalkToPlayer(SpikerData1* data, enemywk* enmwk)
 	// Move forward
 	Spiker_MoveForward(data, 0.2f);
 
-	ObjectData2_LookAtPlayer((EntityData1*)data, (ObjectData2*)enmwk, GetClosestPlayerID(&data->Position));
+	EnemyTurnToPlayer((taskwk*)data, enmwk, GetTheNearestPlayerNumber(&data->Position));
 
 	if (Spiker_RunBoundaries(data, enmwk, enmwk->hear_range) == false)
 	{
@@ -437,14 +437,14 @@ void __cdecl Spiker_Main(ObjectMaster* obj)
 			}
 
 			// If the object is killed by something
-			if (OhNoImDead((EntityData1*)data, (ObjectData2*)enmwk))
+			if (EnemyCheckDamage((taskwk*)data, enmwk) == TRUE)
 			{
 				data->Action = SpikerActs::Destroyed;
 				return;
 			}
 
 			Object_CheckEmerald(data->EmeraldID, &data->Position);
-			ObjectData2_SetPreviousPosition((EntityData1*)data, (ObjectData2*)enmwk);
+			EnemyPreservePreviousPosition((taskwk*)data, enmwk);
 			AddToCollisionList((EntityData1*)data);
 			RunObjectChildren(obj);
 		}

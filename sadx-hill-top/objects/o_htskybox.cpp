@@ -89,7 +89,7 @@ static void __cdecl CloudHandler_Main(ObjectMaster* obj)
 
 	for (int i = 0; i < 30; ++i)
 	{
-		auto player = EntityData1Ptrs[GetClosestPlayerID(&clouds[i].pos)];
+		auto player = EntityData1Ptrs[GetTheNearestPlayerNumber(&clouds[i].pos)];
 
 		njPushMatrix(_nj_unit_matrix_);
 		njTranslateEx(&clouds[i].pos);
