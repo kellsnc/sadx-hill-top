@@ -1,12 +1,20 @@
 #pragma once
 
+#define TARGET_DYNAMIC(name) ((decltype(name##_r)*)name##_t->Target())
+
 void LoadModelFile(ModelInfo** info, const char* name, ModelFormat format);
 void LoadAnimationFile(AnimationFile** info, const char* name);
 void LoadLandTableFile(LandTableInfo** info, const char* name, NJS_TEXLIST* texlist);
 
-void FreeLandTableFile(LandTableInfo** info);
-void FreeModelFile(ModelInfo** info);
-void FreeAnimationFile(AnimationFile** info);
+template<typename T>
+void FreeFileInfo(T** info)
+{
+	if (*info)
+	{
+		delete* info;
+		*info = nullptr;
+	}
+}
 
 NJS_VECTOR GetPositionBetweenPoints(NJS_VECTOR* orig, NJS_VECTOR* dest, float dist);
 

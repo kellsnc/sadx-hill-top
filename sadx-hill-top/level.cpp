@@ -49,23 +49,28 @@ DrawDistance HillTopDrawDists[] = {
 	{ -1.0f, -1000.0f }
 };
 
-void HillTop_SetViewData() {
+void HillTop_SetViewData()
+{
 	SkyboxDrawDistance = HillTopSkyDrawDist[ClipLevel];
 	LevelDrawDistance = HillTopDrawDists[ClipLevel];
 	LevelFogData = HillTopFogData[CurrentAct];
 }
 
 #pragma region Level Handler
-void LoadCurrentActMusic() {
+void LoadCurrentActMusic()
+{
 	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
 	musicobj->Data1->Action = CurrentAct == 1 ? MusicIDs_hilltop2 : MusicIDs_hilltop1;
 	musicobj->Data1->InvulnerableTime = 3;
 }
 
-void __cdecl HillTopZone_Main(ObjectMaster* obj) {
-	if (CurrentAct == 0) {
+void __cdecl HillTopZone_Main(ObjectMaster* obj)
+{
+	if (CurrentAct == 0)
+	{
 		// Act 1-2 swap
-		if (IsSpecificPlayerInSphere(301.0f, 164.0f, 3145.0f, 100.0f, 0)) {
+		if (IsSpecificPlayerInSphere(301.0f, 164.0f, 3145.0f, 100.0f, 0))
+		{
 			SoundManager_Delete2();
 			NextAct_FreeLandTable(1);
 			NextAct_IncrementCurrentStageAndAct(1);
@@ -77,15 +82,18 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 			LoadCurrentActMusic();
 		}
 	}
-	else if (CurrentAct == 1) {
+	else if (CurrentAct == 1)
+	{
 		// Act 2-4 swap
 		int player = IsPlayerInsideSphere_(15.0f, 950.0f, 225.0f, 50.0f) - 1;
 
-		if (player >= 0) {
+		if (player >= 0)
+		{
 			ForcePlayerAction(player, 24);
 
 			// If level has been completed once, go to boss instead
-			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true && CFG_NoBoss == false) {
+			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true && CFG_NoBoss == false)
+			{
 				NextAct_FreeLandTable(2);
 				NextAct_IncrementCurrentStageAndAct(2);
 				NextAct_SetCameraData(2);
@@ -94,7 +102,8 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 				HillTop_SetViewData();
 				Boss_SubEggman_Init(obj);
 			}
-			else {
+			else
+			{
 				// teleport to end of level that's further way
 				SetPlayerPosition(player, -480.0f, 935.0f, 3030.0f);
 				EntityData1Ptrs[player]->Rotation.y = 0x3E80;
@@ -104,15 +113,18 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillTopZone_Init(ObjectMaster* obj) {
+void __cdecl HillTopZone_Init(ObjectMaster* obj)
+{
 	HillTop_SetViewData(); // Set fog, view distance, etc.
 	LoadLavaManager(); // Load the object that handles animated lava geometry
 
 	// If current act is Eggman boss, load that instead
-	if (CurrentAct == 3) {
+	if (CurrentAct == 3)
+	{
 		obj->MainSub = Boss_SubEggman_Init;
 	}
-	else {
+	else
+	{
 		// This initializes the music only if no event is running.
 		LoadCurrentActMusic();
 
@@ -124,20 +136,25 @@ void __cdecl HillTopZone_Init(ObjectMaster* obj) {
 
 // Replace Red Mountain with our level:
 
-void LoadSkyboxObject_r() {
+void LoadSkyboxObject_r()
+{
 	SetGlobalPoint2Col_Colors(GlobalColorsLevel[CurrentLevel].c1, GlobalColorsLevel[CurrentLevel].c2, GlobalColorsLevel[CurrentLevel].c3);
-	
-	if (SkyboxObjects[CurrentLevel]) {
-		if (CurrentLevel == LevelIDs_RedMountain) {
+
+	if (SkyboxObjects[CurrentLevel])
+	{
+		if (CurrentLevel == LevelIDs_RedMountain)
+		{
 			LoadObject(LoadObj_Data1, 2, SkyboxObjects[CurrentLevel]); // Put this in object index 2 to fix transparency issues
 		}
-		else {
+		else
+		{
 			LoadObject(LoadObj_Data1, 1, SkyboxObjects[CurrentLevel]);
 		}
 	}
 }
 
-void LoadHillTopLandTables() {
+void LoadHillTopLandTables()
+{
 	LoadLandTableFile(&HillTopLands[0], "system\\hilltopzone0.sa1lvl", &HillTop_TexList);
 	LoadLandTableFile(&HillTopLands[1], "system\\hilltopzone1.sa1lvl", &HillTop_TexList);
 	LoadLandTableFile(&HillTopLands[2], "system\\hilltopzone3.sa1lvl", &HillTop_TexList);
@@ -148,20 +165,23 @@ void LoadHillTopLandTables() {
 	GeoLists[LevelIDs_RedMountain * 8 + 3] = HillTopLands[2]->getlandtable();
 }
 
-void FreeHillTopLandTables() {
-	FreeLandTableFile(&HillTopLands[0]);
-	FreeLandTableFile(&HillTopLands[1]);
-	FreeLandTableFile(&HillTopLands[2]);
+void FreeHillTopLandTables()
+{
+	FreeFileInfo(&HillTopLands[0]);
+	FreeFileInfo(&HillTopLands[1]);
+	FreeFileInfo(&HillTopLands[2]);
 }
 
-void __cdecl UnloadHillTopFiles() {
+void __cdecl UnloadHillTopFiles()
+{
 	FreeHillTopLandTables();
 	FreeLavaLandTables();
 	FreeObjectFiles();
 	Boss_FreeAssets();
 }
 
-void __cdecl LoadHillTopFiles() {
+void __cdecl LoadHillTopFiles()
+{
 	PrintDebug("[Hill Top] Loading level files...\n");
 	LoadHillTopLandTables();
 	LoadLavaLandTables();
@@ -171,33 +191,40 @@ void __cdecl LoadHillTopFiles() {
 	LevelDestructor = UnloadHillTopFiles;
 }
 
-__declspec(naked) void HookLoadLevelFilesRM() {
-	__asm {
+__declspec(naked) void HookLoadLevelFilesRM()
+{
+	__asm
+	{
 		call LoadHillTopFiles
 		push 004237B3h
 		ret
 	}
 }
 
-void __cdecl RunLevelDestructor_r(int mode) {
-	if (mode != 5 && LevelDestructor != LevelDestructor_MissionMode) {
-		if (mode == 0) {
+void __cdecl RunLevelDestructor_r(int mode)
+{
+	if (mode != 5 && LevelDestructor != LevelDestructor_MissionMode)
+	{
+		if (mode == 0)
+		{
 			ReleaseSetFile();
 			ReleaseCamFile();
 		}
 
-		if (LevelDestructor) {
+		if (LevelDestructor)
+		{
 			LevelDestructor();
 			LevelDestructor = nullptr;
 		}
 	}
 }
 
-void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
+void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config)
+{
 	// Replace the Red Mountain switch case from LoadLevelFiles to use our own set/cam/level files
 	// This effectively removes what Dreamcast Conversion does in it
 	WriteJump((void*)0x422D0A, HookLoadLevelFilesRM);
-	
+
 	// Fix an obvious error in RunLevelDestructor (OR instead of AND)
 	// Vanilla levels don't use the level destructor in SADX PC since it doesn't load levels externally so it doesn't crash.
 	WriteJump(RunLevelDestructor, RunLevelDestructor_r);
@@ -224,15 +251,17 @@ void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
 	DeathZoneList[LevelIDs_RedMountain][3] = hilltope0_deathzones;
 
 	// Music
-	if (helperFunctions.Version >= 9) {
+	if (helperFunctions.Version >= 9)
+	{
 		MusicIDs_hilltop1 = helperFunctions.RegisterMusicFile(Music_HillTop1);
 		MusicIDs_hilltop2 = helperFunctions.RegisterMusicFile(Music_HillTop2);
 	}
-	else {
+	else
+	{
 		MusicList[MusicIDs_redmntn1] = Music_HillTop1;
 		MusicList[MusicIDs_redmntn2] = Music_HillTop2;
 	}
-	
+
 	// Sky color
 	GlobalColorsLevel[LevelIDs_RedMountain] = { 0xFF1844FF, 0xFF2149FF, 0xFF002EFF };
 

@@ -6,7 +6,7 @@ void Cameras_Init(const HelperFunctions& helperFunctions);
 void Boss_Init(const HelperFunctions& helperFunctions, const IniFile* config);
 void Menu_Init();
 
-HelperFunctions HelperFunctionsGlobal;
+const HelperFunctions* gHelperFunctions;
 
 extern "C"
 {
@@ -14,7 +14,7 @@ extern "C"
 	{
 		const IniFile* config = new IniFile(std::string(path) + "\\config.ini");
 
-		HelperFunctionsGlobal = helperFunctions;
+		gHelperFunctions = &helperFunctions;
 		Level_Init(helperFunctions, config);
 		Objects_Init(helperFunctions);
 		Cameras_Init(helperFunctions);

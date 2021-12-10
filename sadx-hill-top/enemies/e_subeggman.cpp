@@ -151,8 +151,10 @@ Lava plane with vertex animation
 
 */
 
-void SetLavaPoint(Float x, Float z) {
-	if (CurrentBossLava) {
+void SetLavaPoint(Float x, Float z)
+{
+	if (CurrentBossLava)
+	{
 		lavawk* wk = (lavawk*)CurrentBossLava->Data1;
 		wk->Point = { x, z };
 		wk->PrevMode = wk->Mode;
@@ -160,20 +162,25 @@ void SetLavaPoint(Float x, Float z) {
 	}
 }
 
-void SetLavaSpeed(Float speed) {
-	if (CurrentBossLava) {
+void SetLavaSpeed(Float speed)
+{
+	if (CurrentBossLava)
+	{
 		lavawk* wk = (lavawk*)CurrentBossLava->Data1;
 		wk->Speed = speed;
 	}
 }
 
-void CalcLavaAnim(lavawk* wk) {
+void CalcLavaAnim(lavawk* wk)
+{
 	int j = 1000;
 
-	for (int i = 0; i < wk->nbPoint; ++i) {
+	for (int i = 0; i < wk->nbPoint; ++i)
+	{
 		wk->Object->basicdxmodel->points[i].y = (1.0f - njSin(wk->Timer * 100 * wk->Offsets[i] + j)) * wk->Offsets[i];
 
-		if (wk->Offsets[i] > 3.0f) {
+		if (wk->Offsets[i] > 3.0f)
+		{
 			wk->Offsets[i] -= 0.035f;
 		}
 
@@ -181,39 +188,48 @@ void CalcLavaAnim(lavawk* wk) {
 	}
 }
 
-void FindLavaPoint(lavawk* wk) {
+void FindLavaPoint(lavawk* wk)
+{
 	NJS_POINT3* points = wk->Object->basicdxmodel->points;
 
 	float mindist = 10000.0f;
 	int result = -1;
 
-	for (int i = 0; i < wk->nbPoint; ++i) {
+	for (int i = 0; i < wk->nbPoint; ++i)
+	{
 		float dist = sqrtf(powf(wk->Point.x - points[i].x, 2) + powf(wk->Point.y - points[i].z, 2));
 
-		if (dist < mindist) {
+		if (dist < mindist)
+		{
 			mindist = dist;
 			result = i;
 		}
 	}
 
-	if (result >= 0 && mindist < 50.0f) {
+	if (result >= 0 && mindist < 50.0f)
+	{
 		wk->Offsets[result] = 6.0f;
 	}
 }
 
-void RangeLavaSpeed(lavawk* wk, int speed) {
-	if (wk->Speed > speed) {
+void RangeLavaSpeed(lavawk* wk, int speed)
+{
+	if (wk->Speed > speed)
+	{
 		wk->Speed -= 0.1f;
 	}
-	else if (wk->Speed < speed) {
+	else if (wk->Speed < speed)
+	{
 		wk->Speed += 0.1f;
 	}
 }
 
-void __cdecl BossLava_Delete(ObjectMaster* obj) {
+void __cdecl BossLava_Delete(ObjectMaster* obj)
+{
 	lavawk* wk = (lavawk*)obj->Data1;
 
-	if (wk->Object) {
+	if (wk->Object)
+	{
 		DynamicCOL_Remove(obj, wk->Object);
 		ObjectArray_Remove(wk->Object);
 	}
@@ -221,10 +237,12 @@ void __cdecl BossLava_Delete(ObjectMaster* obj) {
 	CurrentBossLava = nullptr;
 }
 
-void __cdecl BossLava_Display(ObjectMaster* obj) {
+void __cdecl BossLava_Display(ObjectMaster* obj)
+{
 	lavawk* wk = (lavawk*)obj->Data1;
 
-	if (!MissedFrames) {
+	if (!MissedFrames)
+	{
 		njSetTexture(&CurrentLavaTex);
 		njPushMatrixEx();
 		njTranslateY(wk->Object->pos[1]);
@@ -233,19 +251,23 @@ void __cdecl BossLava_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl BossLava_Main(ObjectMaster* obj) {
+void __cdecl BossLava_Main(ObjectMaster* obj)
+{
 	lavawk* wk = (lavawk*)obj->Data1;
 
 	CalcLavaAnim(wk);
 
-	switch (wk->Mode) {
+	switch (wk->Mode)
+	{
 	case LavaModes::Grow:
 		wk->Speed = 1.0f;
 
-		if (wk->Object->pos[1] < 0.0f) {
+		if (wk->Object->pos[1] < 0.0f)
+		{
 			wk->Object->pos[1] += 0.5f;
 		}
-		else {
+		else
+		{
 			wk->Mode = LavaModes::Normal;
 		}
 
@@ -266,7 +288,8 @@ void __cdecl BossLava_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void __cdecl BossLava(ObjectMaster* obj) {
+void __cdecl BossLava(ObjectMaster* obj)
+{
 	lavawk* wk = (lavawk*)obj->Data1;
 
 	// Create the dynamic collision
@@ -293,7 +316,8 @@ void __cdecl BossLava(ObjectMaster* obj) {
 	wk->nbPoint = wk->Object->basicdxmodel->nbPoint;
 	wk->Offsets = new Float[wk->nbPoint];
 
-	for (int i = 0; i < wk->nbPoint; ++i) {
+	for (int i = 0; i < wk->nbPoint; ++i)
+	{
 		wk->Offsets[i] = 3.0f;
 	}
 
@@ -306,23 +330,29 @@ void __cdecl BossLava(ObjectMaster* obj) {
 #pragma endregion
 
 #pragma region Platforms
-bool IsEggSubAlive() {
+bool IsEggSubAlive()
+{
 	return CurrentBoss != nullptr && CurrentBoss->Data1->Action != eggsubmainact_death;
 }
 
-void __cdecl PlatformChild_Delete(ObjectMaster* obj) {
-	if (obj->Data1->Object) {
+void __cdecl PlatformChild_Delete(ObjectMaster* obj)
+{
+	if (obj->Data1->Object)
+	{
 		DynamicCOL_Remove(obj, obj->Data1->Object);
 		ObjectArray_Remove(obj->Data1->Object);
 	}
 }
 
-void __cdecl PlatformChild_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl PlatformChild_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
 		EntityData1* parent = obj->Parent->Data1;
 
-		if (parent->Action != PlatformAct_Hidden) {
+		if (parent->Action != PlatformAct_Hidden)
+		{
 			njSetTexture(&HillTop_TexList);
 			njPushMatrixEx();
 			njTranslate(_nj_current_matrix_ptr_, data->Position.x, data->Object->pos[1], data->Position.z);
@@ -334,12 +364,15 @@ void __cdecl PlatformChild_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl PlatformChild_Main(ObjectMaster* obj) {
+void __cdecl PlatformChild_Main(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 	EntityData1* parent = obj->Parent->Data1;
 
-	if (parent->Action != PlatformAct_Hidden) {
-		if (IsEggSubAlive() == true) {
+	if (parent->Action != PlatformAct_Hidden)
+	{
+		if (IsEggSubAlive() == true)
+		{
 			data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(FrameCounterUnpaused * data->Scale.z), 2.0f)) * data->Scale.y;
 		}
 
@@ -347,24 +380,30 @@ void __cdecl PlatformChild_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl PlatformsHandler_Main(ObjectMaster* obj) {
+void __cdecl PlatformsHandler_Main(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
-	switch (data->Action) {
+	switch (data->Action)
+	{
 	case PlatformAct_Emerge:
-		if (data->Position.y < 15) {
+		if (data->Position.y < 15)
+		{
 			data->Position.y += 0.5;
 		}
-		else {
+		else
+		{
 			data->Action = PlatformAct_Float;
 		}
 
 		break;
 	case PlatformAct_Sink:
-		if (data->Position.y > -100) {
+		if (data->Position.y > -100)
+		{
 			data->Position.y -= 0.1f;
 		}
-		else {
+		else
+		{
 			data->Action = PlatformAct_Hidden;
 		}
 		break;
@@ -373,13 +412,15 @@ void __cdecl PlatformsHandler_Main(ObjectMaster* obj) {
 	RunObjectChildren(obj);
 }
 
-void __cdecl PlatformsHandler(ObjectMaster* obj) {
+void __cdecl PlatformsHandler(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
 	data->Position.y = -100;
 	data->Scale.y = -100;
 
-	for (int i = 0; i < 0x10000; ++i) {
+	for (int i = 0; i < 0x10000; ++i)
+	{
 		ObjectMaster* child = LoadChildObject(LoadObj_Data1, PlatformChild_Main, obj);
 
 		child->DeleteSub = PlatformChild_Delete;
@@ -419,15 +460,19 @@ void __cdecl PlatformsHandler(ObjectMaster* obj) {
 	PlatformsHandlerPtr = obj;
 }
 
-void EmergePlatforms() {
-	if (PlatformsHandlerPtr && PlatformsHandlerPtr->Data1->Action != PlatformAct_Float) {
+void EmergePlatforms()
+{
+	if (PlatformsHandlerPtr && PlatformsHandlerPtr->Data1->Action != PlatformAct_Float)
+	{
 		PlatformsHandlerPtr->Data1->Action = PlatformAct_Emerge;
 		SetLavaSpeed(20.0f);
 	}
 }
 
-void SinkPlatforms() {
-	if (PlatformsHandlerPtr && PlatformsHandlerPtr->Data1->Action != PlatformAct_Hidden) {
+void SinkPlatforms()
+{
+	if (PlatformsHandlerPtr && PlatformsHandlerPtr->Data1->Action != PlatformAct_Hidden)
+	{
 		PlatformsHandlerPtr->Data1->Action = PlatformAct_Sink;
 		SetLavaSpeed(15.0f);
 	}
@@ -436,7 +481,8 @@ void SinkPlatforms() {
 #pragma endregion
 
 #pragma region Cameras
-void CameraZoom(float zoom) {
+void CameraZoom(float zoom)
+{
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&CameraTask.targetpos);
 	njRotateY(0, CameraTask.angle.y);
@@ -446,7 +492,8 @@ void CameraZoom(float zoom) {
 	njPopMatrixEx();
 }
 
-void __cdecl EggSubMainCam(_OBJ_CAMERAPARAM* param) {
+void __cdecl EggSubMainCam(_OBJ_CAMERAPARAM* param)
+{
 	EntityData1* bossdata = CurrentBoss->Data1;
 	EntityData1* playerdata = EntityData1Ptrs[0];
 
@@ -454,55 +501,68 @@ void __cdecl EggSubMainCam(_OBJ_CAMERAPARAM* param) {
 	Camera_E101R(param);
 }
 
-void __cdecl EggSubSunkCam(_OBJ_CAMERAPARAM* param) {
+void __cdecl EggSubSunkCam(_OBJ_CAMERAPARAM* param)
+{
 	EntityData1* bossdata = CurrentBoss->Data1;
 	EntityData1* playerdata = EntityData1Ptrs[0];
 
 	Camera_Sonic(param);
 }
 
-void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* param) {
-	if (CurrentBoss) {
-		if (bossCam.Action == 0) {
+void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* param)
+{
+	if (CurrentBoss)
+	{
+		if (bossCam.Action == 0)
+		{
 			CameraTask.angle.y = bossCam.AngY;
 			CameraTask.angle.x = bossCam.AngX;
 			CameraTask.targetpos = { 0, 0, 0 };
 
-			if (bossCam.AngY < bossCam.AngTargetY) {
+			if (bossCam.AngY < bossCam.AngTargetY)
+			{
 				bossCam.AngY += 0x20;
 			}
 
-			if (bossCam.AngX < bossCam.AngTargetX) {
+			if (bossCam.AngX < bossCam.AngTargetX)
+			{
 				bossCam.AngX += 0x10;
 			}
 
 			CameraZoom(bossCam.Zoom);
 
-			if (sqrtf(CameraTask.pos.x * CameraTask.pos.x + CameraTask.pos.y * CameraTask.pos.y + CameraTask.pos.z * CameraTask.pos.z) > bossCam.Limit) {
+			if (sqrtf(CameraTask.pos.x * CameraTask.pos.x + CameraTask.pos.y * CameraTask.pos.y + CameraTask.pos.z * CameraTask.pos.z) > bossCam.Limit)
+			{
 				bossCam.Zoom -= bossCam.Speed;
 			}
-			else {
+			else
+			{
 				bossCam.Action = 1;
 			}
 		}
-		else {
+		else
+		{
 			EntityData1* bossdata = CurrentBoss->Data1;
 			eggsubwk* bosswk = (eggsubwk*)CurrentBoss->UnknownB_ptr;
 
-			if (bosswk->Subs == eggsubmtnacts::emerge || bosswk->Subs == eggsubmtnacts::stay) {
+			if (bosswk->Subs == eggsubmtnacts::emerge || bosswk->Subs == eggsubmtnacts::stay)
+			{
 				EggSubMainCam(param);
 			}
-			else {
+			else
+			{
 				EggSubSunkCam(param);
 			}
 		}
 	}
-	else {
+	else
+	{
 		Camera_Sonic(param);
 	}
 }
 
-void EggSubInitCam_Load(Angle y, Angle x, Angle targetY, Angle targetX, float speed, float zoom, float limit) {
+void EggSubInitCam_Load(Angle y, Angle x, Angle targetY, Angle targetX, float speed, float zoom, float limit)
+{
 	SetCameraEvent(EggSubInitCam, CameraAdjustsIDs::None, CameraDirectIDs::Target);
 	bossCam.Action = 0;
 	bossCam.AngY = y;
@@ -518,9 +578,10 @@ void EggSubInitCam_Load(Angle y, Angle x, Angle targetY, Angle targetX, float sp
 #pragma region Attacks
 void SubEgg_ChangeAnimation(eggsubwk* wk, int anim);
 
-NJS_VECTOR EggSub_GetAttackPoint(EntityData1* data, float dist) {
+NJS_VECTOR EggSub_GetAttackPoint(EntityData1* data, float dist)
+{
 	NJS_VECTOR vec;
-	
+
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&data->Position);
 	njRotateY_(data->Rotation.y);
@@ -531,7 +592,8 @@ NJS_VECTOR EggSub_GetAttackPoint(EntityData1* data, float dist) {
 	return vec;
 }
 
-void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale) {
+void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale)
+{
 	NJS_VECTOR pos = EggSub_GetAttackPoint(data, 0.0f);
 	Angle y;
 	Angle x;
@@ -542,7 +604,8 @@ void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale) {
 	PlaySound(461, 0, 0, 0);
 }
 
-void __cdecl EggBombInit(ObjectMaster* obj) {
+void __cdecl EggBombInit(ObjectMaster* obj)
+{
 	obj->MainSub = (ObjectFuncPtr)0x4AC920;
 	obj->MainSub(obj);
 
@@ -553,12 +616,13 @@ void __cdecl EggBombInit(ObjectMaster* obj) {
 	data2->field_4.z *= 1.0f + static_cast<float>(rand() % 100) / 100.0f;
 }
 
-void EggSub_Bomb(EntityData1* data) {
+void EggSub_Bomb(EntityData1* data)
+{
 	ObjectMaster* bomb = LoadChildObject(LoadObj_Data1, EggBombInit, CurrentBoss);
 	if (bomb)
 	{
 		EntityData1* bombdata = bomb->Data1;
-		
+
 		bombdata->NextAction = 1;
 		bombdata->Position = data->Position;
 		bombdata->Rotation = data->Rotation;
@@ -568,15 +632,17 @@ void EggSub_Bomb(EntityData1* data) {
 	PlaySound3D(465, nullptr, 0, 80, 120, data);
 }
 
-void EggSubDeflarg_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void EggSubDeflarg_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
-		
+
 		njPushMatrixEx();
 		njSetTexture((NJS_TEXLIST*)0x9891F0);
 		njTranslateEx(&data->Position);
 		njRotateY_(Camera_Data1->Rotation.y);
-		
+
 		njColorBlendingMode(NJD_SOURCE_COLOR, NJD_COLOR_BLENDING_SRCALPHA);
 		njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_ONE);
 		njDrawSprite3D(&DEFLARG_SPRITE, data->Index, NJD_SPRITE_ALPHA);
@@ -587,7 +653,8 @@ void EggSubDeflarg_Display(ObjectMaster* obj) {
 	}
 }
 
-void EggSubDeflarg_Main(ObjectMaster* obj) {
+void EggSubDeflarg_Main(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
 	njPushMatrix(_nj_unit_matrix_);
@@ -598,10 +665,12 @@ void EggSubDeflarg_Main(ObjectMaster* obj) {
 	njGetTranslation(_nj_current_matrix_ptr_, &data->Position);
 	njPopMatrixEx();
 
-	if (data->Index < 9) {
+	if (data->Index < 9)
+	{
 		if (FrameCounterUnpaused % 10 == 0) ++data->Index;
 	}
-	else {
+	else
+	{
 		data->Index = 9;
 		DeleteObject_(obj);
 		return;
@@ -611,7 +680,8 @@ void EggSubDeflarg_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void EggSub_Deflarg(EntityData1* data) {
+void EggSub_Deflarg(EntityData1* data)
+{
 	ObjectMaster* obj = LoadChildObject(LoadObj_Data1, EggSubDeflarg_Main, CurrentBoss);
 	EntityData1* child = obj->Data1;
 
@@ -621,17 +691,21 @@ void EggSub_Deflarg(EntityData1* data) {
 	obj->DisplaySub = EggSubDeflarg_Display;
 }
 
-void EggSubFire_Main(ObjectMaster* obj) {
+void EggSubFire_Main(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
-	if (data->Index < 9) {
+	if (data->Index < 9)
+	{
 		if (FrameCounterUnpaused % 5 == 0) ++data->Index;
 	}
-	else {
+	else
+	{
 		data->Index = 0;
 	}
 
-	if (data->Action == 0) {
+	if (data->Action == 0)
+	{
 		njPushMatrix(_nj_unit_matrix_);
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
@@ -641,37 +715,44 @@ void EggSubFire_Main(ObjectMaster* obj) {
 		njGetTranslation(_nj_current_matrix_ptr_, &data->Position);
 		njPopMatrixEx();
 
-		if (data->Scale.z > 0) {
+		if (data->Scale.z > 0)
+		{
 			data->Scale.z -= 0.1f;
 		}
 
-		if (++data->InvulnerableTime > 100) {
+		if (++data->InvulnerableTime > 100)
+		{
 			DeleteObject_(obj);
 			return;
 		}
 
 		NJS_VECTOR idk = { 0, 0, 0 };
-		if (DetectDyncolCollision(&data->Position, &idk, &data->Rotation, (ColFlags)(ColFlags_Hurt | 0x08000000), 10.0f)) {
+		if (DetectDyncolCollision(&data->Position, &idk, &data->Rotation, (ColFlags)(ColFlags_Hurt | 0x08000000), 10.0f))
+		{
 			data->Action = 1;
 		}
 	}
-	else {
-		if (++data->InvulnerableTime > 5000) {
+	else
+	{
+		if (++data->InvulnerableTime > 5000)
+		{
 			DeleteObject_(obj);
 		}
 	}
-	
+
 	AddToCollisionList(data);
 	obj->DisplaySub(obj);
 }
 
-void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count) {
+void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count)
+{
 	NJS_VECTOR pos = EggSub_GetAttackPoint(data, 0.3f);
 
 	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
 	PlaySound(461, 0, 0, 0);
 
-	for (int i = 0; i < count; ++i) {
+	for (int i = 0; i < count; ++i)
+	{
 		ObjectMaster* obj = LoadChildObject(LoadObj_Data1, EggSubFire_Main, CurrentBoss);
 		EntityData1* child = obj->Data1;
 
@@ -681,7 +762,7 @@ void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count) {
 		child->Scale.z = 2.0f;
 		child->Rotation.x = -(rand() % 1000);
 		child->Rotation.y += (rand() % 500) - 250;
-		
+
 		Collision_Init(obj, &Deflarg_Col, 1, 4);
 		obj->DisplaySub = EggSubDeflarg_Display;
 	}
@@ -689,13 +770,15 @@ void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count) {
 #pragma endregion
 
 #pragma region SubEggman
-void SubEgg_ChangeAnimation(eggsubwk* wk, int anim) {
+void SubEgg_ChangeAnimation(eggsubwk* wk, int anim)
+{
 	wk->bwk.action = anim;
 	wk->bwk.lastaction = anim;
 	wk->bwk.nframe = EggSubAnimList[anim].mtnmode == AnimProp_Reverse ? 1.0f : 0.0f;
 }
 
-void SubEgg_PlayAnimation(eggsubwk* wk) {
+void SubEgg_PlayAnimation(eggsubwk* wk)
+{
 	PL_ACTION* pl = &wk->bwk.plactptr[wk->bwk.action];
 
 	bool Loop = pl->mtnmode == AnimProp_Loop;
@@ -703,77 +786,97 @@ void SubEgg_PlayAnimation(eggsubwk* wk) {
 	bool Reverse = pl->mtnmode == AnimProp_Reverse || pl->mtnmode == AnimProp_ReverseT;
 	float frame = static_cast<float>(pl->actptr->motion->nbFrame) - 1;
 
-	if (Reverse) {
-		if (wk->bwk.nframe > frame) {
+	if (Reverse)
+	{
+		if (wk->bwk.nframe > frame)
+		{
 			wk->bwk.nframe -= pl->frame;
 		}
-		else if (Loop) {
+		else if (Loop)
+		{
 			wk->bwk.nframe = frame;
 		}
-		else if (Next) {
+		else if (Next)
+		{
 			SubEgg_ChangeAnimation(wk, pl->next);
 		}
 	}
-	else {
-		if (wk->bwk.nframe < frame) {
+	else
+	{
+		if (wk->bwk.nframe < frame)
+		{
 			wk->bwk.nframe += pl->frame;
 		}
-		else if (Loop) {
+		else if (Loop)
+		{
 			wk->bwk.nframe = 0.0f;
 		}
-		else if (Next) {
+		else if (Next)
+		{
 			SubEgg_ChangeAnimation(wk, pl->next);
 		}
 	}
 }
 
-void SubEgg_ChangeAction(eggsubwk* wk, eggsubacts action) {
+void SubEgg_ChangeAction(eggsubwk* wk, eggsubacts action)
+{
 	wk->Acts = action;
 	wk->InternalTimer = 0;
 }
 
-void SubEgg_ChangeSub(eggsubwk* wk, eggsubmtnacts action) {
-	if (action == eggsubmtnacts::sink) {
+void SubEgg_ChangeSub(eggsubwk* wk, eggsubmtnacts action)
+{
+	if (action == eggsubmtnacts::sink)
+	{
 		SubEgg_ChangeAnimation(wk, ESubAnm_LidClose);
 	}
 
 	wk->Subs = action;
 }
 
-bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
-	if (wk->HitPoint > 0 && wk->HitTimer == 0) {
+bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk)
+{
+	if (wk->HitPoint > 0 && wk->HitTimer == 0)
+	{
 		EntityData1* entity = GetCollidingEntityA(data);
 
 		bool playerHurting = entity && entity->Status & (Status_Attack | Status_Ball);
 
-		if (playerHurting) {
+		if (playerHurting)
+		{
 			NJS_VECTOR spd = { -3.5f, 3.5f, 0.0f };
 			PlayerDirectionToVector(entity, &spd);
 			EnemyBounceThing(entity->CharIndex, spd.x, spd.y, spd.z);
 			CharObj2Ptrs[entity->CharIndex]->field_A = 10;
 		}
 
-		if (playerHurting || GetCollidingEntityB(data)) {
+		if (playerHurting || GetCollidingEntityB(data))
+		{
 			wk->HitTimer = 50;
 			wk->HitPoint -= 1;
 			PlaySound(461, 0, 0, 0);
 			SetLavaSpeed(15.0f);
 
-			if (wk->Level == 1) {
-				if (wk->Voice1 == false) {
+			if (wk->Level == 1)
+			{
+				if (wk->Voice1 == false)
+				{
 					PlayVoiceCheckSetting(1986);
 					wk->Voice1 = true;
 				}
 			}
 
-			if (wk->Level == 2) {
-				if (wk->Voice2 == false) {
+			if (wk->Level == 2)
+			{
+				if (wk->Voice2 == false)
+				{
 					PlayVoiceCheckSetting(224);
 					wk->Voice2 = true;
 				}
 			}
-			
-			if (wk->HitPoint == 0) {
+
+			if (wk->HitPoint == 0)
+			{
 				NonStaticFunctionPointer(void, sub_574460, (NJS_VECTOR * pos), 0x574460);
 				sub_574460(&data->Position); // explosion effect
 				wk->HitTimer = 200;
@@ -782,7 +885,8 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 				SubEgg_ChangeAnimation(wk, ESubAnm_Idle);
 				PlayVoiceCheckSetting(177);
 			}
-			else {
+			else
+			{
 				PlayVoiceCheckSetting(rand() % 2 == 0 ? 172 : 1230);
 			}
 
@@ -795,47 +899,60 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk) {
 	return false;
 }
 
-void SubEgg_UpdateStatus(EntityData1* data, eggsubwk* wk) {
+void SubEgg_UpdateStatus(EntityData1* data, eggsubwk* wk)
+{
 	data->Status &= ~(Status_Hurt | Status_Attack);
 
-	if (wk->HitTimer) {
+	if (wk->HitTimer)
+	{
 		--wk->HitTimer;
 	}
 
-	if (wk->HitPoint) {
+	if (wk->HitPoint)
+	{
 		float p = static_cast<float>(wk->HitPoint) / static_cast<float>(wk->MaxHealth);
 
-		if (p >= 1.0f) {
+		if (p >= 1.0f)
+		{
 			wk->Level = 0;
 		}
-		else if (p >= 0.8f) {
+		else if (p >= 0.8f)
+		{
 			wk->Level = 1;
 		}
-		else if (p >= 0.6f) {
+		else if (p >= 0.6f)
+		{
 			wk->Level = 2;
 		}
-		else {
+		else
+		{
 			wk->Level = 3;
 		}
 	}
 }
 
-bool SubEgg_Sink(EntityData1* data, float speed) {
-	if (data->Position.y > sinkHeight) {
+bool SubEgg_Sink(EntityData1* data, float speed)
+{
+	if (data->Position.y > sinkHeight)
+	{
 		data->Position.y -= speed;
 	}
-	else {
+	else
+	{
 		return true;
 	}
 
 	return false;
 }
 
-bool SubEgg_Emerge(EntityData1* data, eggsubwk* wk, float speed) {
-	if (data->Position.y < surfaceHeight) {
+bool SubEgg_Emerge(EntityData1* data, eggsubwk* wk, float speed)
+{
+	if (data->Position.y < surfaceHeight)
+	{
 		data->Position.y += speed;
 	}
-	else {
+	else
+	{
 		SubEgg_ChangeAnimation(wk, ESubAnm_LidOpen);
 		return true;
 	}
@@ -843,23 +960,27 @@ bool SubEgg_Emerge(EntityData1* data, eggsubwk* wk, float speed) {
 	return false;
 }
 
-void SubEgg_LookAtPlayer(EntityData1* data, eggsubwk* wk) {
+void SubEgg_LookAtPlayer(EntityData1* data, eggsubwk* wk)
+{
 	EntityData1* entity = EntityData1Ptrs[GetClosestPlayerID(&data->Position)];
 
 	njLookAt(&data->Position, &entity->Position, nullptr, &data->Rotation.y);
 }
 
 // Get a random position around the lava outer circle
-void SubEgg_GetRandomPosition(EntityData1* data, eggsubwk* wk) {
+void SubEgg_GetRandomPosition(EntityData1* data, eggsubwk* wk)
+{
 	int ang = rand() % 0x10000;
 	float dist = 190;
 
 	// Every 200 bams degrees
-	if (ang % 0x200) {
+	if (ang % 0x200)
+	{
 		ang = ang + (0x200 - ang % 0x200);
 	}
 
-	if (rand() % 2 == 0) {
+	if (rand() % 2 == 0)
+	{
 		dist = 260;
 	}
 
@@ -867,11 +988,13 @@ void SubEgg_GetRandomPosition(EntityData1* data, eggsubwk* wk) {
 	data->Position.y = sinkHeight;
 	data->Position.z = -(njSin(ang) * dist);
 
-	if (rand() % 2 == 0) {
+	if (rand() % 2 == 0)
+	{
 		data->Position.x = fabsf(data->Position.x);
 	}
 
-	if (rand() % 2 == 0) {
+	if (rand() % 2 == 0)
+	{
 		data->Position.z = fabsf(data->Position.z);
 	}
 
@@ -880,17 +1003,21 @@ void SubEgg_GetRandomPosition(EntityData1* data, eggsubwk* wk) {
 }
 
 // Goes out of lava, shoots and turn toward player until touched, then act 2
-void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
+void SubEgg_Act1(EntityData1* data, eggsubwk* wk)
+{
 	int speed;
 
-	switch (wk->Subs) {
+	switch (wk->Subs)
+	{
 	case eggsubmtnacts::hidden:
 		SinkPlatforms();
 
-		if (wk->HitPoint == wk->MaxHealth) {
+		if (wk->HitPoint == wk->MaxHealth)
+		{
 			data->Position = { 0, sinkHeight, 0 };
 		}
-		else {
+		else
+		{
 			SubEgg_GetRandomPosition(data, wk);
 		}
 
@@ -900,10 +1027,12 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, wk, 0.35f)) {
+		if (SubEgg_Emerge(data, wk, 0.35f))
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
 
-			if (wk->HitPoint != wk->MaxHealth) {
+			if (wk->HitPoint != wk->MaxHealth)
+			{
 				PlayVoiceCheckSetting(1903);
 			}
 		}
@@ -912,7 +1041,8 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 
 		break;
 	case eggsubmtnacts::stay:
-		if (SubEgg_CheckDamage(data, wk)) {
+		if (SubEgg_CheckDamage(data, wk))
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::sink);
 			EmergePlatforms();
 			break;
@@ -922,17 +1052,20 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 
 		speed = wk->Level == 0 ? 80 : 45;
 
-		if (CFG_HardBoss == true) {
+		if (CFG_HardBoss == true)
+		{
 			speed -= 15;
 		}
 
-		if (++wk->InternalTimer % speed == 0) {
+		if (++wk->InternalTimer % speed == 0)
+		{
 			EggSub_FireBall(data, wk, wk->Level == 0 ? 3.5f : 4.5f);
 		}
 
 		break;
 	case eggsubmtnacts::sink:
-		if (SubEgg_Sink(data, 0.6f)) {
+		if (SubEgg_Sink(data, 0.6f))
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::hidden);
 			SubEgg_ChangeAction(wk, eggsubacts::act2);
 		}
@@ -940,17 +1073,20 @@ void SubEgg_Act1(EntityData1* data, eggsubwk* wk) {
 }
 
 // Spawns away from the player, launches persistent fire on ground
-void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
+void SubEgg_Act2(EntityData1* data, eggsubwk* wk)
+{
 	int speed;
 
-	switch (wk->Subs) {
+	switch (wk->Subs)
+	{
 	case eggsubmtnacts::hidden:
 
 		EmergePlatforms();
 
 		SubEgg_GetRandomPosition(data, wk);
 
-		while (IsSpecificPlayerInSphere(&data->Position, 150.0f, 0)) {
+		while (IsSpecificPlayerInSphere(&data->Position, 150.0f, 0))
+		{
 			SubEgg_GetRandomPosition(data, wk);
 		}
 
@@ -960,51 +1096,63 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, wk, 0.7f)) {
+		if (SubEgg_Emerge(data, wk, 0.7f))
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
 			PlayVoiceCheckSetting(173);
 		}
 
 		break;
 	case eggsubmtnacts::stay:
-		if (SubEgg_CheckDamage(data, wk)) {
+		if (SubEgg_CheckDamage(data, wk))
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::sink);
 			break;
 		}
 
 		speed = wk->Level == 1 ? 80 : 40;
 
-		if (CFG_HardBoss == true) {
+		if (CFG_HardBoss == true)
+		{
 			speed -= 20;
 		}
 
-		if (++wk->InternalTimer == speed) {
+		if (++wk->InternalTimer == speed)
+		{
 			EggSub_Fire(data, wk, wk->Level == 1 ? 3 : 5);
 		}
-		else if (wk->InternalTimer > speed * 2) {
+		else if (wk->InternalTimer > speed * 2)
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::sink);
 			wk->InternalTimer = -1;
 		}
 
 		break;
 	case eggsubmtnacts::sink:
-		if (SubEgg_Sink(data, 0.9f)) {
+		if (SubEgg_Sink(data, 0.9f))
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::hidden);
 
 			// if untouched during this act, redo or change
-			if (wk->InternalTimer == -1 && rand() % 10 < 8) {
-				if (wk->Level <= 3) {
+			if (wk->InternalTimer == -1 && rand() % 10 < 8)
+			{
+				if (wk->Level <= 3)
+				{
 					SubEgg_ChangeAction(wk, eggsubacts::act2);
 				}
-				else {
+				else
+				{
 					SubEgg_ChangeAction(wk, eggsubacts::act4);
 				}
 			}
-			else {
-				if (wk->Level <= 2) {
+			else
+			{
+				if (wk->Level <= 2)
+				{
 					SubEgg_ChangeAction(wk, eggsubacts::act1);
 				}
-				else {
+				else
+				{
 					SubEgg_ChangeAction(wk, rand() % 2 == 0 ? eggsubacts::act3 : eggsubacts::act4); // act 3 or 4 when 2 lives left
 				}
 			}
@@ -1012,34 +1160,40 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk) {
 	}
 }
 
-inline void SubEggAct3Attack(EntityData1* data, eggsubwk* wk) {
+inline void SubEggAct3Attack(EntityData1* data, eggsubwk* wk)
+{
 	++wk->InternalTimer;
 
 	int speed = wk->InternalTimer * 10;
 
-	if (CFG_HardBoss == true) {
+	if (CFG_HardBoss == true)
+	{
 		speed *= 1.5f;
 	}
 
 	data->Rotation.y += speed > 0x500 ? 0x500 : speed;
 
-	if (wk->InternalTimer % (wk->Level == 3 ? 2 : 4) == 0) {
+	if (wk->InternalTimer % (wk->Level == 3 ? 2 : 4) == 0)
+	{
 		EggSub_Deflarg(data);
 	}
 
-	if (wk->InternalTimer > 500) {
+	if (wk->InternalTimer > 500)
+	{
 		SubEgg_ChangeSub(wk, eggsubmtnacts::sink);
 	}
 }
 
 // Swirls around with lava coming out of gun
-void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
-	switch (wk->Subs) {
+void SubEgg_Act3(EntityData1* data, eggsubwk* wk)
+{
+	switch (wk->Subs)
+	{
 	case eggsubmtnacts::hidden:
 		EmergePlatforms();
 
 		SubEgg_GetRandomPosition(data, wk);
-		
+
 		SetLavaPoint(data->Position.x, data->Position.z);
 		SubEgg_LookAtPlayer(data, wk);
 
@@ -1049,7 +1203,8 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, wk, 0.7)) {
+		if (SubEgg_Emerge(data, wk, 0.7))
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
 			SubEgg_ChangeAnimation(wk, ESubAnm_AttackSpree);
 		}
@@ -1058,7 +1213,8 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 
 		break;
 	case eggsubmtnacts::stay:
-		if (SubEgg_CheckDamage(data, wk)) {
+		if (SubEgg_CheckDamage(data, wk))
+		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::sink);
 			break;
 		}
@@ -1067,20 +1223,23 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 
 		break;
 	case eggsubmtnacts::sink:
-		if (SubEgg_Sink(data, 0.9f)) {
+		if (SubEgg_Sink(data, 0.9f))
+		{
 			++wk->lastattackscount;
 
 			SubEgg_ChangeSub(wk, eggsubmtnacts::hidden);
-			
-			if (wk->lastattackscount > 6) {
+
+			if (wk->lastattackscount > 6)
+			{
 				SubEgg_ChangeAction(wk, eggsubacts::act1);
 				EmergePlatforms();
 			}
-			else {
+			else
+			{
 				SubEgg_ChangeAction(wk, eggsubacts::act4);
 				PlayVoiceCheckSetting(174);
 			}
-			
+
 			return;
 		}
 
@@ -1089,10 +1248,12 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk) {
 }
 
 // Launches bombs around while under lava
-void SubEgg_Act4(EntityData1* data, eggsubwk* wk) {
+void SubEgg_Act4(EntityData1* data, eggsubwk* wk)
+{
 	int speed;
 
-	switch (wk->Subs) {
+	switch (wk->Subs)
+	{
 	case eggsubmtnacts::hidden:
 		SinkPlatforms();
 
@@ -1100,16 +1261,19 @@ void SubEgg_Act4(EntityData1* data, eggsubwk* wk) {
 
 		speed = 14;
 
-		if (CFG_HardBoss == true) {
+		if (CFG_HardBoss == true)
+		{
 			speed = 8;
 		}
 
-		if (wk->InternalTimer % speed == 0) {
+		if (wk->InternalTimer % speed == 0)
+		{
 			SubEgg_GetRandomPosition(data, wk);
 			EggSub_Bomb(data);
 		}
 
-		if (wk->InternalTimer > 800) {
+		if (wk->InternalTimer > 800)
+		{
 			++wk->lastattackscount;
 
 			SubEgg_ChangeAction(wk, eggsubacts::act3);
@@ -1121,18 +1285,21 @@ void SubEgg_Act4(EntityData1* data, eggsubwk* wk) {
 	}
 }
 
-void __cdecl SubEggman_Delete(ObjectMaster* obj) {
+void __cdecl SubEggman_Delete(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 	eggsubwk* wk = (eggsubwk*)obj->UnknownB_ptr;
 
 	CurrentBoss = nullptr;
 }
 
-void __cdecl SubEggman_Display(ObjectMaster* obj) {
+void __cdecl SubEggman_Display(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 	eggsubwk* wk = (eggsubwk*)obj->UnknownB_ptr;
 
-	if (!MissedFrames && (wk->HitTimer == 0 || wk->HitTimer % 5) && wk->Subs != eggsubmtnacts::hidden) {
+	if (!MissedFrames && (wk->HitTimer == 0 || wk->HitTimer % 5) && wk->Subs != eggsubmtnacts::hidden)
+	{
 		njSetTexture(&EGGSUB_TEXLIST);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
@@ -1142,7 +1309,8 @@ void __cdecl SubEggman_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl SubEggman_Main(ObjectMaster* obj) {
+void __cdecl SubEggman_Main(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 	eggsubwk* wk = (eggsubwk*)obj->UnknownB_ptr;
 
@@ -1152,12 +1320,14 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 	SubEgg_UpdateStatus(data, wk);
 	SubEgg_PlayAnimation(wk);
 
-	switch (data->Action) {
+	switch (data->Action)
+	{
 	case eggsubmainact_init:
 		// Necessary to spam the camera after act transition somehow
 		SetCameraEvent(EggSubInitCam, CameraAdjustsIDs::None, CameraDirectIDs::Target);
 
-		if (player->Status & Status_Ground && pco2->field_A < 150) {
+		if (player->Status & Status_Ground && pco2->field_A < 150)
+		{
 			SetLavaPoint(0.0f, 0.0f);
 			EnableTimeThing();
 			LoadLifeGauge(600, 0x18, wk->HitPoint);
@@ -1166,7 +1336,8 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 
 		break;
 	case eggsubmainact_run:
-		switch (wk->Acts) {
+		switch (wk->Acts)
+		{
 		case eggsubacts::act1:
 			SubEgg_Act1(data, wk);
 			break;
@@ -1185,14 +1356,17 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 	case eggsubmainact_death:
 		data->Position.y -= 0.1f;
 
-		if (wk->HitTimer == 0 && data->Position.y < sinkHeight) {
-			if (Egg1ExplosionTask) {
+		if (wk->HitTimer == 0 && data->Position.y < sinkHeight)
+		{
+			if (Egg1ExplosionTask)
+			{
 				Egg1ExplosionTask = nullptr;
 				CheckThingButThenDeleteObject(Egg1ExplosionTask);
 			}
-			
+
 			// If the player is on ground and not on lava or dying, launch win
-			if (player->Status & Status_Ground && !(pco2->Powerups & Powerups_Dead) && !(pco2->SurfaceFlags & ColFlags_Hurt)) {
+			if (player->Status & Status_Ground && !(pco2->Powerups & Powerups_Dead) && !(pco2->SurfaceFlags & ColFlags_Hurt))
+			{
 				DeleteObject_(obj);
 				LoadLevelResults();
 				return;
@@ -1201,25 +1375,28 @@ void __cdecl SubEggman_Main(ObjectMaster* obj) {
 
 		break;
 	}
-	
+
 	RunObjectChildren(obj);
 	AddToCollisionList(data);
 	obj->DisplaySub(obj);
 }
 
-void __cdecl SubEggman(ObjectMaster* obj) {
+void __cdecl SubEggman(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 	eggsubwk* wk = (eggsubwk*)BossAlloc(data, sizeof(eggsubwk));
 
 	PlayMusic((MusicIDs)HillTopBossMusic);
 
 	// Set the limit of the arena
-	for (int i = 0; i < MaxPlayers; ++i) {
-		if (EntityData1Ptrs[i]) {
+	for (int i = 0; i < MaxPlayers; ++i)
+	{
+		if (EntityData1Ptrs[i])
+		{
 			SetCircleLimit(&EntityData1Ptrs[i]->Position, &data->Position, 405.0f);
 		}
 	}
-	
+
 	obj->UnknownB_ptr = (void*)wk;
 
 	wk->HitPoint = CFG_HardBoss == true ? 10 : 5;
@@ -1245,38 +1422,43 @@ void __cdecl SubEggman(ObjectMaster* obj) {
 }
 #pragma endregion
 
-void Boss_SpawnAirItemBox() {
+void Boss_SpawnAirItemBox()
+{
 	ObjectMaster* obj = LoadObject((LoadObj)(LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB), 4, ItemBoxAir_Main);
 	EntityData1* data = obj->Data1;
 
 	int ang = rand() % 0x10000;
-	
+
 	data->Position.x = rand() % 2 ? -(njCos(ang) * 230.0f) : njCos(ang) * 230.0f;
 	data->Position.y = 50.0f + static_cast<float>(rand() % 20);
 	data->Position.z = rand() % 2 ? -(njSin(ang) * 230.0f) : njSin(ang) * 230.0f;
-	
+
 	data->Scale.x = rand() % 4;
 }
 
-void __cdecl Boss_SubEggman_Main(ObjectMaster* obj) {
+void __cdecl Boss_SubEggman_Main(ObjectMaster* obj)
+{
 	SetCameraControlEnabled(0);
 
 	// Little help from time to time
-	if (FrameCounterUnpaused % 1800 == 0 && IsEggSubAlive() == true) {
+	if (FrameCounterUnpaused % 1800 == 0 && IsEggSubAlive() == true)
+	{
 		Boss_SpawnAirItemBox();
 	}
 }
 
-void __cdecl Boss_SubEggman_Init(ObjectMaster* obj) {
+void __cdecl Boss_SubEggman_Init(ObjectMaster* obj)
+{
 	LoadObject(LoadObj_Data1, 2, BossLava);
 	LoadObject(LoadObj_Data1, 2, PlatformsHandler);
 	LoadObject(LoadObj_Data1, 2, SubEggman);
-	
+
 	CharObj2* co2 = CharObj2Ptrs[0];
 
 	DisableTimeThing();
 
-	if (co2) {
+	if (co2)
+	{
 		co2->Speed = { 4, 4, 0 };
 		co2->field_A = 300; // no control timer
 
@@ -1286,7 +1468,8 @@ void __cdecl Boss_SubEggman_Init(ObjectMaster* obj) {
 	LoadSoundList(42);
 }
 
-void Boss_LoadAssets() {
+void Boss_LoadAssets()
+{
 	LoadModelFile(&ht_bosslava, "ht_bosslava", ModelFormat::ModelFormat_Basic);
 	LoadModelFile(&e_eggsub, "e_eggsub", ModelFormat::ModelFormat_Basic);
 
@@ -1304,16 +1487,18 @@ void Boss_LoadAssets() {
 	EggSub_AttackAnm.object = e_eggsub->getmodel();
 }
 
-void Boss_FreeAssets() {
-	FreeModelFile(&ht_bosslava);
-	FreeModelFile(&e_eggsub);
+void Boss_FreeAssets()
+{
+	FreeFileInfo(&ht_bosslava);
+	FreeFileInfo(&e_eggsub);
 
-	FreeAnimationFile(&EggSub_LidAnmInfo);
-	FreeAnimationFile(&EggSub_IdleAnmInfo);
-	FreeAnimationFile(&EggSub_AttackAnmInfo);
+	FreeFileInfo(&EggSub_LidAnmInfo);
+	FreeFileInfo(&EggSub_IdleAnmInfo);
+	FreeFileInfo(&EggSub_AttackAnmInfo);
 }
 
-void Boss_Init(const HelperFunctions& helperFunctions, const IniFile* config) {
+void Boss_Init(const HelperFunctions& helperFunctions, const IniFile* config)
+{
 	HillTopBossMusic = helperFunctions.RegisterMusicFile({ "eggboss", true });
 
 	// Read config

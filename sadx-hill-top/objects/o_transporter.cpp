@@ -52,12 +52,15 @@ CollisionData HillTransporter_Col[] = {
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 }
 };
 
-void DrawVine(NJS_OBJECT* vine, NJS_VECTOR* orig, float Y, float Z, float progress) {
-	njPushMatrixEx(); {
+void DrawVine(NJS_OBJECT* vine, NJS_VECTOR* orig, float Y, float Z, float progress)
+{
+	njPushMatrixEx();
+	{
 		NJS_OBJECT* node = vine;
 
 		// Adjust bending
-		if (progress > 0.0f) {
+		if (progress > 0.0f)
+		{
 			float bend = progress;
 			if (bend > 0.5f) bend = fabsf(1.0f - bend);
 
@@ -65,7 +68,8 @@ void DrawVine(NJS_OBJECT* vine, NJS_VECTOR* orig, float Y, float Z, float progre
 			node->child->pos[1] = Y * progress - (Z / 10.0f * bend);
 			node->child->pos[2] = Z * progress;
 		}
-		else {
+		else
+		{
 			node->child->pos[1] = Y * 0.5f;
 			node->child->pos[2] = Z * 0.5f;
 		}
@@ -80,17 +84,20 @@ void DrawVine(NJS_OBJECT* vine, NJS_VECTOR* orig, float Y, float Z, float progre
 	}
 }
 
-void DrawPoles(NJS_OBJECT* PoleObject) {
+void DrawPoles(NJS_OBJECT* PoleObject)
+{
 	njTranslateZ(-2.0f);
 
-	njPushMatrixEx(); {
+	njPushMatrixEx();
+	{
 		njTranslateX(-10.f);
 		DrawModel(PoleObject->basicdxmodel); // Pole model
 		DrawModel(PoleObject->child->basicdxmodel); // Pole vine model
 		njPopMatrixEx();
 	}
 
-	njPushMatrixEx(); {
+	njPushMatrixEx();
+	{
 		njTranslateX(10.f);
 		DrawModel(PoleObject->basicdxmodel); // Pole model
 		njScaleX(-1.0f);
@@ -99,7 +106,8 @@ void DrawPoles(NJS_OBJECT* PoleObject) {
 	}
 }
 
-void __cdecl EndPoles_Display(ObjectMaster* obj) {
+void __cdecl EndPoles_Display(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
 	njSetTexture(&HillTopOBJ_TexList);
@@ -110,12 +118,14 @@ void __cdecl EndPoles_Display(ObjectMaster* obj) {
 	njPopMatrixEx();
 }
 
-void __cdecl EndPoles_Main(ObjectMaster* obj) {
+void __cdecl EndPoles_Main(ObjectMaster* obj)
+{
 	AddToCollisionList(obj->Data1);
 	obj->DisplaySub(obj);
 }
 
-void LoadEndPoles(ObjectMaster* obj, NJS_OBJECT* PoleObject, NJS_VECTOR* destination, Angle rot) {
+void LoadEndPoles(ObjectMaster* obj, NJS_OBJECT* PoleObject, NJS_VECTOR* destination, Angle rot)
+{
 	ObjectMaster* child = LoadChildObject(LoadObj_Data1, EndPoles_Main, obj);
 
 	child->DisplaySub = EndPoles_Display;
@@ -127,7 +137,8 @@ void LoadEndPoles(ObjectMaster* obj, NJS_OBJECT* PoleObject, NJS_VECTOR* destina
 
 void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progress);
 
-void MovePlatform(TransporterData1* pdata, TranspPlatformData1* data, float progress) {
+void MovePlatform(TransporterData1* pdata, TranspPlatformData1* data, float progress)
+{
 	data->PreviousPosition = data->Position; // Store the previous position to move the player later
 	data->Position = GetPositionBetweenPoints(&pdata->Position, &pdata->Destination, data->progress); // Move along the vine
 
@@ -139,7 +150,8 @@ void MovePlatform(TransporterData1* pdata, TranspPlatformData1* data, float prog
 	data->Position.y += data->Object->pos[1] - ((pdata->VineZ / 10.0f) * bend);
 }
 
-void MovePlayerOnPlatform(ObjectMaster* obj, EntityData1* player) {
+void MovePlayerOnPlatform(ObjectMaster* obj, EntityData1* player)
+{
 	// Compares the position from the previous frame to move the player accordingly
 
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
@@ -148,16 +160,19 @@ void MovePlayerOnPlatform(ObjectMaster* obj, EntityData1* player) {
 	njAddVector(&player->Position, &offset);
 }
 
-void __cdecl TranspPlatform_Delete(ObjectMaster* obj) {
+void __cdecl TranspPlatform_Delete(ObjectMaster* obj)
+{
 	// Removes the dyncol before deleting the object
 
-	if (obj->Data1->LoopData) {
+	if (obj->Data1->LoopData)
+	{
 		DynamicCOL_Remove(obj, (NJS_OBJECT*)obj->Data1->LoopData);
 		ObjectArray_Remove((NJS_OBJECT*)obj->Data1->LoopData);
 	}
 }
 
-void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
+void __cdecl TranspPlatform_Display(ObjectMaster* obj)
+{
 	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
 
@@ -167,8 +182,10 @@ void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
 
 	njRotateY_(data->Rotation.y);
 
-	njPushMatrixEx(); {
-		if (data->Action == TranspPlatformActs::Fall) {
+	njPushMatrixEx();
+	{
+		if (data->Action == TranspPlatformActs::Fall)
+		{
 			njTranslateY(data->PreviousPosition.y); // I use this to offset the platform
 		}
 
@@ -185,13 +202,16 @@ void __cdecl TranspPlatform_Display(ObjectMaster* obj) {
 	njPopMatrixEx();
 }
 
-void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
+void __cdecl TranspPlatform_Main(ObjectMaster* obj)
+{
 	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
 
-	switch (data->Action) {
+	switch (data->Action)
+	{
 	case TranspPlatformActs::Input: // If the player is on the dyncol of our object, launch
-		if (IsPlayerOnDyncol(obj)) {
+		if (IsPlayerOnDyncol(obj))
+		{
 			data->Action = TranspPlatformActs::Move;
 			PlaySound(466, nullptr, 0, (void*)160);
 		}
@@ -212,7 +232,8 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 		ForEveryPlayerOnDyncol(obj, MovePlayerOnPlatform);
 
 		// Check if we're at the end, sphere check to detach the object a bit sooner
-		if (data->progress >= 1.0f || IsPointInsideSphere(&pdata->Destination, &data->Position, 25.0f)) {
+		if (data->progress >= 1.0f || IsPointInsideSphere(&pdata->Destination, &data->Position, 25.0f))
+		{
 			data->Action = TranspPlatformActs::Fall;
 			data->PreviousPosition.y = 0;
 		}
@@ -221,14 +242,17 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 	case TranspPlatformActs::Fall:
 		data->timer += 1;
 
-		if (data->timer == 30) {
+		if (data->timer == 30)
+		{
 			TranspPlatform_Delete(obj); // remove dynamic collision
 		}
-		else if (data->timer > 30) {
+		else if (data->timer > 30)
+		{
 			data->PreviousPosition.y -= 3.0f;
 
 			// Removes the object after a while, creates a new platform at the beginning
-			if (data->timer > 200) {
+			if (data->timer > 200)
+			{
 				LoadTranspPlatform(obj->Parent, pdata, 0.0f);
 				DeleteObject_(obj);
 				return;
@@ -241,7 +265,8 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progress) {
+void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progress)
+{
 	ObjectMaster* child = LoadChildObject(LoadObj_Data1, TranspPlatform_Main, obj);
 	TranspPlatformData1* cdata = (TranspPlatformData1*)child->Data1;
 
@@ -276,8 +301,10 @@ void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progres
 	cdata->DynCol = object;
 }
 
-void __cdecl HillTransporter_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl HillTransporter_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		TransporterData1* data = (TransporterData1*)obj->Data1;
 
 		njSetTexture(&HillTopOBJ_TexList);
@@ -298,17 +325,20 @@ void __cdecl HillTransporter_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillTransporter_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl HillTransporter_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		TransporterData1* data = (TransporterData1*)obj->Data1;
-		
+
 		RunObjectChildren(obj);
 		AddToCollisionList((EntityData1*)data);
 		obj->DisplaySub(obj);
 	}
 }
 
-void __cdecl HillTransporter(ObjectMaster* obj) {
+void __cdecl HillTransporter(ObjectMaster* obj)
+{
 	TransporterData1* data = (TransporterData1*)obj->Data1;
 
 	// Calculates the direction of the zipline vine
@@ -324,8 +354,8 @@ void __cdecl HillTransporter(ObjectMaster* obj) {
 
 	Collision_Init(obj, arrayptrandlength(HillTransporter_Col), 4);
 
-	obj->DisplaySub	= HillTransporter_Display;
-	obj->MainSub	= HillTransporter_Main;
+	obj->DisplaySub = HillTransporter_Display;
+	obj->MainSub = HillTransporter_Main;
 
 	// Load child objects
 	LoadTranspPlatform(obj, data, static_cast<float>(data->Rotation.x % 100) / 100.0f); // Moving platform
@@ -333,7 +363,8 @@ void __cdecl HillTransporter(ObjectMaster* obj) {
 
 	data->SpeedParam = data->Rotation.z;
 
-	if (data->SpeedParam == 0) {
+	if (data->SpeedParam == 0)
+	{
 		data->SpeedParam = 100;
 	}
 
@@ -341,14 +372,16 @@ void __cdecl HillTransporter(ObjectMaster* obj) {
 	data->Rotation.z = 0;
 }
 
-void HillTransporter_LoadAssets() {
+void HillTransporter_LoadAssets()
+{
 	LoadModelFile(&ht_transporter, "ht_transporter", ModelFormat_Basic);
 	LoadModelFile(&ht_transportercol, "ht_transportercol", ModelFormat_Basic);
 	LoadModelFile(&ht_vine, "ht_vine", ModelFormat_Chunk);
 }
 
-void HillTransporter_FreeAssets() {
-	FreeModelFile(&ht_transporter);
-	FreeModelFile(&ht_transportercol);
-	FreeModelFile(&ht_vine);
+void HillTransporter_FreeAssets()
+{
+	FreeFileInfo(&ht_transporter);
+	FreeFileInfo(&ht_transportercol);
+	FreeFileInfo(&ht_vine);
 }

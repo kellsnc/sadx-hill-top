@@ -14,32 +14,38 @@ AnimationFile* ht_grass0_anm = nullptr;
 
 NJS_ACTION Grass0_Action = { 0 };
 
-void __cdecl HillGrass_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl HillGrass_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
 
 		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
-		
+
 		njScaleY(1.0f + data->Scale.y);
 
-		if (IsPlayerInsideSphere_(&data->Position, 400.0f)) {
+		if (IsPlayerInsideSphere_(&data->Position, 400.0f))
+		{
 			njAction(&Grass0_Action, data->Scale.z);
 		}
-		else {
+		else
+		{
 			DrawObject(Grass0_Action.object);
 		}
-		
+
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl HillGrass_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl HillGrass_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		EntityData1* data = obj->Data1;
-		
+
 		// Animate
 		data->Scale.z += 0.5f;
 
@@ -47,16 +53,18 @@ void __cdecl HillGrass_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillGrass(ObjectMaster* obj) {
+void __cdecl HillGrass(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
-	
+
 	data->Scale.z = rand(); // randomize animation start
 
 	obj->MainSub = HillGrass_Main;
 	obj->DisplaySub = HillGrass_Display;
 }
 
-void HillGrass_LoadAssets() {
+void HillGrass_LoadAssets()
+{
 	LoadModelFile(&ht_grass0, "ht_grass0", ModelFormat_Basic);
 	LoadAnimationFile(&ht_grass0_anm, "ht_grass0");
 
@@ -64,7 +72,8 @@ void HillGrass_LoadAssets() {
 	Grass0_Action.motion = ht_grass0_anm->getmotion();
 }
 
-void HillGrass_FreeAssets() {
-	FreeModelFile(&ht_grass0);
-	FreeAnimationFile(&ht_grass0_anm);
+void HillGrass_FreeAssets()
+{
+	FreeFileInfo(&ht_grass0);
+	FreeFileInfo(&ht_grass0_anm);
 }

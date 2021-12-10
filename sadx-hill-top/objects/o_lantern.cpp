@@ -16,8 +16,10 @@ ModelInfo* ht_lantern = nullptr;
 NJS_TEXANIM	FIREFLY_TEXANIM = { 0x1, 0x1, 0, 0, 0, 0, 0x100, 0x100, 7, 0x20 };
 NJS_SPRITE FIREFLY_SPRITE = { { 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 0, &HillTopOBJ_TexList, &FIREFLY_TEXANIM };
 
-void __cdecl FireFly_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl FireFly_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
 
 		njSetTexture(&HillTopOBJ_TexList);
@@ -44,7 +46,8 @@ void __cdecl FireFly_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl FireFly_Main(ObjectMaster* obj) {
+void __cdecl FireFly_Main(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
 	data->Rotation.y += data->field_A;
@@ -52,11 +55,13 @@ void __cdecl FireFly_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void __cdecl FireFly_Load(ObjectMaster* parent, int count) {
-	for (int i = 0; i < count; ++i) {
+void __cdecl FireFly_Load(ObjectMaster* parent, int count)
+{
+	for (int i = 0; i < count; ++i)
+	{
 		ObjectMaster* child = LoadChildObject(LoadObj_Data1, FireFly_Main, parent);
 		EntityData1* data = child->Data1;
-		
+
 		data->Scale.y = 4.0f + static_cast<Float>(rand() % 5);
 		data->field_A = 500 + rand() % 250;
 
@@ -68,15 +73,17 @@ void __cdecl FireFly_Load(ObjectMaster* parent, int count) {
 	}
 }
 
-void __cdecl Lantern_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl Lantern_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
 
 		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
-		
+
 		Float rot = 1.0f - njSin(data->field_A) * 500.0f;
 
 		njRotateX_(static_cast<int>(rot));
@@ -87,10 +94,12 @@ void __cdecl Lantern_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl Lantern_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl Lantern_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		EntityData1* data = obj->Data1;
-		
+
 		// Animate
 		data->field_A += 0x300;
 
@@ -99,13 +108,15 @@ void __cdecl Lantern_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillLantern(ObjectMaster* obj) {
+void __cdecl HillLantern(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
-	
+
 	data->field_A = rand(); // randomize animation start
 	data->Object = ht_lantern->getmodel();
 
-	if (data->Scale.x) {
+	if (data->Scale.x)
+	{
 		FireFly_Load(obj, static_cast<int>(data->Scale.x) % 4);
 	}
 
@@ -113,10 +124,12 @@ void __cdecl HillLantern(ObjectMaster* obj) {
 	obj->DisplaySub = Lantern_Display;
 }
 
-void Lantern_LoadAssets() {
+void Lantern_LoadAssets()
+{
 	LoadModelFile(&ht_lantern, "ht_lantern", ModelFormat_Basic);
 }
 
-void Lantern_FreeAssets() {
-	FreeModelFile(&ht_lantern);
+void Lantern_FreeAssets()
+{
+	FreeFileInfo(&ht_lantern);
 }

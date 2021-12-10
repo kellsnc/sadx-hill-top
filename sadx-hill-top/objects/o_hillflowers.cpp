@@ -24,8 +24,10 @@ NJS_ACTION Flower0_Action = { 0 };
 NJS_ACTION Flower1_Action = { 0 };
 NJS_ACTION Flowerpatch1_Action = { 0 };
 
-void __cdecl HillFlowers_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl HillFlowers_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
 
 		njSetTexture(&HillTopOBJ_TexList);
@@ -34,40 +36,49 @@ void __cdecl HillFlowers_Display(ObjectMaster* obj) {
 		njRotateEx((Angle*)&data->Rotation, false);
 
 		njScale(nullptr, data->Scale.x, data->Scale.x + data->Scale.y, data->Scale.x);
-		
+
 		njScaleY(1.0f + (1.0f - njSin(data->field_A * 2000)) / 50.0f); // bouncy animation
 
-		if (data->LoopData) { // If there is an animation,
+		if (data->LoopData)
+		{ // If there is an animation,
 			njAction((NJS_ACTION*)data->LoopData, data->Scale.z);
 		}
-		else {
+		else
+		{
 			DrawModel(data->Object->basicdxmodel);
 		}
-		
+
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl HillFlowers_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl HillFlowers_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		EntityData1* data = obj->Data1;
 
 		// If there is an animation
-		if (data->LoopData) {
+		if (data->LoopData)
+		{
 
 			// Smooth transition between frames
-			if (data->NextAction == 0) {
+			if (data->NextAction == 0)
+			{
 				data->Scale.z += 0.5f;
 
-				if (data->Scale.z > 30.0f) {
+				if (data->Scale.z > 30.0f)
+				{
 					data->Scale.z = 30.0f;
 					data->NextAction = 1;
 				}
 			}
-			else {
+			else
+			{
 				data->Scale.z -= 0.5f;
 
-				if (data->Scale.z < 0.0f) {
+				if (data->Scale.z < 0.0f)
+				{
 					data->Scale.z = 0.0f;
 					data->NextAction = 0;
 				}
@@ -80,11 +91,13 @@ void __cdecl HillFlowers_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillFlowers(ObjectMaster* obj) {
+void __cdecl HillFlowers(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
-	
+
 	// Choose the model and collison based on set information
-	switch (static_cast<int>(data->Scale.z) % 6) {
+	switch (static_cast<int>(data->Scale.z) % 6)
+	{
 	case 0:
 	default:
 		data->LoopData = (Loop*)&Flower0_Action;
@@ -107,7 +120,8 @@ void __cdecl HillFlowers(ObjectMaster* obj) {
 	}
 
 	// If the scale is null, set it to normal
-	if (data->Scale.x == 0) {
+	if (data->Scale.x == 0)
+	{
 		data->Scale.x = 1;
 	}
 
@@ -119,7 +133,8 @@ void __cdecl HillFlowers(ObjectMaster* obj) {
 	obj->DisplaySub = HillFlowers_Display;
 }
 
-void HillFlowers_LoadAssets() {
+void HillFlowers_LoadAssets()
+{
 	LoadModelFile(&ht_flower0, "ht_flower0", ModelFormat_Basic);
 	LoadModelFile(&ht_flower1, "ht_flower1", ModelFormat_Basic);
 	LoadModelFile(&ht_flowerpatch0, "ht_flowerpatch0", ModelFormat_Basic);
@@ -141,12 +156,13 @@ void HillFlowers_LoadAssets() {
 	Flowerpatch1_Action.motion = ht_flowerpatch1_anm->getmotion();
 }
 
-void HillFlowers_FreeAssets() {
-	FreeModelFile(&ht_flower0);
-	FreeModelFile(&ht_flower1);
-	FreeModelFile(&ht_flowerpatch0);
-	FreeModelFile(&ht_flowerpatch1);
-	FreeAnimationFile(&ht_flower0_anm);
-	FreeAnimationFile(&ht_flower1_anm);
-	FreeAnimationFile(&ht_flowerpatch1_anm);
+void HillFlowers_FreeAssets()
+{
+	FreeFileInfo(&ht_flower0);
+	FreeFileInfo(&ht_flower1);
+	FreeFileInfo(&ht_flowerpatch0);
+	FreeFileInfo(&ht_flowerpatch1);
+	FreeFileInfo(&ht_flower0_anm);
+	FreeFileInfo(&ht_flower1_anm);
+	FreeFileInfo(&ht_flowerpatch1_anm);
 }

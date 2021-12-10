@@ -13,8 +13,10 @@ CollisionData HillPole_Col = {
 	0, CollisionShape_Capsule2, 0x77, 0, 0, {0.0f, 20.0f, 0.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0
 };
 
-void __cdecl HillPole_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl HillPole_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
 
 		njSetTexture(&HillTopOBJ_TexList);
@@ -25,14 +27,17 @@ void __cdecl HillPole_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillPole_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl HillPole_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		AddToCollisionList(obj->Data1);
 		obj->DisplaySub(obj);
 	}
 }
 
-void __cdecl HillPole(ObjectMaster* obj) {
+void __cdecl HillPole(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
 	data->Object = ht_transporter->getmodel()->child->sibling;

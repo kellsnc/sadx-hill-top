@@ -3,8 +3,10 @@
 extern StartPosition StartPoses[4];
 void HillTop_SetViewData();
 
-void EV_RedMountainChaseEvt_r(EVTSTATES state) {
-	switch (state) {
+void EV_RedMountainChaseEvt_r(EVTSTATES state)
+{
+	switch (state)
+	{
 	case EVTSTATES::Init:
 		*(int*)0x3C83A08 = 0;
 		break;
@@ -15,7 +17,7 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state) {
 		EV_SetCurrentEvt();
 		EV_AllocMem(4);
 		LoadSoundList(78);
-		
+
 		// Load Egg Carrier model & animation
 		EV_LoadObject(-3857.7, 2400.6001, -2000.0, 0, 0xA000, 0, 0.1, 0.1, 0.1, (NJS_OBJECT*)0x24960A8, (NJS_TEXLIST*)0x2BF4F2C, 0);
 		EV_LoadMotion(0, (NJS_ACTION*)0x24983CC, 0);
@@ -23,11 +25,11 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state) {
 
 		// Move egg carrier from pos to other pos in 500 frames, this is done in a "Control Object"
 		EV_MoveObjectFromTo(EV_GetObject(0), 886.0f, 518.0f, -289.0f, 1721.0F, 600.0F, 476.0f, 500);
-		
+
 		// Egg Carrier sound
 		EV_PlaySoundQueue(1, 1344, 1800);
 		sub_64FD80(1, 106, 1);
-		
+
 		EventWait(1);
 
 		EV_SetPlayerPos(j_GetCharacterObject(0), StartPoses[0].Position.x, StartPoses[0].Position.y, StartPoses[0].Position.z);
@@ -58,6 +60,7 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state) {
 	}
 }
 
-void HookRedMountainEvent() {
+void HookRedMountainEvent()
+{
 	WriteJump((void*)0x64FE70, EV_RedMountainChaseEvt_r);
 }

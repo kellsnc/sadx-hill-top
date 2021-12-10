@@ -17,17 +17,21 @@ CollisionData PickRock_Col[] = {
 	{ 0, CollisionShape_Cylinder, 0x70, 0, 0x2400, { 0, 2, 0 }, 6.0f, 4.0f, 0.0f } // For detection, not solid
 };
 
-enum PicActions {
+enum PicActions
+{
 	PicAction_Floor,
 	PicAction_Grabbed
 };
 
-void PickRock_Delete(ObjectMaster* obj) {
+void PickRock_Delete(ObjectMaster* obj)
+{
 	SetObjectStatusNotHeld(obj);
 }
 
-void __cdecl PickRock_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl PickRock_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
 
 		njSetTexture(&HillTop_TexList);
@@ -39,15 +43,19 @@ void __cdecl PickRock_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl PickRock_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl PickRock_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		EntityData1* data = obj->Data1;
 
-		switch (data->Action) {
+		switch (data->Action)
+		{
 		case PicAction_Floor:
 			SecondaryObjectPhysics(obj);
 
-			if (data->Status & 0x1000) {
+			if (data->Status & 0x1000)
+			{
 				data->Action = PicAction_Grabbed;
 			}
 
@@ -57,7 +65,8 @@ void __cdecl PickRock_Main(ObjectMaster* obj) {
 
 			EntityData1* player = GetCollidingEntityA(data);
 
-			if (player) {
+			if (player)
+			{
 				data->Rotation = { player->Rotation.x, -player->Rotation.y, player->Rotation.z };
 			}
 
@@ -65,7 +74,8 @@ void __cdecl PickRock_Main(ObjectMaster* obj) {
 			{
 				SetObjectStatusHeld(obj);
 			}
-			else {
+			else
+			{
 				SetObjectStatusNotHeld(obj);
 				data->Action = PicAction_Floor;
 			}
@@ -77,26 +87,29 @@ void __cdecl PickRock_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl PickRock(ObjectMaster* obj) {
+void __cdecl PickRock(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 	EntityData2* data2 = (EntityData2*)obj->Data2;
 
 	data->Object = ht_pickrock->getmodel();
 
 	Collision_Init(obj, arrayptrandlength(PickRock_Col), 4);
-	
+
 	DoStatusThing(data, data2, 4);
 	data->Status |= 0x2;
-	
+
 	obj->DeleteSub = PickRock_Delete;
 	obj->MainSub = PickRock_Main;
 	obj->DisplaySub = PickRock_Display;
 }
 
-void PickRock_LoadAssets() {
+void PickRock_LoadAssets()
+{
 	LoadModelFile(&ht_pickrock, "ht_pickrock", ModelFormat_Basic);
 }
 
-void PickRocket_FreeAssets() {
-	FreeModelFile(&ht_pickrock);
+void PickRocket_FreeAssets()
+{
+	FreeFileInfo(&ht_pickrock);
 }

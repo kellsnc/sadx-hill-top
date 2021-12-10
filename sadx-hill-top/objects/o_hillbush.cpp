@@ -9,8 +9,10 @@ A simple bush object.
 
 ModelInfo* ht_bush = nullptr;
 
-void __cdecl HillBush_Display(ObjectMaster* obj) {
-	if (!MissedFrames) {
+void __cdecl HillBush_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames)
+	{
 		EntityData1* data = obj->Data1;
 
 		njSetTexture(&HillTopOBJ_TexList);
@@ -18,12 +20,13 @@ void __cdecl HillBush_Display(ObjectMaster* obj) {
 		njTranslateEx(&data->Position);
 
 		// Draw root
-		njPushMatrixEx(); {
+		njPushMatrixEx();
+		{
 			njRotateEx((Angle*)&data->Rotation, false);
 			DrawModel(data->Object->basicdxmodel);
 			njPopMatrixEx();
 		}
-		
+
 		njRotateX_(data->Rotation.x);
 		njRotateZ_(data->Rotation.z);
 		njTranslateY(data->Object->child->pos[1]);
@@ -39,10 +42,12 @@ void __cdecl HillBush_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillBush_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl HillBush_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		EntityData1* data = obj->Data1;
-		
+
 		// Animate
 		data->field_A += 0x200;
 		data->Status += 1;
@@ -52,11 +57,12 @@ void __cdecl HillBush_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillBush(ObjectMaster* obj) {
+void __cdecl HillBush(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
-	
+
 	// Randomize animation start
-	data->field_A = rand(); 
+	data->field_A = rand();
 	data->Status = rand();
 
 	data->Object = ht_bush->getmodel();
@@ -65,10 +71,12 @@ void __cdecl HillBush(ObjectMaster* obj) {
 	obj->DisplaySub = HillBush_Display;
 }
 
-void HillBush_LoadAssets() {
+void HillBush_LoadAssets()
+{
 	LoadModelFile(&ht_bush, "ht_bush", ModelFormat_Basic);
 }
 
-void HillBush_FreeAssets() {
-	FreeModelFile(&ht_bush);
+void HillBush_FreeAssets()
+{
+	FreeFileInfo(&ht_bush);
 }

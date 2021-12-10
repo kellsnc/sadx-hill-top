@@ -2,7 +2,7 @@
 
 static constexpr int MaxPlayers = 4;
 
-extern HelperFunctions HelperFunctionsGlobal;
+extern const HelperFunctions* gHelperFunctions;
 
 struct Color3 {
     unsigned int c1;

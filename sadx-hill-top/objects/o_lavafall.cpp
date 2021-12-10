@@ -35,10 +35,12 @@ CollisionData LavaFall_Col[] = {
 	{ 0, CollisionShape_Capsule2, 0x77, 0x2F, 0, {0, -15.0f, -24.0f}, 10.0f, 8.0f, 0, 0, 0x3000, 0, 0 }
 };
 
-void __cdecl LavaFall_Display(ObjectMaster* obj) {
+void __cdecl LavaFall_Display(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
-	
-	if (!MissedFrames) {
+
+	if (!MissedFrames)
+	{
 
 		// Since we cannot do UV shifting for chunk models (that is used here to bend the lava),
 		// I just made 16 lava textures and I change the texture address before drawing.
@@ -60,34 +62,42 @@ void __cdecl LavaFall_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl LavaFall_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl LavaFall_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		EntityData1* data = obj->Data1;
-		
+
 		// Smooth transition between frames
-		if (data->NextAction == 0) {
+		if (data->NextAction == 0)
+		{
 			data->Scale.z += 0.5f;
 
-			if (data->Scale.z > 30.0f) {
+			if (data->Scale.z > 30.0f)
+			{
 				data->Scale.z = 30.0f;
 				data->NextAction = 1;
 			}
 		}
-		else {
+		else
+		{
 			data->Scale.z -= 0.5f;
 
-			if (data->Scale.z < 0.0f) {
+			if (data->Scale.z < 0.0f)
+			{
 				data->Scale.z = 0.0f;
 				data->NextAction = 0;
 			}
 		}
 
 		// Texture animation
-		if (FrameCounterUnpaused % 2 == 0) {
+		if (FrameCounterUnpaused % 2 == 0)
+		{
 			data->Index += 1;
 		}
 
-		if (data->Index >= LAVAFALL_TexList.nbTexture) {
+		if (data->Index >= LAVAFALL_TexList.nbTexture)
+		{
 			data->Index = 0;
 		}
 
@@ -96,12 +106,14 @@ void __cdecl LavaFall_Main(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl LavaFall(ObjectMaster* obj) {
+void __cdecl LavaFall(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
 	data->Object = ht_lavafall->getmodel();
 
-	switch (static_cast<int>(data->Rotation.z) % 4) {
+	switch (static_cast<int>(data->Rotation.z) % 4)
+	{
 	case 0:
 	default:
 		data->LoopData = (Loop*)&LavaFall0_Action;
@@ -123,24 +135,27 @@ void __cdecl LavaFall(ObjectMaster* obj) {
 		break;
 	}
 
-	if (data->Scale.x == 0) {
+	if (data->Scale.x == 0)
+	{
 		data->Scale.x = 1;
 	}
 
 	// Adjust collision size with scale
-	if (data->CollisionInfo) {
+	if (data->CollisionInfo)
+	{
 		data->CollisionInfo->CollisionArray[0].center.y *= data->Scale.x + (data->Scale.y / 8);
 		data->CollisionInfo->CollisionArray[0].a *= data->Scale.x;
 		data->CollisionInfo->CollisionArray[0].b *= data->Scale.x + (data->Scale.y / 8);
 	}
 
 	data->Scale.x *= 8;
-	
+
 	obj->MainSub = LavaFall_Main;
 	obj->DisplaySub = LavaFall_Display;
 }
 
-void LavaFall_LoadAssets() {
+void LavaFall_LoadAssets()
+{
 	LoadModelFile(&ht_lavafall, "ht_lavafall", ModelFormat_Chunk);
 
 	LoadAnimationFile(&ht_lavafall0_anm, "ht_lavafall0");
@@ -163,10 +178,11 @@ void LavaFall_LoadAssets() {
 	LavaFall3_Action.motion = ht_lavafall3_anm->getmotion();
 }
 
-void LavaFall_FreeAssets() {
-	FreeModelFile(&ht_lavafall);
-	FreeAnimationFile(&ht_lavafall0_anm);
-	FreeAnimationFile(&ht_lavafall1_anm);
-	FreeAnimationFile(&ht_lavafall2_anm);
-	FreeAnimationFile(&ht_lavafall3_anm);
+void LavaFall_FreeAssets()
+{
+	FreeFileInfo(&ht_lavafall);
+	FreeFileInfo(&ht_lavafall0_anm);
+	FreeFileInfo(&ht_lavafall1_anm);
+	FreeFileInfo(&ht_lavafall2_anm);
+	FreeFileInfo(&ht_lavafall3_anm);
 }

@@ -199,5 +199,5 @@ void HillSeesaw_LoadAssets()
 
 void HillSeesaw_FreeAssets()
 {
-	FreeModelFile(&ht_seesaw);
+	FreeFileInfo(&ht_seesaw);
 }

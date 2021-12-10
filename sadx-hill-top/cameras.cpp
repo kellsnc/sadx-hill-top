@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "cameras.h"
 
-void Cameras_Init(const HelperFunctions& helperFunctions) {
+void Cameras_Init(const HelperFunctions& helperFunctions)
+{
 	helperFunctions.ReplaceFile("system\\CAM0500S.bin", "system\\CAMHT00S.bin");
 	helperFunctions.ReplaceFile("system\\CAM0501S.bin", "system\\CAMHT01S.bin");
 	helperFunctions.ReplaceFile("system\\CAM0501E.bin", "system\\CAMHT01E.bin");

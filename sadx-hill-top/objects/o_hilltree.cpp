@@ -18,10 +18,12 @@ CollisionData HillTree_Col[] = {
 	{ 0, CollisionShape_Capsule2, 0x77, 0, 0, {0, 20.0f, 0}, 1.0f, 20.0f, 0, 0, 0, 0, 0 }
 };
 
-void __cdecl HillTree_Display(ObjectMaster* obj) {
+void __cdecl HillTree_Display(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
-	if (!MissedFrames && IsVisible(&data->Position, 30.0f * (data->Scale.x + data->Scale.y))) {
+	if (!MissedFrames && IsVisible(&data->Position, 30.0f * (data->Scale.x + data->Scale.y)))
+	{
 		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
@@ -37,7 +39,8 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 		njScalef(data->Scale.x);
 		njTranslateY(15.0f * data->Scale.y);
 
-		while (branch) {
+		while (branch)
+		{
 			DrawObjectRoot(branch);
 			branch = branch->sibling;
 		}
@@ -46,20 +49,24 @@ void __cdecl HillTree_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillTree_Main(ObjectMaster* obj) {
-	if (!ClipSetObject(obj)) {
+void __cdecl HillTree_Main(ObjectMaster* obj)
+{
+	if (!ClipSetObject(obj))
+	{
 		EntityData1* data = obj->Data1;
-		
+
 		AddToCollisionList(data);
 		obj->DisplaySub(obj);
 	}
 }
 
-void __cdecl HillTree(ObjectMaster* obj) {
+void __cdecl HillTree(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
-	
+
 	// Choose the model and collison based on set information
-	switch (static_cast<int>(data->Scale.z) % 5) {
+	switch (static_cast<int>(data->Scale.z) % 5)
+	{
 	case 0:
 	default:
 		data->Object = ht_tree->getmodel()->child;
@@ -81,13 +88,15 @@ void __cdecl HillTree(ObjectMaster* obj) {
 		Collision_Init(obj, &HillTree_Col[0], 1, 4);
 		break;
 	}
-	
+
 	// If the scale is null, set it to normal
-	if (data->Scale.x == 0) {
+	if (data->Scale.x == 0)
+	{
 		data->Scale.x = 1;
 	}
 
-	if (data->CollisionInfo) {
+	if (data->CollisionInfo)
+	{
 		// Adjust position with scale
 		data->CollisionInfo->CollisionArray[0].center.y *= data->Scale.x + data->Scale.y;
 
@@ -95,15 +104,17 @@ void __cdecl HillTree(ObjectMaster* obj) {
 		data->CollisionInfo->CollisionArray[0].a *= data->Scale.x;
 		data->CollisionInfo->CollisionArray[0].b *= data->Scale.x + data->Scale.y;
 	}
-	
+
 	obj->MainSub = HillTree_Main;
 	obj->DisplaySub = HillTree_Display;
 }
 
-void HillTree_LoadAssets() {
+void HillTree_LoadAssets()
+{
 	LoadModelFile(&ht_tree, "ht_tree", ModelFormat_Basic);
 }
 
-void HillTree_FreeAssets() {
-	FreeModelFile(&ht_tree);
+void HillTree_FreeAssets()
+{
+	FreeFileInfo(&ht_tree);
 }

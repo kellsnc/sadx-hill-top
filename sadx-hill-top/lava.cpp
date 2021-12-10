@@ -13,15 +13,19 @@ NJS_TEXLIST CurrentLavaTex = { CurrentLavaNames, 2 };
 
 static LandTableInfo* LavaTableInfo = nullptr;
 
-void __cdecl HillTopLava_Display(ObjectMaster* obj) {
-	if (!MissedFrames && (CurrentAct == 0 || CurrentAct == 2)) {
+void __cdecl HillTopLava_Display(ObjectMaster* obj)
+{
+	if (!MissedFrames && (CurrentAct == 0 || CurrentAct == 2))
+	{
 		EntityData1* data = obj->Data1;
 		LandTable* land = LavaTableInfo->getlandtable();
 
-		if (land) {
+		if (land)
+		{
 			njSetTexture(land->TexList);
 
-			for (int i = 0; i < land->COLCount; ++i) {
+			for (int i = 0; i < land->COLCount; ++i)
+			{
 				COL* col = &land->Col[i];
 
 				njPushMatrixEx();
@@ -34,14 +38,17 @@ void __cdecl HillTopLava_Display(ObjectMaster* obj) {
 	}
 }
 
-void __cdecl HillTopLava_Main(ObjectMaster* obj) {
+void __cdecl HillTopLava_Main(ObjectMaster* obj)
+{
 	EntityData1* data = obj->Data1;
 
-	if (FrameCounterUnpaused % 2 == 0) {
+	if (FrameCounterUnpaused % 2 == 0)
+	{
 		++data->Index; // Texture ID
 	}
 
-	if (data->Index >= 12) {
+	if (data->Index >= 12)
+	{
 		data->Index = 0;
 	}
 
@@ -51,15 +58,18 @@ void __cdecl HillTopLava_Main(ObjectMaster* obj) {
 	obj->DisplaySub(obj);
 }
 
-void LoadLavaManager() {
+void LoadLavaManager()
+{
 	ObjectMaster* lavaobj = LoadObject(LoadObj_Data1, 1, HillTopLava_Main);
 	lavaobj->DisplaySub = HillTopLava_Display;
 }
 
-void LoadLavaLandTables() {
+void LoadLavaLandTables()
+{
 	LoadLandTableFile(&LavaTableInfo, "system\\hilltopzone0_lava.sa1lvl", &CurrentLavaTex);
 }
 
-void FreeLavaLandTables() {
-	FreeLandTableFile(&LavaTableInfo);
+void FreeLavaLandTables()
+{
+	FreeFileInfo(&LavaTableInfo);
 }

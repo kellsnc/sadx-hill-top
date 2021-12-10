@@ -123,7 +123,8 @@ PVMEntry HillTopObjectTextures[] = {
 	{ 0 }
 };
 
-void LoadObjectFiles() {
+void LoadObjectFiles()
+{
 	LoadSetFile(0, "HT00");
 	LoadSetFile(1, "HT01");
 	LoadSetFile(2, "HT02");
@@ -152,7 +153,8 @@ void LoadObjectFiles() {
 	FireBall_LoadAssets();
 }
 
-void FreeObjectFiles() {
+void FreeObjectFiles()
+{
 	SkyBox_FreeAssets();
 	HillTree_FreeAssets();
 	HillTransporter_FreeAssets();
@@ -171,7 +173,8 @@ void FreeObjectFiles() {
 	FireBall_FreeAssets();
 }
 
-void Objects_Init(const HelperFunctions& helperFunctions) {
+void Objects_Init(const HelperFunctions& helperFunctions)
+{
 	// Add a new act to Red Mountain set/cam files (originally 0x210)
 	SetDataThings[LevelIDs_RedMountain] = 0x3210;
 	CamDataThings[LevelIDs_RedMountain] = 0x3210;

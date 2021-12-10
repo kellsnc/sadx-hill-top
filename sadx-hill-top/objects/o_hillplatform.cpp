@@ -45,7 +45,7 @@ static void __cdecl HillPlatform_Main(ObjectMaster* obj)
 	if (!ClipSetObject(obj))
 	{
 		auto data = obj->Data1;
-		
+
 		data->Position.y = data->Scale.z + static_cast<float>(1.0 - pow(njSin(FrameCounterUnpaused * data->Rotation.z), 2.0)) * data->Scale.y;
 
 		reinterpret_cast<NJS_OBJECT*>(data->LoopData)->pos[1] = data->Position.y;
@@ -57,7 +57,7 @@ static void __cdecl HillPlatform_Main(ObjectMaster* obj)
 void __cdecl HillPlatform(ObjectMaster* obj)
 {
 	EntityData1* data = obj->Data1;
-	
+
 	if (data->Scale.x == 0.0f)
 	{
 		data->Scale.x = 1.0f;
@@ -104,5 +104,5 @@ void HillPlatform_LoadAssets()
 
 void HillPlatform_FreeAssets()
 {
-	FreeModelFile(&ht_platform);
+	FreeFileInfo(&ht_platform);
 }

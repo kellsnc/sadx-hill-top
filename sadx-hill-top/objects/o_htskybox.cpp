@@ -119,7 +119,7 @@ static void CloudHandler(ObjectMaster* obj)
 
 	data->LoopData = (Loop*)clouds;
 	data->Object = ht_clouds->getmodel();
-	
+
 	obj->MainSub = CloudHandler_Main;
 	obj->DisplaySub = CloudHandler_Display;
 	obj->DeleteSub = CloudHandler_Delete;
@@ -133,7 +133,8 @@ static void CloudHandler(ObjectMaster* obj)
 
 static void LoadSkyboxAct(ObjectMaster* obj)
 {
-	switch (CurrentAct) {
+	switch (CurrentAct)
+	{
 	case 0:
 	case 2:
 		LoadLenseFlareAtPosition(&SunPositions[0]);
@@ -208,7 +209,7 @@ static void __cdecl HillTopZone_SkyBox_Display(ObjectMaster* obj)
 
 			njPopMatrixEx();
 		}
-		
+
 		// Egg Carrier display
 		if (data->field_A == 1)
 		{
@@ -229,7 +230,7 @@ static void __cdecl HillTopZone_SkyBox_Main(ObjectMaster* obj)
 {
 	auto data = obj->Data1;
 	auto clouds = data->Object;
-	
+
 	if (data->Index != CurrentAct)
 	{
 		LoadSkyboxAct(obj);
@@ -280,7 +281,7 @@ void __cdecl HillTopZone_SkyBox(ObjectMaster* obj)
 	auto data = obj->Data1;
 
 	data->Object = ht_cloudlayers->getmodel();
-	
+
 	obj->MainSub = HillTopZone_SkyBox_Main;
 	obj->DisplaySub = HillTopZone_SkyBox_Display;
 
@@ -295,6 +296,6 @@ void SkyBox_LoadAssets()
 
 void SkyBox_FreeAssets()
 {
-	FreeModelFile(&ht_clouds);
-	FreeModelFile(&ht_cloudlayers);
+	FreeFileInfo(&ht_clouds);
+	FreeFileInfo(&ht_cloudlayers);
 }
