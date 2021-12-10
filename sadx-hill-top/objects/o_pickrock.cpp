@@ -4,7 +4,7 @@
 /*
 
 A little rock that can be held and pushed.
-Example of an holdable & pushable object.
+Example of a holdable & pushable object.
 
 */
 
@@ -12,9 +12,9 @@ extern NJS_TEXLIST HillTop_TexList;
 
 ModelInfo* ht_pickrock = nullptr;
 
-CollisionData PickRock_Col[] = {
-	{ 0, CollisionShape_PushCylinder, 0x7 /* Pushable flag */, 0, 0,{ 0, 2, 0 }, 4.0f, 3.0f, 0.0f },
-	{ 0, CollisionShape_Cylinder, 0x70, 0, 0x2400, { 0, 2, 0 }, 6.0f, 4.0f, 0.0f } // For detection, not solid
+CCL_INFO PickRockCol[] = {
+	{ 0, CI_FORM_CYLINDER, 0x7 /* Pushable flag */, 0, 0, { 0.0f, 2.0f, 0.0f }, 4.0f, 3.0f, 0.0f },
+	{ 0, CI_FORM_CYLINDER, 0x70, 0, 0x2400, { 0, 2, 0 }, 6.0f, 4.0f, 0.0f } // For detection, not solid
 };
 
 enum PicActions
@@ -23,85 +23,82 @@ enum PicActions
 	PicAction_Grabbed
 };
 
-void PickRock_Delete(ObjectMaster* obj)
+void __cdecl PickRockDestroy(task* tp)
 {
-	SetObjectStatusNotHeld(obj);
+	SetObjectStatusNotHeld(tp);
 }
 
-void __cdecl PickRock_Display(ObjectMaster* obj)
+void __cdecl PickRockDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
 		njSetTexture(&HillTop_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateEx((Angle*)&data->Rotation, false);
-		DrawObject(data->Object);
+		njTranslateEx(&twp->pos);
+		njRotateEx((Angle*)&twp->ang, false);
+		DrawObject((NJS_OBJECT*)twp->value.ptr);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl PickRock_Main(ObjectMaster* obj)
+void __cdecl PickRockExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
-		switch (data->Action)
+		switch (twp->mode)
 		{
 		case PicAction_Floor:
-			SecondaryObjectPhysics(obj);
+			ObjectMovableSRegularExecute(tp);
 
-			if (data->Status & 0x1000)
+			if (twp->flag & ObjFlag_Held)
 			{
-				data->Action = PicAction_Grabbed;
+				twp->mode = PicAction_Grabbed;
 			}
 
 			break;
 		case PicAction_Grabbed:
-			SecondaryObjectPhysics(obj);
+			ObjectMovableSRegularExecute(tp);
 
-			EntityData1* player = GetCollidingEntityA(data);
+			EntityData1* player = GetCollidingEntityA((EntityData1*)twp);
 
 			if (player)
 			{
-				data->Rotation = { player->Rotation.x, -player->Rotation.y, player->Rotation.z };
+				twp->ang = { player->Rotation.x, -player->Rotation.y, player->Rotation.z };
 			}
 
-			if (data->Status & 0x1000)
+			if (twp->flag & ObjFlag_Held)
 			{
-				SetObjectStatusHeld(obj);
+				SetContinue(tp);
 			}
 			else
 			{
-				SetObjectStatusNotHeld(obj);
-				data->Action = PicAction_Floor;
+				SetObjectStatusNotHeld(tp);
+				twp->mode = PicAction_Floor;
 			}
 
 			break;
 		}
 
-		obj->DisplaySub(obj);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl PickRock(ObjectMaster* obj)
+void __cdecl PickRock(task* tp)
 {
-	EntityData1* data = obj->Data1;
-	EntityData2* data2 = (EntityData2*)obj->Data2;
+	auto twp = tp->twp;
+	
+	twp->value.ptr = ht_pickrock->getmodel();
+	
+	CCL_Init(tp, arrayptrandlength(PickRockCol), 4);
+	ObjectMovableInitialize(twp, tp->mwp, 4);
 
-	data->Object = ht_pickrock->getmodel();
-
-	Collision_Init(obj, arrayptrandlength(PickRock_Col), 4);
-
-	DoStatusThing(data, data2, 4);
-	data->Status |= 0x2;
-
-	obj->DeleteSub = PickRock_Delete;
-	obj->MainSub = PickRock_Main;
-	obj->DisplaySub = PickRock_Display;
+	tp->dest = PickRockDestroy;
+	tp->exec = PickRockExec;
+	tp->disp = PickRockDisplay;
 }
 
 void PickRock_LoadAssets()

@@ -2,6 +2,11 @@
 
 static constexpr int MaxPlayers = 4;
 
+enum ObjectFlags {
+    ObjFlag_StopDynCol = 0x1,
+    ObjFlag_Held       = 0x1000
+};
+
 struct Color3 {
     unsigned int c1;
     unsigned int c2;
@@ -66,16 +71,16 @@ enum class EVTSTATES : int {
 };
 
 ObjectFunc(LoadMusic_EventDelayed, 0x600890);
-ObjectFunc(SecondaryObjectPhysics, 0x49D730);
-ObjectFunc(SetObjectStatusHeld, 0x46C120);
+TaskFunc(SetContinue, 0x46C120);
 ObjectFunc(ObjectCrash, 0x5A95B0); // position is position, scale is direction, object is the model
 ObjectFunc(UpdateSetDataAndDelete, 0x46C150);
 ObjectFunc(DeleteGammaMissileIfNoTarget, 0x4CEFE0);
 
 FastcallFunctionPointer(void, DrawChunkModel_, (Sint32* a1, Sint16* a2), 0x7917F0);
 
-static inline void SetObjectStatusNotHeld(ObjectMaster* obj) {
-    obj->SETData.SETData->Flags &= ~0x70;
+static inline void SetObjectStatusNotHeld(task* tp)
+{
+    tp->ocp->ssCondition &= ~0x4000u;
 }
 
 enum CollisionShapes {
