@@ -13,7 +13,6 @@ struct Color3 {
 typedef void(__cdecl* VoidFuncPtr)(void);
 
 DataPointer(VoidFuncPtr, LevelDestructor, 0x3B291B4);
-FunctionPointer(void, DrawObject, (NJS_OBJECT*), 0x408530);
 FunctionPointer(void, LoadEnemyExplosion, (Float x, Float y, Float z, Float scale), 0x4CAF80);
 FunctionPointer(void, SpawnAnimal, (Uint32 unk, Float x, Float y, Float z), 0x4BE610);
 FunctionPointer(bool, Object_CheckEmerald, (unsigned __int8 emerald, NJS_VECTOR* pos), 0x476660);
@@ -31,8 +30,6 @@ VoidFunc(RedMountain_SetViewData, 0x600730);
 DataArray(Color3, GlobalColorsLevel, 0x90BFE8, 43);
 FunctionPointer(void, KillPlayer, (uint8_t ID), 0x440CD0);
 DataArray(NJS_VECTOR, GammaCamBounds, 0x24C8D00, 5);
-FunctionPointer(void, DisplayBossName2, (const char* name, signed int width, signed int height, int a4), 0x4B36D0);
-FunctionPointer(void, LoadLifeGauge, (signed int w, signed int h, signed int health), 0x4B3CC0);
 FunctionPointer(bosswk*, BossAlloc, (EntityData1* data, int size), 0x4BD420);
 VoidFunc(EnableTimeThing, 0x426030);
 FunctionPointer(void, PlayerDirectionToVector, (EntityData1* player, NJS_VECTOR* direction), 0x43EC90);
@@ -40,7 +37,8 @@ FunctionPointer(void, PlayVoiceCheckSetting, (int voice), 0x571990);
 DataPointer(ObjectMaster*, Egg1ExplosionTask, 0x3C6C940);
 DataPointer(float, BossHealth, 0x3C58158);
 FunctionPointer(void, PlaySound3D, (int ID, void* entity, int a3, int volume, int length, EntityData1* data), 0x424880);
-FunctionPointer(void, SetCircleLimit, (NJS_VECTOR* pos, NJS_VECTOR* center, float radius), 0x7AF3E0);
+FunctionPointer(void, SetViewAngle, (long), 0x437240);
+FunctionPointer(void, SetCameraBossStuff, (EntityData1* data, float y, float x, int rot), 0x4647C0);
 
 // Event related
 VoidFunc(EV_InitCamera, 0x4303E0);
@@ -49,7 +47,6 @@ VoidFunc(EV_SetCurrentEvt, 0x42F630);
 FunctionPointer(void, EV_AllocMem, (int size), 0x64FC80);
 VoidFunc(EV_FreeMem, 0x64FCB0);
 FunctionPointer(void, EV_LoadObject, (float x, float y, float z, Angle rotx, Angle roty, Angle rotz, float scalex, float scaley, float scalez, NJS_OBJECT* object, NJS_TEXLIST* texlist, int ObjectID), 0x6ECF20);
-FunctionPointer(void, EV_FreeObject, (int ObjectID), 0x6ECB50);
 FunctionPointer(void, EV_LoadMotion, (int ObjectID, NJS_ACTION* Action, int ActionID), 0x6ECAC0);
 FunctionPointer(void, EV_SetObjectThing, (int ObjectID, float a2, float a3, int a4), 0x6ECAE0);
 FunctionPointer(void, EV_MoveObjectFromTo, (ObjectMaster* obj, float from_x, float from_y, float from_z, float to_x, float to_y, float to_z, signed int time), 0x6EC2B0);

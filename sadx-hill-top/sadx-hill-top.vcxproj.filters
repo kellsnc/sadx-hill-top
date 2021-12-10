@@ -114,14 +114,14 @@
     <ClInclude Include="enemies\e_epsilon.h">
       <Filter>Header Files\Enemies</Filter>
     </ClInclude>
-    <ClInclude Include="cameras.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="objects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="enemies\e_subeggman.h">
       <Filter>Header Files\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -218,7 +218,7 @@
     <ClCompile Include="enemies\e_epsilon.cpp">
       <Filter>Source Files\Enemies</Filter>
     </ClCompile>
-    <ClCompile Include="cameras.cpp">
+    <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="enemies\e_subeggman.cpp">

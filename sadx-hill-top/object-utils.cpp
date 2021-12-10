@@ -147,7 +147,7 @@ EntityData1* IsPlayerOnDyncol(ObjectMaster* obj)
 	{
 		CharObj2* co2 = CharObj2Ptrs[i];
 		
-		if (co2 && co2->field_6C == obj)
+		if (co2 && co2->DynColObject == obj)
 		{
 			return EntityData1Ptrs[i];
 		}
@@ -179,7 +179,7 @@ void ForEveryPlayerOnDyncol(ObjectMaster* obj, void(__cdecl* function)(ObjectMas
 	{
 		CharObj2* co2 = CharObj2Ptrs[i];
 
-		if (co2 && co2->field_6C == obj)
+		if (co2 && co2->DynColObject == obj)
 		{
 			function(obj, EntityData1Ptrs[i]);
 		}
@@ -224,7 +224,7 @@ bool CheckJump(int id)
 		switch (pdata->CharID) {
 		case Characters_Sonic:
 			pdata->Action = 8;
-			pdata->Status = pdata->Status & ~Status_Unknown1 | Status_Attack | Status_Ball;
+			pdata->Status = pdata->Status & ~Status_OnColli | Status_Attack | Status_Ball;
 			pco2->Speed.y = pco2->PhysicsData.JumpSpeed;
 			pco2->SpindashSpeed = 5.0f;
 			Sonic_Spin(pco2);
@@ -232,7 +232,7 @@ bool CheckJump(int id)
 		case Characters_Tails:
 		case Characters_Knuckles:
 			pdata->Action = 6;
-			pdata->Status = pdata->Status & ~Status_Unknown1 | Status_Attack | Status_Ball;
+			pdata->Status = pdata->Status & ~Status_OnColli | Status_Attack | Status_Ball;
 			pco2->Speed.y = pco2->PhysicsData.JumpSpeed;
 			pco2->SpindashSpeed = 2.0f;
 			pco2->AnimationThing.Index = 14;

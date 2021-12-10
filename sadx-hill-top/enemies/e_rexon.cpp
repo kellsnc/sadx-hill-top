@@ -314,7 +314,7 @@ void Rexon_MoveDynCol(ObjectMaster* obj, EntityData1* data)
 	{
 		CharObj2* co2 = CharObj2Ptrs[i];
 
-		if (co2 && co2->field_6C == obj)
+		if (co2 && co2->DynColObject == obj)
 		{
 			EntityData1* player = EntityData1Ptrs[i];
 

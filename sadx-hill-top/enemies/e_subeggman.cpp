@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "e_subeggman.h"
+#include "camera.h"
 #include "lava.h"
 #include "../objects/o_hillplatform.h"
 #include "e_fireball.h"
@@ -484,40 +485,36 @@ void SinkPlatforms()
 void CameraZoom(float zoom)
 {
 	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx(&CameraTask.targetpos);
-	njRotateY(0, CameraTask.angle.y);
-	njRotateX(0, CameraTask.angle.x);
+	njTranslateEx((NJS_VECTOR*)&cameraControlWork.tgtxpos);
+	njRotateY(0, cameraControlWork.angy);
+	njRotateX(0, cameraControlWork.angx);
 	njTranslateZ(zoom);
-	njGetTranslation(0, &CameraTask.pos);
+	njGetTranslation(0, (NJS_VECTOR*)&cameraControlWork.camxpos);
 	njPopMatrixEx();
 }
 
-void __cdecl EggSubMainCam(_OBJ_CAMERAPARAM* param)
+void __cdecl EggSubMainCam(_OBJ_CAMERAPARAM* pParam)
 {
 	EntityData1* bossdata = CurrentBoss->Data1;
-	EntityData1* playerdata = EntityData1Ptrs[0];
 
 	*(NJS_VECTOR**)0x3C6AE14 = &bossdata->Position;
-	Camera_E101R(param);
+	CameraE101R(pParam);
 }
 
-void __cdecl EggSubSunkCam(_OBJ_CAMERAPARAM* param)
+void __cdecl EggSubSunkCam(_OBJ_CAMERAPARAM* pParam)
 {
-	EntityData1* bossdata = CurrentBoss->Data1;
-	EntityData1* playerdata = EntityData1Ptrs[0];
-
-	Camera_Sonic(param);
+	CameraSonic(pParam);
 }
 
-void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* param)
+void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* pParam)
 {
 	if (CurrentBoss)
 	{
 		if (bossCam.Action == 0)
 		{
-			CameraTask.angle.y = bossCam.AngY;
-			CameraTask.angle.x = bossCam.AngX;
-			CameraTask.targetpos = { 0, 0, 0 };
+			cameraControlWork.angy = bossCam.AngY;
+			cameraControlWork.angx = bossCam.AngX;
+			*(NJS_VECTOR*)&cameraControlWork.tgtxpos = { 0, 0, 0 };
 
 			if (bossCam.AngY < bossCam.AngTargetY)
 			{
@@ -531,7 +528,7 @@ void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* param)
 
 			CameraZoom(bossCam.Zoom);
 
-			if (sqrtf(CameraTask.pos.x * CameraTask.pos.x + CameraTask.pos.y * CameraTask.pos.y + CameraTask.pos.z * CameraTask.pos.z) > bossCam.Limit)
+			if (njScalor((NJS_VECTOR*)&cameraControlWork.tgtxpos) > bossCam.Limit)
 			{
 				bossCam.Zoom -= bossCam.Speed;
 			}
@@ -547,23 +544,23 @@ void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* param)
 
 			if (bosswk->Subs == eggsubmtnacts::emerge || bosswk->Subs == eggsubmtnacts::stay)
 			{
-				EggSubMainCam(param);
+				EggSubMainCam(pParam);
 			}
 			else
 			{
-				EggSubSunkCam(param);
+				EggSubSunkCam(pParam);
 			}
 		}
 	}
 	else
 	{
-		Camera_Sonic(param);
+		CameraSonic(pParam);
 	}
 }
 
 void EggSubInitCam_Load(Angle y, Angle x, Angle targetY, Angle targetX, float speed, float zoom, float limit)
 {
-	SetCameraEvent(EggSubInitCam, CameraAdjustsIDs::None, CameraDirectIDs::Target);
+	CameraSetEventCameraFunc(EggSubInitCam, ADJMD_NONE, DIRECTMD_TARGET);
 	bossCam.Action = 0;
 	bossCam.AngY = y;
 	bossCam.AngX = x;
@@ -847,7 +844,7 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk)
 			NJS_VECTOR spd = { -3.5f, 3.5f, 0.0f };
 			PlayerDirectionToVector(entity, &spd);
 			EnemyBounceThing(entity->CharIndex, spd.x, spd.y, spd.z);
-			CharObj2Ptrs[entity->CharIndex]->field_A = 10;
+			CharObj2Ptrs[entity->CharIndex]->NoControlTime = 10;
 		}
 
 		if (playerHurting || GetCollidingEntityB(data))
@@ -1324,9 +1321,9 @@ void __cdecl SubEggman_Main(ObjectMaster* obj)
 	{
 	case eggsubmainact_init:
 		// Necessary to spam the camera after act transition somehow
-		SetCameraEvent(EggSubInitCam, CameraAdjustsIDs::None, CameraDirectIDs::Target);
+		CameraSetEventCameraFunc(EggSubInitCam, ADJMD_NONE, DIRECTMD_TARGET);
 
-		if (player->Status & Status_Ground && pco2->field_A < 150)
+		if (player->Status & Status_Ground && pco2->NoControlTime < 150)
 		{
 			SetLavaPoint(0.0f, 0.0f);
 			EnableTimeThing();
@@ -1413,7 +1410,7 @@ void __cdecl SubEggman(ObjectMaster* obj)
 	obj->DisplaySub = SubEggman_Display;
 
 	LoadPVM("EGGSUB", &EGGSUB_TEXLIST);
-	DisplayBossName2("EGGSUB", -1, 240, 80);
+	SetDisplayBossName((char*)"EGGSUB", -1, 240, 80);
 	Collision_Init(obj, &SubEgg_Col, 1, 2);
 
 	EggSubInitCam_Load(0x1000, -0x2000, 0x4000, -0x1000, 1.0f, 500.0f, 200.0f);
@@ -1460,7 +1457,7 @@ void __cdecl Boss_SubEggman_Init(ObjectMaster* obj)
 	if (co2)
 	{
 		co2->Speed = { 4, 4, 0 };
-		co2->field_A = 300; // no control timer
+		co2->NoControlTime = 300; // no control timer
 
 		obj->MainSub = Boss_SubEggman_Main;
 	}
