@@ -3,4 +3,4 @@
 void HillSeesaw_LoadAssets();
 void HillSeesaw_FreeAssets();
 
-void __cdecl HillSeesaw(ObjectMaster* obj);
+void __cdecl HillSeesaw(task* tp);

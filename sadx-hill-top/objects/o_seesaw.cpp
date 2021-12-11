@@ -11,19 +11,19 @@ ScaleX: Height power
 
 static ModelInfo* ht_seesaw = nullptr;
 
-static CollisionData HillSeesaw_Col[] = {
-	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 1.3f, 0.0f}, 1.3f, 4.5f, 0, 0, 0x4000, 0, 0 },
-	{ 0, CI_FORM_RECTANGLE2, 0x77, 0, 0, {0.0f, 2.5f, 0.0f}, 19.0f, 0.75f, 5.0f, 0, 0, 0, 0 }
+static CCL_INFO HillSeesaw_Col[] = {
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 1.3f, 0.0f}, 1.3f, 4.5f, 0.0f, 0.0f, 0x4000, 0, 0 },
+	{ 0, CI_FORM_RECTANGLE2, 0x77, 0, 0, {0.0f, 2.5f, 0.0f}, 19.0f, 0.75f, 5.0f, 0.0f, 0, 0, 0 }
 };
 
-static bool IsOnSeesaw(EntityData1* data, NJS_VECTOR* pos)
+static bool IsOnSeesaw(taskwk* twp, NJS_VECTOR* pos)
 {
 	NJS_VECTOR newpos = { 0 };
 
 	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx(&data->Position);
-	njRotateY_(data->Rotation.y);
-	njRotateZ_(data->Rotation.x);
+	njTranslateEx(&twp->pos);
+	njRotateY_(twp->ang.y);
+	njRotateZ_(twp->ang.x);
 	njTranslateX(-16.0f);
 	njTranslateY(10.0f);
 	njGetTranslation(0, &newpos);
@@ -36,7 +36,7 @@ static void Seesaw_Check(task* tp, taskwk* ptwp)
 {
 	auto twp = tp->twp;
 
-	if (ptwp->mode == 2 && IsOnSeesaw((EntityData1*)twp, &ptwp->pos))
+	if (ptwp->mode == 2 && IsOnSeesaw(twp, &ptwp->pos))
 	{
 		twp->mode = 1;
 		tp->ctp->twp->mode = 1;
@@ -47,7 +47,7 @@ static void Seesaw_Launch(task* tp, taskwk* ptwp)
 {
 	auto twp = tp->twp;
 
-	if (IsOnSeesaw((EntityData1*)twp, &ptwp->pos))
+	if (IsOnSeesaw(twp, &ptwp->pos))
 	{
 		playerpwp[TASKWK_PLAYERID(ptwp)]->spd.y = twp->scl.x;
 		playermwp[TASKWK_PLAYERID(ptwp)]->spd.y = twp->scl.x;
@@ -55,141 +55,149 @@ static void Seesaw_Launch(task* tp, taskwk* ptwp)
 	}
 }
 
-static void __cdecl UnidusSeesaw_Display(ObjectMaster* obj)
+static void __cdecl UnidusSeesawDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		auto data = obj->Data1;
+		auto twp = tp->twp;
 
 		njSetTexture(&UNI_A_UNIBODY_TEXLIST);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
-		DrawObject((NJS_OBJECT*)0x96DBF0);
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
+		DrawObject((NJS_OBJECT*)0x96DBF0); // Unudius model
 		njPopMatrixEx();
 	}
 }
 
-static void __cdecl UnidusSeesaw_Main(ObjectMaster* obj)
+static void __cdecl UnidusSeesawExec(task* tp)
 {
-	auto data = obj->Data1;
-	Float orig = obj->Parent->SETData.SETData->SETEntry->Position.y + 4.0f;
+	auto twp = tp->twp;
+	float orig_height = tp->ptp->ocp->pObjEditEntry->ypos+ 4.0f;
 
-	if (data->Action == 1)
+	if (twp->mode == 1)
 	{
-		data->field_A += 500;
+		twp->wtimer += 500; // jump animation frame
 
-		unsigned int sin = static_cast<unsigned int>(data->field_A);
+		unsigned int angle = static_cast<unsigned int>(twp->wtimer);
 
-		if (sin > 0x8000)
+		if (angle > 0x8000) // if animation is finished, reset state
 		{
-			data->Action = 0;
-			data->field_A = 0;
-			data->Position.y = orig;
+			twp->mode = 0;
+			twp->wtimer = 0;
+			twp->pos.y = orig_height;
 		}
 		else
 		{
-			data->Position.y = orig + 50.0f * njSin(sin);
+			twp->pos.y = orig_height + 50.0f * njSin(angle); // jump animation
 		}
 	}
 
-	AddToCollisionList(data);
-	obj->DisplaySub(obj);
+	EntryColliList(twp);
+	tp->disp(tp);
 }
 
-static void LoadUnidusSeesaw(ObjectMaster* obj, EntityData1* data)
+static void LoadUnidusSeesaw(task* tp, taskwk* twp)
 {
-	auto child = LoadChildObject(LoadObj_Data1, UnidusSeesaw_Main, obj);
+	auto ctp = CreateChildTask(LoadObj_Data1, UnidusSeesawExec, tp);
+	auto ctwp = ctp->twp;
 
+	// Calculate initial position of Unidus
 	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx(&data->Position);
-	njRotateY(0, data->Rotation.y);
+	njTranslateEx(&twp->pos);
+	njRotateY(0, twp->ang.y);
 	njTranslateX(16.0f);
 	njTranslateY(4.0f);
-	njGetTranslation(0, &child->Data1->Position);
+	njGetTranslation(0, &ctwp->pos);
 	njPopMatrixEx();
 
-	child->DisplaySub = UnidusSeesaw_Display;
+	CCL_Init(ctp, (CCL_INFO*)Unidus_Collision, Unidus_Collision_Length, 4);
 
-	Collision_Init(child, Unidus_Collision, Unidus_Collision_Length, 4);
-
-	child->Data1->field_A = 0.0f;
+	ctwp->wtimer = 0;
+	ctp->disp = UnidusSeesawDisplay;
 }
 
-static void __cdecl HillSeesaw_Display(ObjectMaster* obj)
+static void __cdecl HillSeesawDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		auto data = obj->Data1;
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
 
 		SetSecondObjectTexture();
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
 
-		DrawModel(data->Object->basicdxmodel);
+		DrawModel(object->basicdxmodel);
 
 		njTranslateY(3.0f);
-		njRotateZ_(data->Rotation.x);
-		DrawModel(data->Object->child->basicdxmodel);
+		njRotateZ_(twp->ang.x);
+		DrawModel(object->child->basicdxmodel);
 
 		njPopMatrixEx();
 	}
 }
 
-static void __cdecl HillSeesaw_Main(ObjectMaster* obj)
+static void __cdecl HillSeesawExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		auto data = obj->Data1;
+		auto twp = tp->twp;
 
-		IsOnSeesaw(data, &data->Position);
+		IsOnSeesaw(twp, &twp->pos);
 
-		if (data->Action == 0)
+		if (twp->mode == 0)
 		{
-			ForEveryCollidingPlayer((task*)obj, Seesaw_Check);
+			ForEveryCollidingPlayer(tp, Seesaw_Check);
 		}
-		else if (data->Action == 1)
+		else if (twp->mode == 1)
 		{
-			if (data->Rotation.x < 0x880)
+			if (twp->ang.x < 0x880)
 			{
-				data->Rotation.x += 0x200;
+				twp->ang.x += 0x200;
 			}
 			else
 			{
-				data->Rotation.x = 0x880;
+				twp->ang.x = 0x880;
 			}
 
-			if (obj->Child->Data1->Action == 0)
+			// If Unidus is ready
+			if (tp->ctp->twp->mode == 0)
 			{
-				ForEveryCollidingPlayer((task*)obj, Seesaw_Launch);
-				data->Action = 0;
-				data->Rotation.x = -0x880;
+				ForEveryCollidingPlayer(tp, Seesaw_Launch);
+				twp->mode = 0;
+				twp->ang.x = -0x880;
 			}
 		}
 
 		// Move Collision
-		data->CollisionInfo->CollisionArray[1].angz = data->Rotation.x;
+		auto cwp = twp->cwp;
 
-		RunObjectChildren(obj);
-		AddToCollisionList(data);
-		obj->DisplaySub(obj);
+		if (cwp)
+		{
+			cwp->info[1].angz = twp->ang.x;
+		}
+
+		LoopTaskC(tp); // Run Unidus task
+		EntryColliList(twp);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl HillSeesaw(ObjectMaster* obj)
+void __cdecl HillSeesaw(task* tp)
 {
-	auto data = obj->Data1;
+	auto twp = tp->twp;
 	
-	data->Rotation.x = -0x880;
-	data->Object = ht_seesaw->getmodel();
+	twp->ang.x = -0x880;
+	twp->value.ptr = ht_seesaw->getmodel();
 
-	Collision_Init(obj, arrayptrandlength(HillSeesaw_Col), 4);
+	CCL_Init(tp, arrayptrandlength(HillSeesaw_Col), 4);
 
-	obj->MainSub = HillSeesaw_Main;
-	obj->DisplaySub = HillSeesaw_Display;
+	tp->exec = HillSeesawExec;
+	tp->disp = HillSeesawDisplay;
 
-	LoadUnidusSeesaw(obj, data);
+	LoadUnidusSeesaw(tp, twp);
 }
 
 void HillSeesaw_LoadAssets()
