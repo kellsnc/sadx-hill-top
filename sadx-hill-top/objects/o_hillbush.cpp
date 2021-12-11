@@ -48,11 +48,7 @@ void __cdecl HillBushExec(task* tp)
 	{
 		auto twp = tp->twp;
 
-		// Animate
-		if (!MissedFrames)
-		{
-			twp->wtimer += 1;
-		}
+		twp->wtimer += 1; // Animate
 
 		tp->disp(tp);
 	}

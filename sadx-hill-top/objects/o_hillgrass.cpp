@@ -47,11 +47,7 @@ void __cdecl HillGrassExec(task* tp)
 	{
 		auto twp = tp->twp;
 
-		// Animate
-		if (!MissedFrames)
-		{
-			twp->scl.z += 0.5f;
-		}
+		twp->scl.z += 0.5f; // Animate
 		
 		tp->disp(tp);
 	}

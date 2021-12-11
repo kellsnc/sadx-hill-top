@@ -158,7 +158,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj)
 			ForcePlayerPos(0, &data->Position); // Update player position
 			RotatePlayer(0, data->Rotation.y); // Update player rotation
 
-			if (FrameCounterUnpaused % 300 == 0)
+			if (LevelFrameCount % 300 == 0)
 			{
 				dsPlay_oneshot_Dolby(456, 0, 0, 200, 120, (taskwk*)EntityData1Ptrs[0]);
 			}

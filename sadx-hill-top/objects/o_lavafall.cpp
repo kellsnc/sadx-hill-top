@@ -66,20 +66,18 @@ void __cdecl LavaFallExec(task* tp)
 
 		twp->scl.z = 15.0f + (njSin(twp->wtimer * 0x200) * 15.0f); // animation frame
 		
-		// Texture animation
-		if (!MissedFrames)
+		// Texture animation:
+
+		twp->wtimer += 1;
+
+		if (LevelFrameCount % 2 == 0)
 		{
-			twp->wtimer += 1;
+			twp->btimer += 1;
+		}
 
-			if (FrameCounterUnpaused % 2 == 0)
-			{
-				twp->btimer += 1;
-			}
-
-			if (twp->btimer >= LAVAFALL_TexList.nbTexture)
-			{
-				twp->btimer = 0;
-			}
+		if (twp->btimer >= LAVAFALL_TexList.nbTexture)
+		{
+			twp->btimer = 0;
 		}
 		
 		EntryColliList(twp);

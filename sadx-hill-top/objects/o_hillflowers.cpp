@@ -63,10 +63,7 @@ void __cdecl HillFlowersExec(task* tp)
 			twp->scl.z = 15.0f + (njSin(twp->wtimer * 0x200) * 15.0f); // Calculate current animation frame
 		}
 		
-		if (!MissedFrames)
-		{
-			twp->wtimer += 1; // bouncy animation
-		}
+		twp->wtimer += 1; // bouncy animation
 		
 		tp->disp(tp);
 	}

@@ -42,7 +42,7 @@ void __cdecl HillTopLava_Main(ObjectMaster* obj)
 {
 	EntityData1* data = obj->Data1;
 
-	if (FrameCounterUnpaused % 2 == 0)
+	if (LevelFrameCount % 2 == 0)
 	{
 		++data->Index; // Texture ID
 	}

@@ -203,7 +203,7 @@ void __cdecl GrowLavaPlatformExec(task* tp)
 			twp->scl.z = grow_workers[trigger_id].Height + twp->scl.y + 10.0f;
 		}
 
-		twp->pos.y = twp->scl.z + (1.0f - powf(njSin(FrameCounterUnpaused * twp->ang.z), 2.0f) * twp->scl.y);
+		twp->pos.y = twp->scl.z + (1.0f - powf(njSin(LevelFrameCount * twp->ang.z), 2.0f) * twp->scl.y);
 
 		UpdateDynCol((NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
 		tp->disp(tp);
@@ -315,14 +315,11 @@ void __cdecl GrowLavaTriggerExec(task* tp)
 			twp->mode = 2;
 		}
 
-		if (!MissedFrames)
-		{
-			++twp->wtimer;
+		++twp->wtimer;
 
-			if (!(playerpwp[0]->item & Powerups_Dead))
-			{
-				grow_workers[trigger_id].Height += static_cast<float>(twp->ang.x) / 100.0f;
-			}
+		if (!(playerpwp[0]->item & Powerups_Dead))
+		{
+			grow_workers[trigger_id].Height += static_cast<float>(twp->ang.x) / 100.0f;
 		}
 		
 		// Shake everything by applying changing offset:

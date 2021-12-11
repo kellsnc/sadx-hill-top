@@ -67,7 +67,7 @@ void __cdecl LavaEffectDisplay(task* tp)
 		for (int i = 0; i < 10; ++i)
 		{
 			// Some kind of animation for the particules
-			float sin = njSin(3500 * (i + FrameCounterUnpaused)) * 0.1f;
+			float sin = njSin(3500 * (i + LevelFrameCount)) * 0.1f;
 			float elapse = i * 0.125f + 0.1f;
 
 			// Draw
