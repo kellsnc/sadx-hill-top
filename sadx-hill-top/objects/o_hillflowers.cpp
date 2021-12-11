@@ -77,8 +77,7 @@ void __cdecl HillFlowers(task* tp)
 	auto twp = tp->twp;
 
 	// Choose the model and collison based on set information
-	switch (static_cast<int>(twp->scl.z) % 6)
-	{
+	switch (static_cast<int>(twp->scl.z) % 6) {
 	case 0:
 	default:
 		twp->value.ptr = &Flower0_Action;
@@ -106,7 +105,7 @@ void __cdecl HillFlowers(task* tp)
 		twp->scl.x = 1.0f;
 	}
 
-	twp->wtimer = static_cast<short>(rand());
+	twp->wtimer = static_cast<unsigned short>(rand());
 
 	tp->exec = HillFlowersExec;
 	tp->disp = HillFlowersDisplay;
