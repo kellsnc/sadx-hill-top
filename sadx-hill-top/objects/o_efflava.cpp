@@ -90,7 +90,7 @@ void __cdecl LavaEffectExec(task* tp)
 		int count = twp->ang.z / 10; // get amount per groups
 
 		// Register sound if close to the object
-		if (IsPlayerInsideSphere_(&twp->pos, 500.0f))
+		if (CheckCollisionP(&twp->pos, 500.0f))
 		{
 			dsPlay_Dolby_time(459, 0, 0, 60, 120, twp);
 		}

@@ -3,7 +3,7 @@
 
 int __cdecl E104_CheckPlayer(ObjectMaster* obj)
 {
-	return IsSpecificPlayerInSphere(&obj->Data1->Position, 150.0f, 0) == true && (GetCharacterObject(0)->Data1->Status & Status_Ground);
+	return CheckCollisionP_num(&obj->Data1->Position, 150.0f, 0) == true && (GetCharacterObject(0)->Data1->Status & Status_Ground);
 }
 
 void GammaOutOfBounds(EntityData1* data)

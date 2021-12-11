@@ -1082,7 +1082,7 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk)
 
 		SubEgg_GetRandomPosition(data, wk);
 
-		while (IsSpecificPlayerInSphere(&data->Position, 150.0f, 0))
+		while (CheckCollisionP_num(&data->Position, 150.0f, 0))
 		{
 			SubEgg_GetRandomPosition(data, wk);
 		}

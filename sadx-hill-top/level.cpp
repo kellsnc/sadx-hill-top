@@ -49,6 +49,10 @@ DrawDistance HillTopDrawDists[] = {
 	{ -1.0f, -1000.0f }
 };
 
+static const NJS_POINT3 ACT0TRIGGER_POS = { 301.0f, 164.0f, 3145.0f };
+static const NJS_POINT3 ACT1TRIGGER_POS = { 15.0f, 950.0f, 225.0f };
+static const NJS_POINT3 ACT1END_POS = { -480.0f, 935.0f, 3030.0f };
+
 void HillTop_SetViewData()
 {
 	SkyboxDrawDistance = HillTopSkyDrawDist[ClipLevel];
@@ -69,7 +73,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj)
 	if (CurrentAct == 0)
 	{
 		// Act 1-2 swap
-		if (IsSpecificPlayerInSphere(301.0f, 164.0f, 3145.0f, 100.0f, 0))
+		if (CheckCollisionP_num((NJS_POINT3*)&ACT0TRIGGER_POS, 100.0f, 0))
 		{
 			SoundManager_Delete2();
 			NextAct_FreeLandTable(1);
@@ -85,7 +89,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj)
 	else if (CurrentAct == 1)
 	{
 		// Act 2-4 swap
-		int player = IsPlayerInsideSphere_(15.0f, 950.0f, 225.0f, 50.0f) - 1;
+		int player = CheckCollisionP((NJS_POINT3*)&ACT1TRIGGER_POS, 50.0f) - 1;
 
 		if (player >= 0)
 		{
@@ -105,7 +109,7 @@ void __cdecl HillTopZone_Main(ObjectMaster* obj)
 			else
 			{
 				// teleport to end of level that's further way
-				SetPlayerPosition(player, -480.0f, 935.0f, 3030.0f);
+				ForcePlayerPos(player, (NJS_POINT3*)&ACT1END_POS);
 				EntityData1Ptrs[player]->Rotation.y = 0x3E80;
 				CharObj2Ptrs[player]->Speed = { 2, 8, 0 };
 			}

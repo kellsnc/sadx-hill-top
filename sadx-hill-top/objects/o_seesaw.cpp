@@ -29,29 +29,29 @@ static bool IsOnSeesaw(EntityData1* data, NJS_VECTOR* pos)
 	njGetTranslation(0, &newpos);
 	njPopMatrixEx();
 
-	return IsPointInsideSphere(&newpos, pos, 12.0f);
+	return CheckCollisionPointSphere(&newpos, pos, 12.0f);
 }
 
-static void Seesaw_Check(ObjectMaster* obj, EntityData1* player)
+static void Seesaw_Check(task* tp, taskwk* ptwp)
 {
-	auto data = obj->Data1;
+	auto twp = tp->twp;
 
-	if (player->Action == 2 && IsOnSeesaw(data, &player->Position))
+	if (ptwp->mode == 2 && IsOnSeesaw((EntityData1*)twp, &ptwp->pos))
 	{
-		data->Action = 1;
-		obj->Child->Data1->Action = 1;
+		twp->mode = 1;
+		tp->ctp->twp->mode = 1;
 	}
 }
 
-static void Seesaw_Launch(ObjectMaster* obj, EntityData1* player)
+static void Seesaw_Launch(task* tp, taskwk* ptwp)
 {
-	auto data = obj->Data1;
+	auto twp = tp->twp;
 
-	if (IsOnSeesaw(data, &player->Position))
+	if (IsOnSeesaw((EntityData1*)twp, &ptwp->pos))
 	{
-		CharObj2Ptrs[player->CharIndex]->Speed.y = data->Scale.x;
-		EntityData2Ptrs[player->CharIndex]->VelocityDirection.y = data->Scale.x;
-		dsPlay_oneshot_Dolby(458, 0, 0, 100, 120, (taskwk*)data);
+		playerpwp[TASKWK_PLAYERID(ptwp)]->spd.y = twp->scl.x;
+		playermwp[TASKWK_PLAYERID(ptwp)]->spd.y = twp->scl.x;
+		dsPlay_oneshot_Dolby(458, 0, 0, 100, 120, twp);
 	}
 }
 
@@ -147,7 +147,7 @@ static void __cdecl HillSeesaw_Main(ObjectMaster* obj)
 
 		if (data->Action == 0)
 		{
-			ForEveryCollidingPlayer(obj, Seesaw_Check);
+			ForEveryCollidingPlayer((task*)obj, Seesaw_Check);
 		}
 		else if (data->Action == 1)
 		{
@@ -162,7 +162,7 @@ static void __cdecl HillSeesaw_Main(ObjectMaster* obj)
 
 			if (obj->Child->Data1->Action == 0)
 			{
-				ForEveryCollidingPlayer(obj, Seesaw_Launch);
+				ForEveryCollidingPlayer((task*)obj, Seesaw_Launch);
 				data->Action = 0;
 				data->Rotation.x = -0x880;
 			}

@@ -275,7 +275,7 @@ bool Spiker_RunBoundaries(SpikerData1* data, enemywk* enmwk, float radius)
 {
 	// Turn around if out of range, or no floor
 
-	if (IsPointInsideSphere(&enmwk->home, &data->Position, radius) == false || Spiker_AttachFloor(data) == false)
+	if (CheckCollisionPointSphere(&enmwk->home, &data->Position, radius) == false || Spiker_AttachFloor(data) == false)
 	{
 		njLookAt(&data->Position, &enmwk->home, nullptr, &data->Rotation.y);
 		data->Rotation.y -= 0x4000;
@@ -288,7 +288,7 @@ bool Spiker_RunBoundaries(SpikerData1* data, enemywk* enmwk, float radius)
 void Spiker_ActionStand(SpikerData1* data, enemywk* enmwk)
 {
 	// Attack if finds player in range
-	if (Spiker_CanAttack(data) == true && IsPlayerInGlobalCylinder(&data->Position, data->AttackRadius, 200.0f))
+	if (Spiker_CanAttack(data) == true && CheckCollisionCylinderP(&data->Position, data->AttackRadius, 200.0f))
 	{
 		enmwk->old_mode = static_cast<int>(SpikerActs::Stand); // go back to stand action when attack is finished
 		data->Action = SpikerActs::Attack;
@@ -302,7 +302,7 @@ void Spiker_ActionWalk(SpikerData1* data, enemywk* enmwk)
 	Spiker_RunBoundaries(data, enmwk, data->WalkRadius);
 
 	// Attack if finds player in range
-	if (IsPlayerInGlobalCylinder(&data->Position, data->AttackRadius, 200.0f))
+	if (CheckCollisionCylinderP(&data->Position, data->AttackRadius, 200.0f))
 	{
 		enmwk->old_mode = static_cast<int>(SpikerActs::Walk); // go back to walk action when attack is finished
 
@@ -329,7 +329,7 @@ void Spiker_ActionWalkToPlayer(SpikerData1* data, enemywk* enmwk)
 		data->Action = static_cast<SpikerActs>(enmwk->old_mode);
 	}
 
-	if (Spiker_CanAttack(data) == true && IsPlayerInsideSphere_(&data->Position, data->AttackRadius / 3))
+	if (Spiker_CanAttack(data) == true && CheckCollisionP(&data->Position, data->AttackRadius / 3))
 	{
 		data->Action = SpikerActs::Attack;
 	}

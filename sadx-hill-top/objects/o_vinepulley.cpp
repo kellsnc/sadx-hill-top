@@ -87,7 +87,7 @@ void __cdecl VinePulley_Main(ObjectMaster* obj)
 				data->InvulnerableTime = 100;
 			}
 
-			SetPlayerPosition(data->CharIndex, &child->Position);
+			ForcePlayerPos(data->CharIndex, &child->Position);
 			EntityData1Ptrs[data->CharIndex]->Rotation.y = data->Rotation.y;
 		}
 

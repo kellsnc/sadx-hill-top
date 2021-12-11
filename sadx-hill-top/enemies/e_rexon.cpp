@@ -89,7 +89,7 @@ bool RexonHead_IsInAttackRange(NJS_VECTOR* position, Angle roty, Float radius)
 	njGetTranslation(0, &pos);
 	njPopMatrixEx();
 
-	return IsPlayerInsideSphere_(&pos, radius);
+	return CheckCollisionP(&pos, radius);
 }
 
 void __cdecl RexonHead_Display(ObjectMaster* obj)
@@ -419,7 +419,7 @@ void __cdecl Rexon_Main(ObjectMaster* obj)
 			if (data->Action == RexonAct_Move)
 			{
 				// Turn around if outside of range
-				if (IsPointInsideSphere(&obj->SETData.SETData->SETEntry->Position, &data->Position, data->Scale.y) == false)
+				if (CheckCollisionPointSphere(&obj->SETData.SETData->SETEntry->Position, &data->Position, data->Scale.y) == false)
 				{
 					njLookAt(&data->Position, &obj->SETData.SETData->SETEntry->Position, nullptr, &data->Rotation.y);
 				}

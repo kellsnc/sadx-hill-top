@@ -74,28 +74,30 @@ NJS_VECTOR GetPositionBetweenPoints(NJS_VECTOR* orig, NJS_VECTOR* dest, float di
 	return result;
 }
 
-float GetLength(NJS_VECTOR* orig, NJS_VECTOR* dest)
+float GetDistance(NJS_POINT3* orig, NJS_POINT3* dest)
 {
-	return powf(dest->x - orig->x, 2) + powf(dest->y - orig->y, 2) + powf(dest->z - orig->z, 2);
+	NJS_POINT3 v = *dest;
+	njSubVector(&v, orig);
+	return njScalor(&v);
 }
 
-float GetDistance(NJS_VECTOR* orig, NJS_VECTOR* dest)
-{
-	return sqrtf(GetLength(orig, dest));
-}
-
-bool IsPointInsideSphere(NJS_VECTOR* center, NJS_VECTOR* pos, float radius)
+bool CheckCollisionPointSphere(NJS_POINT3* center, NJS_POINT3* pos, float radius)
 {
 	return GetDistance(center, pos) <= radius;
 }
 
-int IsPlayerInRange(NJS_VECTOR* center, float range)
+bool CheckCollisionP_num(NJS_POINT3* center, float radius, int player)
+{
+	return playertwp[player] ? CheckCollisionPointSphere(center, &playertwp[player]->pos, radius) : false;
+}
+
+int IsPlayerInRange(NJS_POINT3* center, float range)
 {
 	for (int player = 0; player < MaxPlayers; ++player)
 	{
-		if (!EntityData1Ptrs[player]) continue;
+		if (!playertwp[player]) continue;
 
-		if (ObjectInRange(&EntityData1Ptrs[player]->Position, center->x, center->y, center->z, range))
+		if (ObjectInRange(&playertwp[player]->pos, center->x, center->y, center->z, range))
 		{
 			return player + 1;
 		}
@@ -104,114 +106,59 @@ int IsPlayerInRange(NJS_VECTOR* center, float range)
 	return 0;
 }
 
-int IsPlayerInsideSphere_(NJS_VECTOR* center, float radius)
-{
-	for (int player = 0; player < MaxPlayers; ++player)
-	{
-		if (!EntityData1Ptrs[player]) continue;
-
-		if (IsPointInsideSphere(center, &EntityData1Ptrs[player]->Position, radius))
-		{
-			return player + 1;
-		}
-	}
-
-	return 0;
-}
-
-int IsPlayerInsideSphere_(float x, float y, float z, float radius)
-{
-	NJS_VECTOR vec = { x, y, z };
-	return IsPlayerInsideSphere_(&vec, radius);
-}
-
-bool IsSpecificPlayerInSphere(float x, float y, float z, float radius, int player)
-{
-	NJS_VECTOR vec = { x, y, z };
-	return IsPointInsideSphere(&vec, &EntityData1Ptrs[player]->Position, radius);
-}
-
-bool IsSpecificPlayerInSphere(NJS_VECTOR* center, float radius, int player)
-{
-	return IsPointInsideSphere(center, &EntityData1Ptrs[player]->Position, radius);
-}
-
-bool AreSpheresColliding(NJS_VECTOR* sphereA, float radiusA, NJS_VECTOR* sphereB, float radiusB)
-{
-	return GetDistance(sphereB, sphereA) < (radiusA + radiusB);
-}
-
-EntityData1* IsPlayerOnDyncol(ObjectMaster* obj)
+int IsPlayerOnDyncol(task* tp)
 {
 	for (int i = 0; i < MaxPlayers; ++i)
 	{
-		CharObj2* co2 = CharObj2Ptrs[i];
-		
-		if (co2 && co2->DynColObject == obj)
+		auto pwp = playerpwp[i];
+
+		if (pwp && pwp->ttp == tp)
 		{
-			return EntityData1Ptrs[i];
+			return i + 1;
 		}
 	}
 
-	return nullptr;
+	return 0;
 }
 
-void ForEveryCollidingPlayer(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*))
+void ForEveryCollidingPlayer(task* tp, void(__cdecl* function)(task*, taskwk*))
 {
-	CollisionInfo* colinfo = obj->Data1->CollisionInfo;
+	auto cwp = tp->twp->cwp;
 
 	for (int i = 0; i < 16; ++i)
 	{
-		CollisionThing* colthing = &colinfo->CollisionThings[i];
+		auto hit = &cwp->hit_info[i];
 
-		if (colthing->hit_num == -1) break;
+		if (hit->hit_num == -1) break;
 
-		if (colthing->hit_twp->CollisionInfo->id == 0)
+		if (hit->hit_twp->cwp->id == 0)
 		{
-			function(obj, colthing->hit_twp);
+			function(tp, hit->hit_twp);
 		}
 	}
 }
 
-void ForEveryPlayerOnDyncol(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*))
+void ForEveryPlayerOnDyncol(task* tp, void(__cdecl* function)(task*, taskwk*))
 {
 	for (int i = 0; i < MaxPlayers; ++i)
 	{
-		CharObj2* co2 = CharObj2Ptrs[i];
-
-		if (co2 && co2->DynColObject == obj)
+		auto pwp = playerpwp[i];
+		
+		if (pwp && pwp->ttp == tp)
 		{
-			function(obj, EntityData1Ptrs[i]);
+			function(tp, playertwp[i]);
 		}
 	}
 }
 
-int IsPlayerInGlobalCylinder(NJS_VECTOR* center, float x, float y)
+void ForcePlayerPos(int id, float x, float y, float z)
 {
-	for (int player = 0; player < MaxPlayers; ++player)
-	{
-		if (!EntityData1Ptrs[player]) continue;
-
-		NJS_VECTOR* pos = &EntityData1Ptrs[player]->Position;
-
-		if ((powf(pos->x - center->x, 2) + pow(pos->z - center->z, 2)) <= pow(x, 2) &&
-			pos->y > center->y - y / 2 && pos->y < center->y + y / 2)
-		{
-			return player + 1;
-		}
-	}
-
-	return 0;
+	playertwp[id]->pos = { x, y, z };
 }
 
-void SetPlayerPosition(int id, float x, float y, float z)
+void ForcePlayerPos(int id, NJS_POINT3* pos)
 {
-	EntityData1Ptrs[id]->Position = { x, y, z };
-}
-
-void SetPlayerPosition(int id, NJS_VECTOR* pos)
-{
-	SetPlayerPosition(id, pos->x, pos->y, pos->z);
+	ForcePlayerPos(id, pos->x, pos->y, pos->z);
 }
 
 bool CheckJump(int id)

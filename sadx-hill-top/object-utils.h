@@ -18,20 +18,14 @@ void FreeFileInfo(T** info)
 
 NJS_VECTOR GetPositionBetweenPoints(NJS_VECTOR* orig, NJS_VECTOR* dest, float dist);
 
-float GetLength(NJS_VECTOR* orig, NJS_VECTOR* dest);
-float GetDistance(NJS_VECTOR* orig, NJS_VECTOR* dest);
-bool IsPointInsideSphere(NJS_VECTOR* center, NJS_VECTOR* pos, float radius);
-int IsPlayerInRange(NJS_VECTOR* center, float range);
-int IsPlayerInsideSphere_(NJS_VECTOR* center, float radius);
-int IsPlayerInsideSphere_(float x, float y, float z, float radius);
-bool IsSpecificPlayerInSphere(float x, float y, float z, float radius, int player);
-bool IsSpecificPlayerInSphere(NJS_VECTOR* center, float radius, int player);
-bool AreSpheresColliding(NJS_VECTOR* sphereA, float radiusA, NJS_VECTOR* sphereB, float radiusB);
-EntityData1* IsPlayerOnDyncol(ObjectMaster* obj);
-void ForEveryCollidingPlayer(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*));
-void ForEveryPlayerOnDyncol(ObjectMaster* obj, void(__cdecl* function)(ObjectMaster*, EntityData1*));
-int IsPlayerInGlobalCylinder(NJS_VECTOR* center, float x, float y);
-void SetPlayerPosition(int id, float x, float y, float z);
-void SetPlayerPosition(int id, NJS_VECTOR* pos);
+float GetDistance(NJS_POINT3* orig, NJS_POINT3* dest);
+bool CheckCollisionPointSphere(NJS_POINT3* center, NJS_POINT3* pos, float radius);
+int IsPlayerInRange(NJS_POINT3* center, float range);
+bool CheckCollisionP_num(NJS_POINT3* center, float radius, int player);
+int IsPlayerOnDyncol(task* tp);
+void ForEveryCollidingPlayer(task* tp, void(__cdecl* function)(task*, taskwk*));
+void ForEveryPlayerOnDyncol(task* tp, void(__cdecl* function)(task*, taskwk*));
+void ForcePlayerPos(int id, float x, float y, float z);
+void ForcePlayerPos(int id, NJS_POINT3* pos);
 bool CheckJump(int id);
 NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id);

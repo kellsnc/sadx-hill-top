@@ -1,5 +1,8 @@
 #pragma once
 
+#define TASKWK_PLAYERID(a) a->counter.b[0]
+#define TASKWK_CHARID(a) a->counter.b[1]
+
 static constexpr int MaxPlayers = 4;
 
 enum ObjectFlags {
@@ -34,6 +37,7 @@ ObjectFunc(LoadMusic_EventDelayed, 0x600890);
 ObjectFunc(ObjectCrash, 0x5A95B0); // position is position, scale is direction, object is the model
 ObjectFunc(DeleteGammaMissileIfNoTarget, 0x4CEFE0);
 FastcallFunctionPointer(void, DrawChunkModel_, (Sint32* a1, Sint16* a2), 0x7917F0);
+FunctionPointer(void, SetPlayerPosition, (uint8_t pno, uint8_t frame, NJS_POINT3* pos, Angle3* ang), 0x441A40);
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);

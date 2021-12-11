@@ -128,7 +128,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj)
 	switch (data->Action)
 	{
 	case ZipVineActs::Wait:
-		if (IsSpecificPlayerInSphere(&data->Position, 14.0f, 0))
+		if (CheckCollisionP_num(&data->Position, 14.0f, 0))
 		{
 			data->Action = ZipVineActs::Run;
 			ForcePlayerAction(0, 16);
@@ -155,7 +155,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj)
 
 		if (data->PlayerDetached == false)
 		{
-			SetPlayerPosition(0, &data->Position); // Update player position
+			ForcePlayerPos(0, &data->Position); // Update player position
 			RotatePlayer(0, data->Rotation.y); // Update player rotation
 
 			if (FrameCounterUnpaused % 300 == 0)

@@ -285,7 +285,7 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj)
 
 	if (data->Action == 0)
 	{
-		if (IsSpecificPlayerInSphere(&data->Position, data->Scale.x, 0))
+		if (CheckCollisionP_num(&data->Position, data->Scale.x, 0))
 		{
 			EntityData1* entity = EntityData1Ptrs[0];
 

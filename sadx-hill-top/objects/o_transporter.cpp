@@ -150,14 +150,13 @@ void MovePlatform(TransporterData1* pdata, TranspPlatformData1* data, float prog
 	data->Position.y += data->Object->pos[1] - ((pdata->VineZ / 10.0f) * bend);
 }
 
-void MovePlayerOnPlatform(ObjectMaster* obj, EntityData1* player)
+void MovePlayerOnPlatform(task* tp, taskwk* ptwp)
 {
-	// Compares the position from the previous frame to move the player accordingly
-
-	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
+	// Move the player by the different between previous position and current position
+	auto data = (TranspPlatformData1*)tp->twp;
 	NJS_VECTOR offset = data->Position;
 	njSubVector(&offset, &data->PreviousPosition);
-	njAddVector(&player->Position, &offset);
+	njAddVector(&ptwp->pos, &offset);
 }
 
 void __cdecl TranspPlatform_Delete(ObjectMaster* obj)
@@ -210,7 +209,7 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj)
 	switch (data->Action)
 	{
 	case TranspPlatformActs::Input: // If the player is on the dyncol of our object, launch
-		if (IsPlayerOnDyncol(obj))
+		if (IsPlayerOnDyncol((task*)obj))
 		{
 			data->Action = TranspPlatformActs::Move;
 			dsPlay_oneshot(466, 0, 0, 160);
@@ -231,10 +230,10 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj)
 		data->DynCol->pos[2] = data->Position.z;
 
 		// Move the player
-		ForEveryPlayerOnDyncol(obj, MovePlayerOnPlatform);
+		ForEveryPlayerOnDyncol((task*)obj, MovePlayerOnPlatform);
 
 		// Check if we're at the end, sphere check to detach the object a bit sooner
-		if (data->progress >= 1.0f || IsPointInsideSphere(&pdata->Destination, &data->Position, 25.0f))
+		if (data->progress >= 1.0f || CheckCollisionPointSphere(&pdata->Destination, &data->Position, 25.0f))
 		{
 			data->Action = TranspPlatformActs::Fall;
 			data->PreviousPosition.y = 0;
