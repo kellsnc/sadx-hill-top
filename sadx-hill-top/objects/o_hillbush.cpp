@@ -9,66 +9,64 @@ A simple bush object.
 
 ModelInfo* ht_bush = nullptr;
 
-void __cdecl HillBush_Display(ObjectMaster* obj)
+void __cdecl HillBushDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
-
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
+		
 		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
+		njTranslateEx(&twp->pos);
 
 		// Draw root
 		njPushMatrixEx();
 		{
-			njRotateEx((Angle*)&data->Rotation, false);
-			DrawModel(data->Object->basicdxmodel);
+			njRotateEx((Angle*)&twp->ang, false);
+			DrawModel(object->basicdxmodel);
 			njPopMatrixEx();
 		}
 
-		njRotateX_(data->Rotation.x);
-		njRotateZ_(data->Rotation.z);
-		njTranslateY(data->Object->child->pos[1]);
+		njRotateX_(twp->ang.x);
+		njRotateZ_(twp->ang.z);
+		njTranslateY(object->child->pos[1]);
 
 		// Some animation
-		Float rot = 1.0f - njSin(data->field_A) * 300.0f;
-		njRotateX_(static_cast<int>(rot));
-		njScaleY(1.0f + (1.0f - njSin(data->Status * 1500)) / 50.0f);
+		njRotateX_(static_cast<int>(1.0f - njSin(twp->wtimer * 0x200) * 300.0f));
+		njScaleY(1.0f + (1.0f - njSin(twp->wtimer * 0x5DC)) / 50.0f);
 
-		DrawModel(data->Object->child->basicdxmodel); // draw bush
+		DrawModel(object->child->basicdxmodel); // draw bush
 
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl HillBush_Main(ObjectMaster* obj)
+void __cdecl HillBushExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
 		// Animate
-		data->field_A += 0x200;
-		data->Status += 1;
+		if (!MissedFrames)
+		{
+			twp->wtimer += 1;
+		}
 
-		RunObjectChildren(obj);
-		obj->DisplaySub(obj);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl HillBush(ObjectMaster* obj)
+void __cdecl HillBush(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	// Randomize animation start
-	data->field_A = rand();
-	data->Status = rand();
+	twp->wtimer = static_cast<unsigned short>(rand()); // Randomize animation start
+	twp->value.ptr = ht_bush->getmodel(); // Store model in twp->value
 
-	data->Object = ht_bush->getmodel();
-
-	obj->MainSub = HillBush_Main;
-	obj->DisplaySub = HillBush_Display;
+	tp->exec = HillBushExec;
+	tp->disp = HillBushDisplay;
 }
 
 void HillBush_LoadAssets()
