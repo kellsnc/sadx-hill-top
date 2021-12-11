@@ -14,22 +14,23 @@ AnimationFile* ht_grass0_anm = nullptr;
 
 NJS_ACTION Grass0_Action = { 0 };
 
-void __cdecl HillGrass_Display(ObjectMaster* obj)
+void __cdecl HillGrassDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
 		njSetTexture(&HillTopOBJ_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateEx((Angle*)&data->Rotation, false);
+		njTranslateEx(&twp->pos);
+		njRotateEx((Angle*)&twp->ang, false);
 
-		njScaleY(1.0f + data->Scale.y);
+		njScaleY(1.0f + twp->scl.y);
 
-		if (CheckCollisionP(&data->Position, 400.0f))
+		// Only process animation if close enough
+		if (CheckCollisionP(&twp->pos, 400.0f))
 		{
-			njAction(&Grass0_Action, data->Scale.z);
+			njAction(&Grass0_Action, twp->scl.z);
 		}
 		else
 		{
@@ -40,27 +41,30 @@ void __cdecl HillGrass_Display(ObjectMaster* obj)
 	}
 }
 
-void __cdecl HillGrass_Main(ObjectMaster* obj)
+void __cdecl HillGrassExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
 		// Animate
-		data->Scale.z += 0.5f;
-
-		obj->DisplaySub(obj);
+		if (!MissedFrames)
+		{
+			twp->scl.z += 0.5f;
+		}
+		
+		tp->disp(tp);
 	}
 }
 
-void __cdecl HillGrass(ObjectMaster* obj)
+void __cdecl HillGrass(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	data->Scale.z = rand(); // randomize animation start
+	twp->scl.z = rand(); // randomize animation start
 
-	obj->MainSub = HillGrass_Main;
-	obj->DisplaySub = HillGrass_Display;
+	tp->exec = HillGrassExec;
+	tp->disp = HillGrassDisplay;
 }
 
 void HillGrass_LoadAssets()
