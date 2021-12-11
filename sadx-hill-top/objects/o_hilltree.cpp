@@ -13,100 +13,114 @@ ScaleZ: Tree ID
 
 ModelInfo* ht_tree = nullptr;
 
-CollisionData HillTree_Col[] = {
-	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0, 25.0f, 0}, 5.0f, 25.0f, 0, 0, 0, 0, 0 },
-	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0, 20.0f, 0}, 1.0f, 20.0f, 0, 0, 0, 0, 0 }
-};
+CCL_INFO HillTreeColM = { 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 25.0f, 0.0f}, 5.0f, 25.0f, 0.0f, 0.0f, 0, 0, 0 };
+CCL_INFO HillTreeColS = { 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 20.0f, 0.0f}, 1.0f, 20.0f, 0.0f, 0.0f, 0, 0, 0 };
 
-void __cdecl HillTree_Display(ObjectMaster* obj)
+void __cdecl HillTreeDisplay(task* tp)
 {
-	EntityData1* data = obj->Data1;
-
-	if (!MissedFrames && IsVisible(&data->Position, 30.0f * (data->Scale.x + data->Scale.y)))
+	if (!MissedFrames)
 	{
-		SetSecondObjectTexture();
-		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateEx((Angle*)&data->Rotation, false);
+		auto twp = tp->twp;
 
-		njPushMatrixEx();
-		njScale(nullptr, data->Scale.x, data->Scale.x + data->Scale.y, data->Scale.x);
-		DrawModel(data->Object->basicdxmodel);
-		njPopMatrixEx();
-
-		NJS_OBJECT* branch = data->Object->child;
-
-		njScalef(data->Scale.x);
-		njTranslateY(15.0f * data->Scale.y);
-
-		while (branch)
+		// Skip if not visible on screen
+		if (!IsVisible(&twp->pos, 30.0f * (twp->scl.x + twp->scl.y)))
 		{
-			DrawObjectRoot(branch);
-			branch = branch->sibling;
+			return;
 		}
 
+		auto object = (NJS_OBJECT*)twp->value.ptr;
+
+		SetSecondObjectTexture();
+		njPushMatrixEx();
+		njTranslateEx(&twp->pos);
+		njRotateEx((Angle*)&twp->ang, false);
+
+		// Draw base:
+
+		njPushMatrixEx();
+		njScale(nullptr, twp->scl.x, twp->scl.x + twp->scl.y, twp->scl.x);
+		DrawModel(object->basicdxmodel);
+		njPopMatrixEx();
+
+		// Draw branches:
+
+		NJS_OBJECT* branch = object->child;
+
+		if (branch)
+		{
+			njScalef(twp->scl.x);
+			njTranslateY(15.0f * twp->scl.y);
+
+			while (branch)
+			{
+				DrawObjectRoot(branch);
+				branch = branch->sibling;
+			}
+		}
+		
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl HillTree_Main(ObjectMaster* obj)
+void __cdecl HillTreeExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
-
-		AddToCollisionList(data);
-		obj->DisplaySub(obj);
+		EntryColliList(tp->twp);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl HillTree(ObjectMaster* obj)
+void __cdecl HillTree(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
 	// Choose the model and collison based on set information
-	switch (static_cast<int>(data->Scale.z) % 5)
+	switch (static_cast<int>(twp->scl.z) % 5)
 	{
 	case 0:
 	default:
-		data->Object = ht_tree->getmodel()->child;
-		Collision_Init(obj, &HillTree_Col[0], 1, 4);
+		twp->value.ptr = ht_tree->getmodel()->child;
+		CCL_Init(tp, &HillTreeColM, 1, 4);
 		break;
 	case 1:
-		data->Object = ht_tree->getmodel()->child->sibling;
-		Collision_Init(obj, &HillTree_Col[1], 1, 4);
+		twp->value.ptr = ht_tree->getmodel()->child->sibling;
+		CCL_Init(tp, &HillTreeColS, 1, 4);
 		break;
 	case 2:
-		data->Object = ht_tree->getmodel()->child->sibling->sibling;
-		Collision_Init(obj, &HillTree_Col[1], 1, 4);
+		twp->value.ptr = ht_tree->getmodel()->child->sibling->sibling;
+		CCL_Init(tp, &HillTreeColS, 1, 4);
 		break;
 	case 3:
-		data->Object = ht_tree->getmodel()->child->sibling->sibling->sibling;
+		twp->value.ptr = ht_tree->getmodel()->child->sibling->sibling->sibling;
 		break;
 	case 4:
-		data->Object = ht_tree->getmodel()->child->sibling->sibling->sibling->sibling;
-		Collision_Init(obj, &HillTree_Col[0], 1, 4);
+		twp->value.ptr = ht_tree->getmodel()->child->sibling->sibling->sibling->sibling;
+		CCL_Init(tp, &HillTreeColM, 1, 4);
 		break;
 	}
 
-	// If the scale is null, set it to normal
-	if (data->Scale.x == 0)
+	if (twp->scl.x == 0)
 	{
-		data->Scale.x = 1;
+		twp->scl.x = 1; // default scale
 	}
 
-	if (data->CollisionInfo)
+	auto cwp = twp->cwp;
+
+	if (cwp)
 	{
-		// Adjust position with scale
-		data->CollisionInfo->CollisionArray[0].center.y *= data->Scale.x + data->Scale.y;
+		auto cclinfo = cwp->info;
+
+		// Adjust center with scale
+		cclinfo->center.y *= twp->scl.x + twp->scl.y;
 
 		// Adjust collision size with scale
-		data->CollisionInfo->CollisionArray[0].a *= data->Scale.x;
-		data->CollisionInfo->CollisionArray[0].b *= data->Scale.x + data->Scale.y;
+		cclinfo->a *= twp->scl.x;
+		cclinfo->b *= twp->scl.x + twp->scl.y;
 	}
 
-	obj->MainSub = HillTree_Main;
-	obj->DisplaySub = HillTree_Display;
+	tp->exec = HillTreeExec;
+	tp->disp = HillTreeDisplay;
 }
 
 void HillTree_LoadAssets()
