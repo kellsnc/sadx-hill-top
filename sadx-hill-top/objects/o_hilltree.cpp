@@ -13,8 +13,8 @@ ScaleZ: Tree ID
 
 ModelInfo* ht_tree = nullptr;
 
-CCL_INFO HillTreeColM = { 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 25.0f, 0.0f}, 5.0f, 25.0f, 0.0f, 0.0f, 0, 0, 0 };
-CCL_INFO HillTreeColS = { 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 20.0f, 0.0f}, 1.0f, 20.0f, 0.0f, 0.0f, 0, 0, 0 };
+static CCL_INFO HillTreeColM = { 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 25.0f, 0.0f}, 5.0f, 25.0f, 0.0f, 0.0f, 0, 0, 0 };
+static CCL_INFO HillTreeColS = { 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 20.0f, 0.0f}, 1.0f, 20.0f, 0.0f, 0.0f, 0, 0, 0 };
 
 void __cdecl HillTreeDisplay(task* tp)
 {
