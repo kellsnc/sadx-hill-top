@@ -5,8 +5,8 @@
 
 Particule effet above lava.
 
-RotZ: amount
-Scale: range
+AngZ: amount (divided in 10 groups)
+Scl: range
 
 */
 
@@ -29,7 +29,7 @@ void SpawnLavaParticule(NJS_VECTOR* offset, Float x_range, Float z_range)
 }
 
 // Draw a set of lava sprites
-void DrawLavaSprites(NJS_VECTOR* vecs, Rotation3* rot, int count, float limit, float offx, float offz)
+void DrawLavaSprites(NJS_VECTOR* vecs, Angle3* rot, int count, float limit, float offx, float offz)
 {
 	for (int i = 0; i < count; ++i)
 	{
@@ -37,121 +37,120 @@ void DrawLavaSprites(NJS_VECTOR* vecs, Rotation3* rot, int count, float limit, f
 		njTranslate(0, vecs[i].x + offx, vecs[i].y, vecs[i].z + offz);
 		njRotateY_(-rot->y + Camera_Data1->Rotation.y); // adjust to camera
 		njRotateX_(-rot->x + Camera_Data1->Rotation.x); // adjust to camera
-
 		njScalef(1.0f - vecs[i].y / limit); // reduce size as it approaches the limit
-
 		njDrawSprite3D(&LAVAEFF_SPRITE, 0, NJD_SPRITE_ALPHA); // Draw the sprite with alpha & color
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl LavaEffect_Display(ObjectMaster* obj)
+void __cdecl LavaEffectDisplay(task* tp)
 {
-	EntityData1* data = obj->Data1;
-
 	if (!MissedFrames)
 	{
-		njSetTexture(&HillTopOBJ_TexList);
+		auto twp = tp->twp;
+
+		SetObjectTexture();
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
+		njTranslateEx(&twp->pos);
 
-		njRotateY_(data->Rotation.y);
-		njRotateX_(data->Rotation.x);
+		njRotateY_(twp->ang.y);
+		njRotateX_(twp->ang.x);
 
+		SetMaterial(1.0f, 1.0f, 1.0f, 1.0f);
 		njColorBlendingMode(NJD_SOURCE_COLOR, NJD_COLOR_BLENDING_SRCALPHA);
 		njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_ONE);
 
-		NJS_VECTOR* vecs = (NJS_VECTOR*)data->LoopData;
-		int count = static_cast<int>(data->Rotation.z) / 10;
+		auto vecs = (NJS_VECTOR*)twp->value.ptr; // stored offsets
+		int count = twp->ang.z / 10; // get amount per groups
 
-		// Divide sprites in a group of ten different speeds
+		// Divide in 10 groups
 		for (int i = 0; i < 10; ++i)
 		{
-
 			// Some kind of animation for the particules
-			float sin = njSin(3500 * (i + FrameCounterUnpaused)) * 0.1000000014901161;
-			float elapse = i * 0.125 + 0.1000000014901161;
+			float sin = njSin(3500 * (i + FrameCounterUnpaused)) * 0.1f;
+			float elapse = i * 0.125f + 0.1f;
 
 			// Draw
-			DrawLavaSprites(&vecs[i * count], &data->Rotation, count, data->Scale.y, sin * (1.0 - elapse), (elapse + 1.0) * sin);
+			DrawLavaSprites(&vecs[i * count], &twp->ang, count, twp->scl.y, sin * (1.0f - elapse), (elapse + 1.0f) * sin);
 		}
 
-		njColorBlendingMode(NJD_SOURCE_COLOR, NJD_COLOR_BLENDING_SRCALPHA);
-		njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_INVSRCALPHA);
-
+		SetDefaultAlphaBlend();
+		ResetMaterial();
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl LavaEffect_Main(ObjectMaster* obj)
+void __cdecl LavaEffectExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
-		NJS_VECTOR* vecs = (NJS_VECTOR*)data->LoopData;
-		int count = static_cast<int>(data->Rotation.z) / 10;
+		auto vecs = (NJS_VECTOR*)twp->value.ptr; // stored offsets
+		int count = twp->ang.z / 10; // get amount per groups
 
-		if (FrameCounterUnpaused % 100 == 0)
+		// Register sound if close to the object
+		if (IsPlayerInsideSphere_(&twp->pos, 500.0f))
 		{
-			dsPlay_oneshot_Dolby(459, 0, 0, 60, 120, (taskwk*)data);
+			dsPlay_Dolby_time(459, 0, 0, 60, 120, twp);
 		}
-
-		// Divide sprites in a group of ten different speeds
+		
+		// Divide in 10 groups, each group moves at a different speed
 		for (int i = 0; i < 10; ++i)
 		{
-			for (Uint16 j = 0; j < count; ++j)
+			for (int j = 0; j < count; ++j)
 			{
-				NJS_VECTOR* vec = &vecs[i * count + j];
+				auto vec = &vecs[i * count + j];
 
-				if (vec->y > data->Scale.y)
+				if (vec->y > twp->scl.y)
 				{
-					SpawnLavaParticule(vec, data->Scale.x, data->Scale.z); // if higher than the limit, respawn
+					SpawnLavaParticule(vec, twp->scl.x, twp->scl.z); // if higher than the y limit, respawn
 				}
 				else
 				{
-					vec->y += 0.10f + (0.01 * i); // y speed
+					vec->y += 0.10f + (0.01f * i); // y speed
 				}
 			}
 		}
 
-		obj->DisplaySub(obj);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl LavaEffect_Delete(ObjectMaster* obj)
+void __cdecl LavaEffectDestroy(task* tp)
 {
-	delete[] obj->Data1->LoopData; // release allocated memory
+	if (tp->twp)
+	{
+		delete[] tp->twp->value.ptr; // release allocated memory
+	}
 }
 
-void __cdecl LavaEffect(ObjectMaster* obj)
+void __cdecl LavaEffect(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
 	// If z range is empty, use x range
-	if (data->Scale.z == 0)
+	if (twp->scl.z == 0.0f)
 	{
-		data->Scale.z = data->Scale.x;
+		twp->scl.z = twp->scl.x;
 	}
 
 	// Keep the amount as a multiple of ten to avoid integer rounding
-	data->Rotation.z = round_up(data->Rotation.z, 10);
+	int amount = twp->ang.z = round_up(twp->ang.z, 10);
 
-	int amount = static_cast<int>(data->Rotation.z);
-
-	NJS_VECTOR* offsets = new NJS_VECTOR[amount](); //alocate one offset per particule
-	data->LoopData = (Loop*)offsets; // store the allocated memory pointer in LoopData
+	auto offsets = new NJS_VECTOR[amount](); // allocate one offset per particule
+	twp->value.ptr = offsets; // store the allocated memory pointer in twp->value
 
 	// Spawn every particule
 	for (int i = 0; i < amount; ++i)
 	{
-		SpawnLavaParticule(&offsets[i], data->Scale.x, data->Scale.z);
+		SpawnLavaParticule(&offsets[i], twp->scl.x, twp->scl.z);
 
-		// random height when the object loads
-		offsets[i].y = (data->Scale.y / 2.0f) - static_cast<Float>((rand() % static_cast<int>(data->Scale.y)));
+		// Random height in Y range on first load
+		offsets[i].y = (twp->scl.y / 2.0f) - static_cast<Float>((rand() % static_cast<int>(twp->scl.y)));
 	}
 
-	obj->DeleteSub = LavaEffect_Delete;
-	obj->MainSub = LavaEffect_Main;
-	obj->DisplaySub = LavaEffect_Display;
+	tp->dest = LavaEffectDestroy;
+	tp->exec = LavaEffectExec;
+	tp->disp = LavaEffectDisplay;
 }

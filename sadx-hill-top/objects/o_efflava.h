@@ -1,3 +1,3 @@
 #pragma once
 
-void __cdecl LavaEffect(ObjectMaster* obj);
+void __cdecl LavaEffect(task* tp);
