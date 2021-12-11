@@ -315,18 +315,17 @@ void __cdecl GrowLavaTriggerExec(task* tp)
 			twp->mode = 2;
 		}
 
-		if (!(CharObj2Ptrs[0]->Powerups & Powerups_Dead))
-		{
-			grow_workers[trigger_id].Height += static_cast<float>(twp->ang.x) / 100.0f;
-		}
-
-		// Shake everything by applying changing offset:
-
 		if (!MissedFrames)
 		{
 			++twp->wtimer;
+
+			if (!(playerpwp[0]->item & Powerups_Dead))
+			{
+				grow_workers[trigger_id].Height += static_cast<float>(twp->ang.x) / 100.0f;
+			}
 		}
 		
+		// Shake everything by applying changing offset:
 		if (twp->wtimer % 100 == 0)
 		{
 			dsPlay_oneshot(462, 0, 0, 0);
