@@ -297,7 +297,7 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj)
 			{
 				grow_workers[trigger_id].Enabled = true;
 				grow_workers[trigger_id].Height = data->Scale.y;
-				PlaySound(462, nullptr, 0, 0);
+				dsPlay_oneshot(462, 0, 0, 0);
 				data->field_A = 0;
 				data->Action = 1;
 			}
@@ -324,7 +324,7 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj)
 
 		if (data->field_A % 100 == 0)
 		{
-			PlaySound(462, nullptr, 0, 0);
+			dsPlay_oneshot(462, 0, 0, 0);
 		}
 
 		if (data->field_A < 90)

@@ -213,7 +213,7 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj)
 		if (IsPlayerOnDyncol(obj))
 		{
 			data->Action = TranspPlatformActs::Move;
-			PlaySound(466, nullptr, 0, (void*)160);
+			dsPlay_oneshot(466, 0, 0, 160);
 		}
 
 		break;

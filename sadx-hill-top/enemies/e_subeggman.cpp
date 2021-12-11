@@ -598,7 +598,7 @@ void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale)
 	njLookAt(&pos, &EntityData1Ptrs[GetTheNearestPlayerNumber(&pos)]->Position, &x, &y);
 	LoadFireBall(CurrentBoss, &pos, y, -x, 5.0f, 5.0f, 0.0f, 0);
 	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
-	PlaySound(461, 0, 0, 0);
+	dsPlay_oneshot(461, 0, 0, 0);
 }
 
 void __cdecl EggBombInit(ObjectMaster* obj)
@@ -746,7 +746,7 @@ void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count)
 	NJS_VECTOR pos = EggSub_GetAttackPoint(data, 0.3f);
 
 	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
-	PlaySound(461, 0, 0, 0);
+	dsPlay_oneshot(461, 0, 0, 0);
 
 	for (int i = 0; i < count; ++i)
 	{
@@ -851,7 +851,7 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk)
 		{
 			wk->HitTimer = 50;
 			wk->HitPoint -= 1;
-			PlaySound(461, 0, 0, 0);
+			dsPlay_oneshot(461, 0, 0, 0);
 			SetLavaSpeed(15.0f);
 
 			if (wk->Level == 1)
@@ -1195,7 +1195,7 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk)
 		SubEgg_LookAtPlayer(data, wk);
 
 		SubEgg_ChangeSub(wk, eggsubmtnacts::emerge);
-		PlaySound(464, 0, 0, 0);
+		dsPlay_oneshot(464, 0, 0, 0);
 
 		break;
 	case eggsubmtnacts::emerge:
