@@ -106,7 +106,7 @@ void __cdecl VinePulley(ObjectMaster* obj)
 	ObjectMaster* child = LoadChildObject(LoadObj_Data1, VinePulleyTarget, obj);
 	child->Data1->Position.y = data->Position.y - data->Scale.x;
 	Collision_Init(child, &VinePulley_Col, 1, 3);
-	FireFly_Load(child, 3);
+	FireFly_Load((task*)child, 3);
 
 	data->Scale.z = data->Scale.x;
 
