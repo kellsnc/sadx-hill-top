@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "o_vinepulley.h"
 #include "o_lantern.h"
+#include "o_transporter.h"
 
 /*
 
@@ -12,104 +13,102 @@ Scale Y: distance to where the vine stops
 
 */
 
-extern ModelInfo* ht_transporter;
+CCL_INFO VinePulley_Col = { 0, CI_FORM_SPHERE, 0xF0, 0, 0, {0.0f, 0.0f, 0.0f}, 8.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
 
-CollisionData VinePulley_Col = {
-	0, CI_FORM_SPHERE, 0xF0, 0, 0, {0.0f, 0.0f, 0.0f}, 8.0f, 0.0f, 0.0f, 0, 0, 0, 0
-};
-
-void __cdecl VinePulleyTarget(ObjectMaster* obj)
+void __cdecl VinePulleyTarget(task* tp)
 {
-	EntityData1* data = obj->Data1;
-	RunObjectChildren(obj);
-	AddToCollisionList(data);
+	LoopTaskC(tp);
+	EntryColliList(tp->twp);
 }
 
-void __cdecl VinePulley_Display(ObjectMaster* obj)
+void __cdecl VinePulleyDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
-		EntityData1* child = obj->Child->Data1;
+		auto twp = tp->twp;
+		auto ctwp = tp->ctp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
 
 		SetSecondObjectTexture();
 		njPushMatrixEx();
-		njTranslateEx(&child->Position);
-		njScaleY(data->Scale.z / 23);
-		DrawModel(data->Object->basicdxmodel);
+		njTranslateEx(&ctwp->pos);
+		njScaleY(twp->scl.z / 23);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl VinePulley_Main(ObjectMaster* obj)
+void __cdecl VinePulleyExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
-		EntityData1* child = obj->Child->Data1;
+		auto twp = tp->twp;
+		auto ctwp = tp->ctp->twp;
 
-		if (data->Action == 0)
+		if (twp->mode == 0)
 		{
-			if (data->Scale.z < data->Scale.x)
+			if (twp->scl.z < twp->scl.x)
 			{
-				data->Scale.z += 5.0f;
-				child->Position.y = data->Position.y - data->Scale.z;
+				twp->scl.z += 5.0f;
+				ctwp->pos.y = twp->pos.y - twp->scl.z;
 			}
 
-			if (data->InvulnerableTime > 0)
+			if (twp->wtimer > 0)
 			{
-				--data->InvulnerableTime;
+				--twp->wtimer;
 			}
 			else
 			{
-				EntityData1* player = GetCollidingEntityA(child);
+				taskwk* player = (taskwk*)GetCollidingEntityA((EntityData1*)ctwp);
 
 				if (player)
 				{
-					data->CharIndex = player->CharIndex;
+					twp->btimer = TASKWK_PLAYERID(player);
 					ForcePlayerAction(0, 16);
 					dsPlay_oneshot(463, 0, 0, 0);
-					data->Action = 1;
+					twp->mode = 1;
 				}
 			}
 		}
 		else
 		{
-			if (data->Scale.z > data->Scale.y)
+			int player_id = static_cast<int>(twp->btimer);
+
+			if (twp->scl.z > twp->scl.y)
 			{
-				data->Scale.z -= 5.0f;
-				child->Position.y = data->Position.y - data->Scale.z;
+				twp->scl.z -= 5.0f;
+				ctwp->pos.y = twp->pos.y - twp->scl.z;
 			}
 
-			if (CheckJump(data->CharIndex))
+			if (CheckJump(player_id))
 			{
-				data->Action = 0;
-				data->InvulnerableTime = 100;
+				twp->mode = 0;
+				twp->wtimer = 100;
 			}
 
-			ForcePlayerPos(data->CharIndex, &child->Position);
-			EntityData1Ptrs[data->CharIndex]->Rotation.y = data->Rotation.y;
+			ForcePlayerPos(player_id, &ctwp->pos);
+			playertwp[player_id]->ang.y = twp->ang.y;
 		}
 
-		obj->DisplaySub(obj);
+		tp->disp(tp);
 	}
 
-	RunObjectChildren(obj);
+	LoopTaskC(tp);
 }
 
-void __cdecl VinePulley(ObjectMaster* obj)
+void __cdecl VinePulley(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	data->Object = ht_transporter->getmodel()->child->child;
+	twp->value.ptr = ht_transporter->getmodel()->child->child;
 
-	ObjectMaster* child = LoadChildObject(LoadObj_Data1, VinePulleyTarget, obj);
-	child->Data1->Position.y = data->Position.y - data->Scale.x;
-	Collision_Init(child, &VinePulley_Col, 1, 3);
-	FireFly_Load((task*)child, 3);
+	auto ctp = CreateChildTask(LoadObj_Data1, VinePulleyTarget, tp);
+	ctp->twp->pos.y = twp->pos.y - twp->scl.x;
+	CCL_Init(ctp, &VinePulley_Col, 1, 3);
+	FireFly_Load(ctp, 3);
 
-	data->Scale.z = data->Scale.x;
+	twp->scl.z = twp->scl.x;
 
-	obj->MainSub = VinePulley_Main;
-	obj->DisplaySub = VinePulley_Display;
+	tp->exec = VinePulleyExec;
+	tp->disp = VinePulleyDisplay;
 }

@@ -83,7 +83,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 0, 0, 0, FireBallLauncher, "E FIREBALL" },
 	{ LoadObj_Data1, 3, 1, MinDistance, 0, (ObjectFuncPtr)HillSeesaw, "O HILLSEESAW" },
 	{ LoadObj_Data1, 3, 1, 640000, 0, (ObjectFuncPtr)HillPole, "O HILLPOLE" },
-	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" },
+	{ LoadObj_Data1, 3, 1, 640000, 0, (ObjectFuncPtr)VinePulley, "O VINEPULLEY" },
 	{ LoadObj_Data1, 3, 1, 1280000, 0, (ObjectFuncPtr)HillPlatform, "O HILLPLATFORM" },
 	{ LoadObj_Data1, 3, 1, MinDistance, 0, RingGroup_Main, "O_GRING" },
 	{ LoadObj_Data1, 3, 1, 5280000, 0, (ObjectFuncPtr)GrowLava, "O GROWLAVA" },
