@@ -151,7 +151,7 @@ void __cdecl SpikerSpike_Main(ObjectMaster* obj)
 	{
 		if (++data->field_A > 200 || GetCollidingEntityA(data))
 		{
-			LoadEnemyExplosion(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
+			CreateFlash2(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
 			DeleteObject_(obj);
 			return;
 		}
@@ -343,10 +343,10 @@ void Spiker_ActionAttack(SpikerData1* data, enemywk* enmwk)
 
 void Spiker_ActionDelete(ObjectMaster* obj, SpikerData1* data)
 {
-	LoadEnemyExplosion(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
-	SpawnAnimal(3, data->Position.x, data->Position.y + 10.0f, data->Position.z);
+	CreateFlash2(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
+	CreateAnimal(3, data->Position.x, data->Position.y + 10.0f, data->Position.z);
 	SetEmeraldObtained(data->Rotation.z, &data->Position);
-	UpdateSetDataAndDelete(obj);
+	DeadOut((task*)obj);
 	DeleteGammaMissileIfNoTarget(obj);
 }
 

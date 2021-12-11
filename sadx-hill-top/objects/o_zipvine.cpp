@@ -160,7 +160,7 @@ void __cdecl ZipVine_Main(ObjectMaster* obj)
 
 			if (FrameCounterUnpaused % 300 == 0)
 			{
-				PlaySound3D(456, nullptr, 0, 200, 120, EntityData1Ptrs[0]);
+				dsPlay_oneshot_Dolby(456, 0, 0, 200, 120, (taskwk*)EntityData1Ptrs[0]);
 			}
 
 			if ((data->State > 0 || data->Progress > 0.3f) && CheckJump(0))

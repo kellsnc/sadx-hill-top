@@ -94,7 +94,7 @@ void __cdecl LavaEffect_Main(ObjectMaster* obj)
 
 		if (FrameCounterUnpaused % 100 == 0)
 		{
-			PlaySound3D(459, nullptr, 0, 60, 120, data);
+			dsPlay_oneshot_Dolby(459, 0, 0, 60, 120, (taskwk*)data);
 		}
 
 		// Divide sprites in a group of ten different speeds

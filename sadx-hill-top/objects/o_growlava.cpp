@@ -291,7 +291,7 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj)
 
 			if (data->Rotation.y == 1)
 			{
-				UpdateSetDataAndDelete(obj);
+				DeadOut((task*)obj);
 			}
 			else
 			{

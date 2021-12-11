@@ -16,8 +16,6 @@ struct Color3 {
 typedef void(__cdecl* VoidFuncPtr)(void);
 
 DataPointer(VoidFuncPtr, LevelDestructor, 0x3B291B4);
-FunctionPointer(void, LoadEnemyExplosion, (Float x, Float y, Float z, Float scale), 0x4CAF80);
-FunctionPointer(void, SpawnAnimal, (Uint32 unk, Float x, Float y, Float z), 0x4BE610);
 FunctionPointer(bool, Object_CheckEmerald, (unsigned __int8 emerald, NJS_VECTOR* pos), 0x476660);
 FunctionPointer(bool, SetEmeraldObtained, (unsigned __int8 emerald, NJS_VECTOR* pos), 0x477D90);
 FunctionPointer(Bool, IsEventPerforming, (), 0x42FB00);
@@ -27,19 +25,13 @@ VoidFunc(RedMountain_SetViewData, 0x600730);
 DataArray(Color3, GlobalColorsLevel, 0x90BFE8, 43);
 FunctionPointer(void, KillPlayer, (uint8_t ID), 0x440CD0);
 DataArray(NJS_VECTOR, GammaCamBounds, 0x24C8D00, 5);
-FunctionPointer(bosswk*, BossAlloc, (EntityData1* data, int size), 0x4BD420);
 VoidFunc(EnableTimeThing, 0x426030);
-FunctionPointer(void, PlayerDirectionToVector, (EntityData1* player, NJS_VECTOR* direction), 0x43EC90);
 FunctionPointer(void, PlayVoiceCheckSetting, (int voice), 0x571990);
 DataPointer(ObjectMaster*, Egg1ExplosionTask, 0x3C6C940);
 DataPointer(float, BossHealth, 0x3C58158);
-FunctionPointer(void, PlaySound3D, (int ID, void* entity, int a3, int volume, int length, EntityData1* data), 0x424880);
-FunctionPointer(void, SetViewAngle, (int new_view_angle), 0x437240);
 FunctionPointer(void, SetCameraBossStuff, (EntityData1* data, float y, float x, int rot), 0x4647C0);
 ObjectFunc(LoadMusic_EventDelayed, 0x600890);
-TaskFunc(SetContinue, 0x46C120);
 ObjectFunc(ObjectCrash, 0x5A95B0); // position is position, scale is direction, object is the model
-ObjectFunc(UpdateSetDataAndDelete, 0x46C150);
 ObjectFunc(DeleteGammaMissileIfNoTarget, 0x4CEFE0);
 FastcallFunctionPointer(void, DrawChunkModel_, (Sint32* a1, Sint16* a2), 0x7917F0);
 

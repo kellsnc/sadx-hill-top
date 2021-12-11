@@ -137,7 +137,7 @@ void FireBallLauncher_Main(ObjectMaster* obj)
 			}
 
 			LoadFireBall(obj, &pos, data->Rotation.y, data->Rotation.x, data->Scale.y, data->Scale.x, data->Scale.y / 2, 1);
-			PlaySound3D(464, nullptr, 0, 60, 120, data);
+			dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, (taskwk*)data);
 
 			data->field_A = data->Rotation.z;
 		}

@@ -626,7 +626,7 @@ void EggSub_Bomb(EntityData1* data)
 		bombdata->Position.y = 5;
 	}
 
-	PlaySound3D(465, nullptr, 0, 80, 120, data);
+	dsPlay_oneshot_Dolby(465, 0, 0, 80, 120, (taskwk*)data);
 }
 
 void EggSubDeflarg_Display(ObjectMaster* obj)
@@ -842,7 +842,7 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk)
 		if (playerHurting)
 		{
 			NJS_VECTOR spd = { -3.5f, 3.5f, 0.0f };
-			PlayerDirectionToVector(entity, &spd);
+			PConvertVector_P2G((taskwk*)entity, &spd);
 			EnemyBounceThing(entity->CharIndex, spd.x, spd.y, spd.z);
 			CharObj2Ptrs[entity->CharIndex]->NoControlTime = 10;
 		}
@@ -1381,7 +1381,7 @@ void __cdecl SubEggman_Main(ObjectMaster* obj)
 void __cdecl SubEggman(ObjectMaster* obj)
 {
 	EntityData1* data = obj->Data1;
-	eggsubwk* wk = (eggsubwk*)BossAlloc(data, sizeof(eggsubwk));
+	eggsubwk* wk = (eggsubwk*)BInitialize((taskwk*)data, sizeof(eggsubwk));
 
 	PlayMusic((MusicIDs)HillTopBossMusic);
 

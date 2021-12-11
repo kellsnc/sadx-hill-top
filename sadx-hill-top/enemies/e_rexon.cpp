@@ -62,7 +62,7 @@ void RexonHead_LoadFireBall(ObjectMaster* obj, EntityData1* data)
 
 	LoadFireBall(obj, &pos, roty, rotx, 1.5f, 1.5f, 0.01f, 0);
 
-	PlaySound3D(464, nullptr, 0, 60, 120, data);
+	dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, (taskwk*)data);
 }
 
 void RexonHead_DrawMouth(EntityData1* data, NJS_OBJECT* object, float mouthopen)
@@ -158,8 +158,8 @@ void __cdecl RexonHead_Main(ObjectMaster* obj)
 
 	if (OhNoImDead(data, (ObjectData2*)obj->Data2))
 	{
-		LoadEnemyExplosion(data->Position.x, data->Position.y + 3.0f, data->Position.z, 1.0f);
-		SpawnAnimal(3, data->Position.x, data->Position.y + 6.0f, data->Position.z);
+		CreateFlash2(data->Position.x, data->Position.y + 3.0f, data->Position.z, 1.0f);
+		CreateAnimal(3, data->Position.x, data->Position.y + 6.0f, data->Position.z);
 		SetEmeraldObtained(data->Rotation.z, &data->Position);
 		DeleteObject_(obj);
 		DeleteGammaMissileIfNoTarget(obj);

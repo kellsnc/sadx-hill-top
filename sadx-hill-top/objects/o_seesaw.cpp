@@ -51,7 +51,7 @@ static void Seesaw_Launch(ObjectMaster* obj, EntityData1* player)
 	{
 		CharObj2Ptrs[player->CharIndex]->Speed.y = data->Scale.x;
 		EntityData2Ptrs[player->CharIndex]->VelocityDirection.y = data->Scale.x;
-		PlaySound3D(458, nullptr, 0, 100, 120, data);
+		dsPlay_oneshot_Dolby(458, 0, 0, 100, 120, (taskwk*)data);
 	}
 }
 
