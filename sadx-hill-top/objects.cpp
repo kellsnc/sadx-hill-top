@@ -86,10 +86,10 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 640000, 0, VinePulley, "O VINEPULLEY" },
 	{ LoadObj_Data1, 3, 1, 1280000, 0, HillPlatform, "O HILLPLATFORM" },
 	{ LoadObj_Data1, 3, 1, MinDistance, 0, RingGroup_Main, "O_GRING" },
-	{ LoadObj_Data1, 3, 1, 5280000, 0, GrowLava, "O GROWLAVA" },
-	{ LoadObj_Data1, 3, 1, 1280000, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
-	{ LoadObj_Data1, 2, 0, 0, 0, GrowLavaTrigger, "O GRAWLAVATRIGGER" },
-	{ LoadObj_Data1, 2, 0, 0, 0, KillCeiling, "O KILLCEILING" }
+	{ LoadObj_Data1, 3, 1, 5280000, 0, (ObjectFuncPtr)GrowLava, "O GROWLAVA" },
+	{ LoadObj_Data1, 3, 1, 1280000, 0, (ObjectFuncPtr)GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
+	{ LoadObj_Data1, 2, 0, 0, 0, (ObjectFuncPtr)GrowLavaTrigger, "O GRAWLAVATRIGGER" },
+	{ LoadObj_Data1, 2, 0, 0, 0, (ObjectFuncPtr)KillCeiling, "O KILLCEILING" }
 };
 
 ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };

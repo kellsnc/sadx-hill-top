@@ -13,16 +13,15 @@ extern NJS_TEXLIST HillTop_TexList;
 extern ModelInfo* ht_platform;
 static ModelInfo* ht_growlava = nullptr;
 
-static CollisionData GrowLavaTrigger_Col = { 0, CI_FORM_SPHERE, 0xF0, 0, 0, { 0, 0, 0 }, 0, 0, 0, 0, 0 };
+static CCL_INFO GrowLavaTrigger_Col = { 0, CI_FORM_SPHERE, 0xF0, 0, 0, { 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
 
 Grow_WK grow_workers[3] = { };
 
-static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_VECTOR* pos, int id)
+static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_POINT3* pos, int id)
 {
 	dyncol->pos[0] = pos->x;
 	dyncol->pos[1] = pos->y;
 	dyncol->pos[2] = pos->z;
-
 	dyncol->pos[1] += grow_workers[id].Offset;
 }
 
@@ -36,26 +35,29 @@ ScaleY: lava (0) or ground (1)
 
 */
 
-void __cdecl GrowLava_Delete(ObjectMaster* obj)
+void __cdecl GrowLavaDestroy(task* tp)
 {
-	// Removes the dyncol before deleting the object
-
-	if (obj->Data1->LoopData)
+	if (tp->twp)
 	{
-		DynamicCOL_Remove(obj, (NJS_OBJECT*)obj->Data1->LoopData);
-		ObjectArray_Remove((NJS_OBJECT*)obj->Data1->LoopData);
+		auto object = (NJS_OBJECT*)tp->twp->value.ptr;
+
+		if (object)
+		{
+			WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
+			ReleaseMobileLandObject(object);     // Release the entry
+		}
 	}
 }
 
-void __cdecl GrowLava_Display(ObjectMaster* obj)
+void __cdecl GrowLavaDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
-
-		int trigger_id = data->Rotation.z;
-
-		if (data->Scale.y == 1.0f)
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
+		auto trigger_id = twp->ang.z;
+		
+		if (twp->scl.y == 1.0f)
 		{
 			njSetTexture(&HillTop_TexList);
 		}
@@ -65,50 +67,50 @@ void __cdecl GrowLava_Display(ObjectMaster* obj)
 		}
 
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
+		njTranslateEx(&twp->pos);
 
+		// Shake if enabled
 		if (grow_workers[trigger_id].Enabled == true)
 		{
 			njTranslateY(grow_workers[trigger_id].Offset);
 		}
 
-		DrawModel(data->Object->basicdxmodel);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl GrowLava_Main(ObjectMaster* obj)
+void __cdecl GrowLavaExec(task* tp)
 {
-	EntityData1* data = obj->Data1;
-
-	int trigger_id = data->Rotation.z;
+	auto twp = tp->twp;
+	auto trigger_id = twp->ang.z;
 
 	if (grow_workers[trigger_id].Enabled == true)
 	{
-		data->Position.y = grow_workers[trigger_id].Height;
+		twp->pos.y = grow_workers[trigger_id].Height;
 
-		if (data->Position.y < data->Scale.z)
+		if (twp->pos.y < twp->scl.z)
 		{
-			data->Position.y = data->Scale.z;
+			twp->pos.y = twp->scl.z;
 		}
 
-		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, trigger_id);
+		UpdateDynCol((NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
 	}
 
-	obj->DisplaySub(obj);
+	tp->disp(tp);
 }
 
-void __cdecl GrowLava(ObjectMaster* obj)
+void __cdecl GrowLava(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	data->Object = GetModelSibling(ht_growlava->getmodel()->child, static_cast<int>(data->Scale.x));
+	twp->scl.z = twp->pos.y; // Backup original position
 
-	NJS_OBJECT* object = ObjectArray_GetFreeObject();
+	NJS_OBJECT* object = GetMobileLandObject();
 
-	object->pos[0] = data->Position.x;
-	object->pos[1] = data->Position.y;
-	object->pos[2] = data->Position.z;
+	object->pos[0] = twp->pos.x;
+	object->pos[1] = twp->pos.y;
+	object->pos[2] = twp->pos.z;
 
 	object->ang[0] = 0;
 	object->ang[1] = 0;
@@ -118,23 +120,22 @@ void __cdecl GrowLava(ObjectMaster* obj)
 	object->scl[1] = 1.0f;
 	object->scl[2] = 1.0f;
 
-	object->basicdxmodel = data->Object->basicdxmodel;
+	object->basicdxmodel = GetModelSibling(ht_growlava->getmodel()->child, static_cast<int>(twp->scl.x))->basicdxmodel;
 
-	if (data->Scale.y == 1.0f)
+	if (twp->scl.y == 1.0f)
 	{
-		DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid), obj, object);
+		RegisterCollisionEntry(ColFlags_Dynamic | ColFlags_Solid, tp, object); // ground
 	}
 	else
 	{
-		DynamicCOL_Add((ColFlags)(0x08004000 | ColFlags_Solid | ColFlags_Hurt), obj, object);
+		RegisterCollisionEntry(0x4000 | ColFlags_Dynamic | ColFlags_Solid | ColFlags_Hurt, tp, object); // lava
 	}
 
-	data->LoopData = (Loop*)object;
-	data->Scale.z = data->Position.y;
+	twp->value.ptr = object;  // store geometry collision object
 
-	obj->MainSub = GrowLava_Main;
-	obj->DeleteSub = GrowLava_Delete;
-	obj->DisplaySub = GrowLava_Display;
+	tp->exec = GrowLavaExec;
+	tp->dest = GrowLavaDestroy;
+	tp->disp = GrowLavaDisplay;
 }
 #pragma endregion
 
@@ -151,102 +152,104 @@ ScaleY: movement radius
 
 */
 
-void __cdecl GrowLavaPlatform_Delete(ObjectMaster* obj)
+void __cdecl GrowLavaPlatformDestroy(task* tp)
 {
-	// Removes the dyncol before deleting the object
-
-	if (obj->Data1->LoopData)
+	if (tp->twp)
 	{
-		DynamicCOL_Remove(obj, (NJS_OBJECT*)obj->Data1->LoopData);
-		ObjectArray_Remove((NJS_OBJECT*)obj->Data1->LoopData);
+		auto object = (NJS_OBJECT*)tp->twp->value.ptr;
+
+		if (object)
+		{
+			WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
+			ReleaseMobileLandObject(object);     // Release the entry
+		}
 	}
 }
 
-void __cdecl GrowLavaPlatform_Display(ObjectMaster* obj)
+void __cdecl GrowLavaPlatformDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
-
-		int trigger_id = data->Rotation.x;
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
+		auto trigger_id = twp->ang.x;
 
 		njSetTexture(&HillTop_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
+		njTranslateEx(&twp->pos);
 
+		// Shake if enabled
 		if (grow_workers[trigger_id].Enabled == true)
 		{
 			njTranslateY(grow_workers[trigger_id].Offset);
 		}
 
-		njRotateY_(data->Rotation.y);
-		njScalef(data->Scale.x);
-		DrawModel(data->Object->basicdxmodel);
+		njRotateY_(twp->ang.y);
+		njScalef(twp->scl.x);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl GrowLavaPlatform_Main(ObjectMaster* obj)
+void __cdecl GrowLavaPlatformExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
+		auto trigger_id = twp->ang.x;
 
-		int trigger_id = data->Rotation.x;
-
-		if (grow_workers[trigger_id].Enabled == true && grow_workers[trigger_id].Height > data->Scale.z - data->Scale.y - 10.0f)
+		if (grow_workers[trigger_id].Enabled == true && grow_workers[trigger_id].Height > twp->scl.z - twp->scl.y - 10.0f)
 		{
-			data->Scale.z = grow_workers[trigger_id].Height + data->Scale.y + 10.0f;
+			twp->scl.z = grow_workers[trigger_id].Height + twp->scl.y + 10.0f;
 		}
 
-		data->Position.y = data->Scale.z + (1.0f - powf(njSin(FrameCounterUnpaused * data->Rotation.z), 2.0f) * data->Scale.y);
+		twp->pos.y = twp->scl.z + (1.0f - powf(njSin(FrameCounterUnpaused * twp->ang.z), 2.0f) * twp->scl.y);
 
-		UpdateDynCol((NJS_OBJECT*)data->LoopData, &data->Position, trigger_id);
-		obj->DisplaySub(obj);
+		UpdateDynCol((NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl GrowLavaPlatform(ObjectMaster* obj)
+void __cdecl GrowLavaPlatform(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	if (data->Scale.x == 0.0f)
+	if (twp->scl.x == 0.0f)
 	{
-		data->Scale.x = 1.0f;
+		twp->scl.x = 1.0f; // default scale
 	}
 
-	data->Object = ht_platform->getmodel();
+	if (twp->ang.z == 0)
+	{
+		twp->ang.z = 150; // default speed
+	}
 
-	// Create the dynamic collision
-	NJS_OBJECT* object = ObjectArray_GetFreeObject();
+	twp->scl.z = twp->pos.y; // backup original y position
 
-	object->pos[0] = data->Position.x;
-	object->pos[1] = data->Position.y;
-	object->pos[2] = data->Position.z;
+	// Create a geometry collision:
+	auto object = GetMobileLandObject();
+
+	object->pos[0] = twp->pos.x;
+	object->pos[1] = twp->pos.y;
+	object->pos[2] = twp->pos.z;
 
 	object->ang[0] = 0;
-	object->ang[1] = data->Rotation.y;
+	object->ang[1] = twp->ang.y;
 	object->ang[2] = 0;
 
-	object->scl[0] = data->Scale.x;
-	object->scl[1] = data->Scale.x;
-	object->scl[2] = data->Scale.x;
+	object->scl[0] = twp->scl.x;
+	object->scl[1] = twp->scl.x;
+	object->scl[2] = twp->scl.x;
 
-	object->basicdxmodel = data->Object->basicdxmodel;
+	object->basicdxmodel = ht_platform->getmodel()->basicdxmodel;
 
-	DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid | ColFlags_UseRotation), obj, object);
+	RegisterCollisionEntry(ColFlags_Dynamic | ColFlags_Solid | ColFlags_UseRotation, tp, object);
 
-	data->LoopData = (Loop*)object;
-	data->Scale.z = data->Position.y;
-
-	if (data->Rotation.z == 0)
-	{
-		data->Rotation.z = 150; // speed
-	}
-
-	obj->MainSub = GrowLavaPlatform_Main;
-	obj->DisplaySub = GrowLavaPlatform_Display;
-	obj->DeleteSub = GrowLavaPlatform_Delete;
+	twp->value.ptr = object; // store geometry collision object
+	
+	tp->exec = GrowLavaPlatformExec;
+	tp->disp = GrowLavaPlatformDisplay;
+	tp->dest = GrowLavaPlatformDestroy;
 }
 #pragma endregion
 
@@ -255,81 +258,83 @@ void __cdecl GrowLavaPlatform(ObjectMaster* obj)
 
 Trigger that launches the lava & plaforms
 
-RotX: grow speed (divided by 100)
-RotY: if 1, reset lava id on restart
-RotZ: index
-ScaleX: radius
-ScaleY: start height
-ScaleZ: end height
+AngX: grow speed (divided by 100)
+AngY: if 1, reset lava id on restart
+AngZ: index
+SclX: radius
+SclY: start height
+SclZ: end height
 
 */
 
-void __cdecl GrowLavaTrigger_Delete(ObjectMaster* obj)
+void __cdecl GrowLavaTriggerDestroy(task* tp)
 {
-	grow_workers[obj->Data1->Rotation.z].Enabled = false;
-	grow_workers[obj->Data1->Rotation.z].Height = 0.0f;
-	grow_workers[obj->Data1->Rotation.z].Offset = 0.0f;
+	grow_workers[tp->twp->ang.z] = { false, 0.0f, 0.0f };
 }
 
-void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj)
+void __cdecl GrowLavaTriggerExec(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	int trigger_id = data->Rotation.z;
+	int trigger_id = twp->ang.z;
 
-	// only reset lava if restarting
-	if (data->Rotation.y == 1 && GameState != 4)
+	// If twp->ang.y is 1, reset lava if restarting
+	if (twp->ang.y == 1 && GameState != 4)
 	{
-		data->Action = 2;
+		twp->mode = 2;
+		DeadOut(tp); // Remove object and tell it not to spawn until next restart
 	}
 
-	if (data->Action == 0)
+	if (twp->mode == 0)
 	{
-		if (CheckCollisionP_num(&data->Position, data->Scale.x, 0))
+		if (CheckCollisionP_num(&twp->pos, twp->scl.x, 0))
 		{
 			EntityData1* entity = EntityData1Ptrs[0];
 
-			if (data->Rotation.y == 1)
+			if (twp->ang.y == 1)
 			{
-				DeadOut((task*)obj);
+				DeadOut(tp);
 			}
 			else
 			{
 				grow_workers[trigger_id].Enabled = true;
-				grow_workers[trigger_id].Height = data->Scale.y;
+				grow_workers[trigger_id].Height = twp->scl.y;
 				dsPlay_oneshot(462, 0, 0, 0);
-				data->field_A = 0;
-				data->Action = 1;
+				twp->wtimer = 0;
+				twp->mode = 1;
 			}
 		}
 
-		AddToCollisionList(data);
+		EntryColliList(twp);
 	}
-	else if (data->Action == 1)
+	else if (twp->mode == 1)
 	{
-		if (grow_workers[trigger_id].Height >= data->Scale.z)
+		if (grow_workers[trigger_id].Height >= twp->scl.z)
 		{
 			grow_workers[trigger_id].Enabled = false;
-			data->Action = 2;
+			twp->mode = 2;
 		}
 
 		if (!(CharObj2Ptrs[0]->Powerups & Powerups_Dead))
 		{
-			grow_workers[trigger_id].Height += static_cast<float>(data->Rotation.x) / 100.0f;
+			grow_workers[trigger_id].Height += static_cast<float>(twp->ang.x) / 100.0f;
 		}
 
-		// Shake everything
+		// Shake everything by applying changing offset:
 
-		++data->field_A;
-
-		if (data->field_A % 100 == 0)
+		if (!MissedFrames)
+		{
+			++twp->wtimer;
+		}
+		
+		if (twp->wtimer % 100 == 0)
 		{
 			dsPlay_oneshot(462, 0, 0, 0);
 		}
 
-		if (data->field_A < 90)
+		if (twp->wtimer < 90)
 		{
-			float sin = (static_cast<float>(data->field_A) / 90.0f) * 1.5f;
+			float sin = (static_cast<float>(twp->wtimer) / 90.0f) * 1.5f;
 
 			if (sin <= 1.0f)
 			{
@@ -340,25 +345,25 @@ void __cdecl GrowLavaTrigger_Main(ObjectMaster* obj)
 				sin = 0.0f;
 			}
 
-			grow_workers[trigger_id].Offset = njSin((static_cast<float>(data->field_A) * 40.0f * 182.0444488525391f)) * (sin * 4.0f);
+			grow_workers[trigger_id].Offset = njSin((static_cast<float>(twp->wtimer) * 40.0f * 182.0f)) * (sin * 4.0f);
 		}
 		else
 		{
-			grow_workers[trigger_id].Offset = njSin(((static_cast<float>(data->field_A) - 90.0f) * 48.0f * 182.0444488525391f)) * 0.1800000071525574f;
+			grow_workers[trigger_id].Offset = njSin(((static_cast<float>(twp->wtimer) - 90.0f) * 48.0f * 182.0f)) * 0.18f;
 		}
 	}
 }
 
-void __cdecl GrowLavaTrigger(ObjectMaster* obj)
+void __cdecl GrowLavaTrigger(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	Collision_Init(obj, &GrowLavaTrigger_Col, 1, 4);
+	CCL_Init(tp, &GrowLavaTrigger_Col, 1, 4);
 
-	data->CollisionInfo->CollisionArray->a = data->Scale.x;
+	twp->cwp->info->a = twp->scl.x;
 
-	obj->MainSub = GrowLavaTrigger_Main;
-	obj->DeleteSub = GrowLavaTrigger_Delete;
+	tp->exec = GrowLavaTriggerExec;
+	tp->dest = GrowLavaTriggerDestroy;
 }
 #pragma endregion
 
@@ -372,38 +377,39 @@ RotX: lava id
 
 */
 
-void __cdecl KillCeiling(ObjectMaster* obj)
+void __cdecl KillCeiling(task* tp)
 {
-	EntityData1* data = obj->Data1;
-
-	ClipSetObject(obj);
-
-	if (data->Action)
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* entity = GetCollidingEntityA(data);
+		auto twp = tp->twp;
 
-		// if the player colldies while being on ground
-		if (grow_workers[data->Rotation.z].Enabled == true && entity && (entity->Status & Status_Ground) && (CharObj2Ptrs[entity->CharIndex]->SurfaceFlags & 0x08000000))
+		if (twp->mode != 0)
 		{
-			KillPlayer(entity->CharIndex);
+			taskwk* entity = (taskwk*)GetCollidingEntityA((EntityData1*)twp);
+
+			// if the player collides while being on the ground
+			if (grow_workers[twp->ang.z].Enabled == true && entity && (entity->flag & Status_Ground) && (playerpwp[TASKWK_PLAYERID(entity)]->attr & ColFlags_Dynamic))
+			{
+				KillPlayer(TASKWK_PLAYERID(entity));
+			}
+
+			EntryColliList(twp);
 		}
+		else
+		{
+			CCL_Init(tp, (CCL_INFO*)&C_Cube_Collision, 1, 4u);
 
-		AddToCollisionList(data);
-	}
-	else
-	{
-		Collision_Init(obj, &C_Cube_Collision, 1, 4u);
+			auto colinfo = twp->cwp->info;
 
-		CollisionData* colinfo = data->CollisionInfo->CollisionArray;
+			colinfo->push = 0xF0;
+			colinfo->a = twp->scl.x + 10.0f;
+			colinfo->b = twp->scl.y + 10.0f;
+			colinfo->c = twp->scl.z + 10.0f;
 
-		colinfo->push = 0xF0;
-		colinfo->a = data->Scale.x + 10.0f;
-		colinfo->b = data->Scale.y + 10.0f;
-		colinfo->c = data->Scale.z + 10.0f;
+			CCL_CalcRange(twp);
 
-		Collision_CalculateRadius(data);
-
-		data->Action = 1;
+			twp->mode = 1;
+		}
 	}
 }
 #pragma endregion
