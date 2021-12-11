@@ -24,7 +24,7 @@ void __cdecl HillTree_Display(ObjectMaster* obj)
 
 	if (!MissedFrames && IsVisible(&data->Position, 30.0f * (data->Scale.x + data->Scale.y)))
 	{
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);

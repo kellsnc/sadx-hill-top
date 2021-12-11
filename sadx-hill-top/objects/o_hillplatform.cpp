@@ -34,7 +34,7 @@ static void __cdecl HillPlatformDisplay(task* tp)
 		auto twp = tp->twp;
 		auto object = (NJS_OBJECT*)twp->value.ptr;
 
-		njSetTexture(&HillTop_TexList);
+		SetLevelTexture();
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
 		njRotateY_(twp->ang.y);

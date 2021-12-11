@@ -59,7 +59,7 @@ void __cdecl GrowLavaDisplay(task* tp)
 		
 		if (twp->scl.y == 1.0f)
 		{
-			njSetTexture(&HillTop_TexList);
+			SetLevelTexture();
 		}
 		else
 		{
@@ -174,7 +174,7 @@ void __cdecl GrowLavaPlatformDisplay(task* tp)
 		auto object = (NJS_OBJECT*)twp->value.ptr;
 		auto trigger_id = twp->ang.x;
 
-		njSetTexture(&HillTop_TexList);
+		SetLevelTexture();
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
 

@@ -16,7 +16,7 @@ void __cdecl HillBushDisplay(task* tp)
 		auto twp = tp->twp;
 		auto object = (NJS_OBJECT*)twp->value.ptr;
 		
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
 

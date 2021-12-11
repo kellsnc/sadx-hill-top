@@ -17,7 +17,7 @@ static int MusicIDs_hilltop2 = MusicIDs_redmntn2;
 MusicInfo Music_HillTop1 = { "hilltop1", true };
 MusicInfo Music_HillTop2 = { "hilltop2", true };
 
-NJS_TEXNAME HillTop_TexNames[5];
+NJS_TEXNAME HillTop_TexNames[8];
 NJS_TEXLIST HillTop_TexList = { arrayptrandlength(HillTop_TexNames) };
 
 LandTableInfo* HillTopLands[3] = { nullptr };

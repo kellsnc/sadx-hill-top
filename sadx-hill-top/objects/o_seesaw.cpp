@@ -122,7 +122,7 @@ static void __cdecl HillSeesaw_Display(ObjectMaster* obj)
 	{
 		auto data = obj->Data1;
 
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);

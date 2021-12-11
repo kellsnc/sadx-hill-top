@@ -94,7 +94,7 @@ void __cdecl ZipVine_Display(ObjectMaster* obj)
 		TransporterPathData1* data = (TransporterPathData1*)obj->Data1;
 		LoopHead* PathData = data->PathData;
 
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 
 		// Draw start pole
 		DrawZipVinePole(data->Object->child->sibling, &data->CollisionInfo->CollisionArray[0].center, data->CollisionInfo->CollisionArray[0].angy);

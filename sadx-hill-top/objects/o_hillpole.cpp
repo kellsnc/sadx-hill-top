@@ -19,7 +19,7 @@ void __cdecl HillPole_Display(ObjectMaster* obj)
 	{
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		DrawModel(data->Object->basicdxmodel);

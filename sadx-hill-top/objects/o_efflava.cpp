@@ -49,7 +49,7 @@ void __cdecl LavaEffectDisplay(task* tp)
 	{
 		auto twp = tp->twp;
 
-		SetObjectTexture();
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
 

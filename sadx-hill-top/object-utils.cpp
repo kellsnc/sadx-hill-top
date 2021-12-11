@@ -207,3 +207,13 @@ NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id)
 		object = object->sibling;
 	}
 }
+
+void SetLevelTexture()
+{
+	njSetTexture(CurrentLandTable->TexList);
+}
+
+void SetSecondObjectTexture()
+{
+	njSetTexture(LevelObjTexlists[1]);
+}

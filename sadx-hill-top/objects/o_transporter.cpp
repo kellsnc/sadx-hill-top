@@ -110,7 +110,7 @@ void __cdecl EndPoles_Display(ObjectMaster* obj)
 {
 	EntityData1* data = obj->Data1;
 
-	njSetTexture(&HillTopOBJ_TexList);
+	SetSecondObjectTexture();
 	njPushMatrixEx();
 	njTranslateEx(&data->Position);
 	njRotateY_(data->Rotation.y);
@@ -175,7 +175,7 @@ void __cdecl TranspPlatform_Display(ObjectMaster* obj)
 	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
 	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
 
-	njSetTexture(&HillTopOBJ_TexList);
+	SetSecondObjectTexture();
 	njPushMatrixEx();
 	njTranslateEx(&data->Position);
 
@@ -308,7 +308,7 @@ void __cdecl HillTransporter_Display(ObjectMaster* obj)
 	{
 		TransporterData1* data = (TransporterData1*)obj->Data1;
 
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);

@@ -23,7 +23,7 @@
 
 static constexpr int MinDistance = 460000;
 
-NJS_TEXNAME HillTopOBJ_TexNames[13];
+NJS_TEXNAME HillTopOBJ_TexNames[14];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
 
 ObjectListEntry HillTopObjectList_list[] = {

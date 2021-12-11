@@ -20,7 +20,7 @@ void __cdecl HillGrassDisplay(task* tp)
 	{
 		auto twp = tp->twp;
 
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
 		njRotateEx((Angle*)&twp->ang, false);

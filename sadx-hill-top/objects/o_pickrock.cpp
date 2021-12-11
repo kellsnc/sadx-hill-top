@@ -34,7 +34,7 @@ void __cdecl PickRockDisplay(task* tp)
 	{
 		auto twp = tp->twp;
 
-		njSetTexture(&HillTop_TexList);
+		SetLevelTexture();
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
 		njRotateEx((Angle*)&twp->ang, false);

@@ -354,7 +354,7 @@ void __cdecl PlatformChild_Display(ObjectMaster* obj)
 
 		if (parent->Action != PlatformAct_Hidden)
 		{
-			njSetTexture(&HillTop_TexList);
+			SetLevelTexture();
 			njPushMatrixEx();
 			njTranslate(_nj_current_matrix_ptr_, data->Position.x, data->Object->pos[1], data->Position.z);
 			njRotateY_(data->Rotation.y);

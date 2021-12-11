@@ -22,7 +22,7 @@ void __cdecl FireFly_Display(ObjectMaster* obj)
 	{
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 
@@ -79,7 +79,7 @@ void __cdecl Lantern_Display(ObjectMaster* obj)
 	{
 		EntityData1* data = obj->Data1;
 
-		njSetTexture(&HillTopOBJ_TexList);
+		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateEx((Angle*)&data->Rotation, false);
