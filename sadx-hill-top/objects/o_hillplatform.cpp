@@ -13,88 +13,93 @@ RotZ = speed (default to 150)
 
 ModelInfo* ht_platform = nullptr;
 
-static void __cdecl HillPlatform_Delete(ObjectMaster* obj)
+static void __cdecl HillPlatformDestroy(task* tp)
 {
-	// Removes the dyncol before deleting the object
-
-	if (obj->Data1->LoopData)
+	if (tp->twp)
 	{
-		DynamicCOL_Remove(obj, reinterpret_cast<NJS_OBJECT*>(obj->Data1->LoopData));
-		ObjectArray_Remove(reinterpret_cast<NJS_OBJECT*>(obj->Data1->LoopData));
+		auto object = (NJS_OBJECT*)tp->twp->value.ptr;
+
+		if (object)
+		{
+			WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
+			ReleaseMobileLandObject(object);     // Release the entry
+		}
 	}
 }
 
-static void __cdecl HillPlatform_Display(ObjectMaster* obj)
+static void __cdecl HillPlatformDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		auto data = obj->Data1;
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
 
 		njSetTexture(&HillTop_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
-		njScalef(data->Scale.x);
-		DrawModel(data->Object->basicdxmodel);
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
+		njScalef(twp->scl.x);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
 
-static void __cdecl HillPlatform_Main(ObjectMaster* obj)
+static void __cdecl HillPlatformExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		auto data = obj->Data1;
+		auto twp = tp->twp;
 
-		data->Position.y = data->Scale.z + static_cast<float>(1.0 - pow(njSin(FrameCounterUnpaused * data->Rotation.z), 2.0)) * data->Scale.y;
+		// Update height
+		twp->pos.y = twp->scl.z + static_cast<float>(1.0 - pow(njSin(FrameCounterUnpaused * twp->ang.z), 2.0)) * twp->scl.y;
 
-		reinterpret_cast<NJS_OBJECT*>(data->LoopData)->pos[1] = data->Position.y;
+		// Update geometry collision
+		reinterpret_cast<NJS_OBJECT*>(twp->value.ptr)->pos[1] = twp->pos.y;
 
-		obj->DisplaySub(obj);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl HillPlatform(ObjectMaster* obj)
+void __cdecl HillPlatform(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	if (data->Scale.x == 0.0f)
+	if (twp->scl.x == 0.0f)
 	{
-		data->Scale.x = 1.0f;
+		twp->scl.x = 1.0f; // default scale
 	}
 
-	data->Object = ht_platform->getmodel();
+	if (twp->ang.z == 0)
+	{
+		twp->ang.z = 150; // default speed
+	}
+
+	twp->scl.z = twp->pos.y; // store original height
 
 	// Create the dynamic collision
-	NJS_OBJECT* object = ObjectArray_GetFreeObject();
+	auto object = GetMobileLandObject();
 
-	object->pos[0] = data->Position.x;
-	object->pos[1] = data->Position.y;
-	object->pos[2] = data->Position.z;
+	object->pos[0] = twp->pos.x;
+	object->pos[1] = twp->pos.y;
+	object->pos[2] = twp->pos.z;
 
 	object->ang[0] = 0;
-	object->ang[1] = data->Rotation.y;
+	object->ang[1] = twp->ang.y;
 	object->ang[2] = 0;
 
-	object->scl[0] = data->Scale.x;
-	object->scl[1] = data->Scale.x;
-	object->scl[2] = data->Scale.x;
+	object->scl[0] = twp->scl.x;
+	object->scl[1] = twp->scl.x;
+	object->scl[2] = twp->scl.x;
 
-	object->basicdxmodel = data->Object->basicdxmodel;
+	object->basicdxmodel = ht_platform->getmodel()->basicdxmodel;
 
-	DynamicCOL_Add((ColFlags)(0x08004000 | ColFlags_Solid | ColFlags_UseRotation), obj, object);
+	RegisterCollisionEntry((0x4000 | ColFlags_Dynamic | ColFlags_Solid | ColFlags_UseRotation), tp, object);
 
-	data->LoopData = (Loop*)object;
-	data->Scale.z = data->Position.y;
-
-	if (data->Rotation.z == 0)
-	{
-		data->Rotation.z = 150; // speed
-	}
-
-	obj->MainSub = HillPlatform_Main;
-	obj->DisplaySub = HillPlatform_Display;
-	obj->DeleteSub = HillPlatform_Delete;
+	twp->value.ptr = (Loop*)object;
+	
+	tp->exec = HillPlatformExec;
+	tp->disp = HillPlatformDisplay;
+	tp->dest = HillPlatformDestroy;
 }
 
 void HillPlatform_LoadAssets()
