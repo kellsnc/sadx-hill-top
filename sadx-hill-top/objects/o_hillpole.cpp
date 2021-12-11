@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "o_hillpole.h"
+#include "o_transporter.h"
 
 /*
 
@@ -7,43 +8,36 @@ Simple object that just draw poles (for bridges.)
 
 */
 
-extern ModelInfo* ht_transporter;
+CCL_INFO HillPole_Col = { 0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 20.0f, 0.0f}, 2.0f, 20.0f, 0.0f, 0.0f, 0, 0, 0 };
 
-CollisionData HillPole_Col = {
-	0, CI_FORM_CAPSULE, 0x77, 0, 0, {0.0f, 20.0f, 0.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0
-};
-
-void __cdecl HillPole_Display(ObjectMaster* obj)
+void __cdecl HillPoleDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
 
 		SetSecondObjectTexture();
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		DrawModel(data->Object->basicdxmodel);
+		njTranslateEx(&twp->pos);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl HillPole_Main(ObjectMaster* obj)
+void __cdecl HillPoleExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		AddToCollisionList(obj->Data1);
-		obj->DisplaySub(obj);
+		EntryColliList(tp->twp);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl HillPole(ObjectMaster* obj)
+void __cdecl HillPole(task* tp)
 {
-	EntityData1* data = obj->Data1;
-
-	data->Object = ht_transporter->getmodel()->child->sibling;
-
-	Collision_Init(obj, &HillPole_Col, 1, 4);
-
-	obj->MainSub = HillPole_Main;
-	obj->DisplaySub = HillPole_Display;
+	tp->twp->value.ptr = ht_transporter->getmodel()->child->sibling;
+	CCL_Init(tp, &HillPole_Col, 1, 4);
+	tp->exec = HillPoleExec;
+	tp->disp = HillPoleDisplay;
 }

@@ -1,3 +1,3 @@
 #pragma once
 
-void __cdecl HillPole(ObjectMaster* obj);
+void __cdecl HillPole(task* tp);
