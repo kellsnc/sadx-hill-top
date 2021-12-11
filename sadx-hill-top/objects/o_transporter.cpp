@@ -218,6 +218,8 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj)
 
 		break;
 	case TranspPlatformActs::Move:
+		dsPlay_timer_v(465, 0, 0, 0, 1, data->Position.x, data->Position.y, data->Position.z);
+
 		data->progress += 0.001f * (static_cast<float>(pdata->SpeedParam) / 100.0f); // Speed
 		pdata->progress = data->progress;	// Hand that to the parent object to bend the vine
 
