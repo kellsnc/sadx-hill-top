@@ -46,7 +46,7 @@ void __cdecl FireFlyExec(task* tp)
 	// Precalculate position
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&twp->pos); // center position
-	njRotateZXY((Rotation3*)&twp->ang); // rotate
+	njRotateZXY(&twp->ang); // rotate
 	njTranslateX(twp->value.f); // move by distance from the center
 	njGetTranslation(_nj_current_matrix_ptr_, &twp->scl); // get position
 	njPopMatrixEx();

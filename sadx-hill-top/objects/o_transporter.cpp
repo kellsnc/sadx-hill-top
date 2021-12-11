@@ -24,9 +24,9 @@ struct TranspPlatformData1 {
 	Float progress;
 	NJS_OBJECT* Object;
 	NJS_OBJECT* DynCol;
-	Rotation3 Rotation;
-	NJS_VECTOR Position;
-	NJS_VECTOR PreviousPosition;
+	Rotation3 ang;
+	NJS_VECTOR pos;
+	NJS_VECTOR prevpos;
 	CollisionInfo* CollisionInfo;
 };
 
@@ -37,9 +37,9 @@ struct TransporterData1 {
 	Float VineY;
 	NJS_OBJECT* PoleObject;
 	Float progress;
-	Rotation3 Rotation;
-	NJS_VECTOR Position;
-	NJS_VECTOR Destination;
+	Rotation3 ang;
+	NJS_VECTOR pos;
+	NJS_VECTOR destination;
 	CollisionInfo* CollisionInfo;
 };
 
@@ -47,41 +47,38 @@ ModelInfo* ht_transporter = nullptr;
 ModelInfo* ht_transportercol = nullptr;
 ModelInfo* ht_vine = nullptr;
 
-CollisionData HillTransporter_Col[] = {
-	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {-10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 },
-	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {10, 20.0f, -2.0f}, 2.0f, 20.0f, 0, 0, 0, 0, 0 }
+CCL_INFO HillTransporter_Col[] = {
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {-10.0f, 20.0f, -2.0f}, 2.0f, 20.0f, 0.0f, 0.0f, 0, 0, 0 },
+	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0, {10.0f, 20.0f, -2.0f}, 2.0f, 20.0f, 0.0f, 0.0f, 0, 0, 0 }
 };
 
 void DrawVine(NJS_OBJECT* vine, NJS_VECTOR* orig, float Y, float Z, float progress)
 {
 	njPushMatrixEx();
+	
+	// Adjust bending
+	if (progress > 0.0f)
 	{
-		NJS_OBJECT* node = vine;
+		float bend = progress;
+		if (bend > 0.5f) bend = fabsf(1.0f - bend);
 
-		// Adjust bending
-		if (progress > 0.0f)
-		{
-			float bend = progress;
-			if (bend > 0.5f) bend = fabsf(1.0f - bend);
-
-			// center of vine
-			node->child->pos[1] = Y * progress - (Z / 10.0f * bend);
-			node->child->pos[2] = Z * progress;
-		}
-		else
-		{
-			node->child->pos[1] = Y * 0.5f;
-			node->child->pos[2] = Z * 0.5f;
-		}
-
-		// end of vine
-		node->child->sibling->sibling->pos[1] = Y;
-		node->child->sibling->sibling->pos[2] = Z;
-
-		SetupWorldMatrix();
-		DrawChunkObject(node); // Draw the vine as chunk model, allows for real time bending
-		njPopMatrixEx();
+		// center of vine
+		vine->child->pos[1] = Y * progress - (Z / 10.0f * bend);
+		vine->child->pos[2] = Z * progress;
 	}
+	else
+	{
+		vine->child->pos[1] = Y * 0.5f;
+		vine->child->pos[2] = Z * 0.5f;
+	}
+
+	// end of vine
+	vine->child->sibling->sibling->pos[1] = Y;
+	vine->child->sibling->sibling->pos[2] = Z;
+
+	SetupWorldMatrix();
+	DrawChunkObject(vine); // Draw the vine as chunk model, allows for real time bending
+	njPopMatrixEx();
 }
 
 void DrawPoles(NJS_OBJECT* PoleObject)
@@ -89,173 +86,176 @@ void DrawPoles(NJS_OBJECT* PoleObject)
 	njTranslateZ(-2.0f);
 
 	njPushMatrixEx();
-	{
-		njTranslateX(-10.f);
-		DrawModel(PoleObject->basicdxmodel); // Pole model
-		DrawModel(PoleObject->child->basicdxmodel); // Pole vine model
-		njPopMatrixEx();
-	}
+	njTranslateX(-10.f);
+	DrawModel(PoleObject->basicdxmodel); // Pole model
+	DrawModel(PoleObject->child->basicdxmodel); // Pole vine model
+	njPopMatrixEx();
 
 	njPushMatrixEx();
-	{
-		njTranslateX(10.f);
-		DrawModel(PoleObject->basicdxmodel); // Pole model
-		njScaleX(-1.0f);
-		DrawModel(PoleObject->child->basicdxmodel); // Pole vine model
-		njPopMatrixEx();
-	}
-}
-
-void __cdecl EndPoles_Display(ObjectMaster* obj)
-{
-	EntityData1* data = obj->Data1;
-
-	SetSecondObjectTexture();
-	njPushMatrixEx();
-	njTranslateEx(&data->Position);
-	njRotateY_(data->Rotation.y);
-	DrawPoles(data->Object);
+	njTranslateX(10.f);
+	DrawModel(PoleObject->basicdxmodel); // Pole model
+	njScaleX(-1.0f);
+	DrawModel(PoleObject->child->basicdxmodel); // Pole vine model
 	njPopMatrixEx();
 }
 
-void __cdecl EndPoles_Main(ObjectMaster* obj)
+void __cdecl EndPolesDisplay(task* tp)
 {
-	AddToCollisionList(obj->Data1);
-	obj->DisplaySub(obj);
+	if (!MissedFrames)
+	{
+		auto twp = tp->twp;
+
+		SetSecondObjectTexture();
+		njPushMatrixEx();
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
+		DrawPoles((NJS_OBJECT*)twp->value.ptr);
+		njPopMatrixEx();
+	}
 }
 
-void LoadEndPoles(ObjectMaster* obj, NJS_OBJECT* PoleObject, NJS_VECTOR* destination, Angle rot)
+void __cdecl EndPolesExec(task* tp)
 {
-	ObjectMaster* child = LoadChildObject(LoadObj_Data1, EndPoles_Main, obj);
-
-	child->DisplaySub = EndPoles_Display;
-	child->Data1->Position = *destination;
-	child->Data1->Rotation.y = rot;
-	child->Data1->Object = PoleObject;
-	Collision_Init(child, arrayptrandlength(HillTransporter_Col), 4);
+	EntryColliList(tp->twp);
+	tp->disp(tp);
 }
 
-void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progress);
-
-void MovePlatform(TransporterData1* pdata, TranspPlatformData1* data, float progress)
+void LoadEndPoles(task* tp, NJS_OBJECT* PoleObject, NJS_VECTOR* destination, Angle rot)
 {
-	data->PreviousPosition = data->Position; // Store the previous position to move the player later
-	data->Position = GetPositionBetweenPoints(&pdata->Position, &pdata->Destination, data->progress); // Move along the vine
+	auto ctp = CreateChildTask(LoadObj_Data1, EndPolesExec, tp);
+	auto ctwp = ctp->twp;
+
+	ctp->disp = EndPolesDisplay;
+	ctwp->pos = *destination;
+	ctwp->ang.y = rot;
+	ctwp->value.ptr = PoleObject;
+	CCL_Init(ctp, arrayptrandlength(HillTransporter_Col), 4);
+}
+
+void LoadTranspPlatform(task* tp, TransporterData1* twp, float progress);
+
+void MovePlatform(TransporterData1* ptwp, TranspPlatformData1* twp, float progress)
+{
+	twp->prevpos = twp->pos; // Store the previous position to move the player later
+	twp->pos = GetPositionBetweenPoints(&ptwp->pos, &ptwp->destination, twp->progress); // Move along the vine
 
 	// Get the bending offset, same code as in the parent display
-	float bend = data->progress;
+	float bend = twp->progress;
 	if (bend > 0.5f) bend = fabsf(1.0f - bend);
 
 	// Adjust y position accordingly
-	data->Position.y += data->Object->pos[1] - ((pdata->VineZ / 10.0f) * bend);
+	twp->pos.y += twp->Object->pos[1] - ((ptwp->VineZ / 10.0f) * bend);
 }
 
 void MovePlayerOnPlatform(task* tp, taskwk* ptwp)
 {
 	// Move the player by the different between previous position and current position
-	auto data = (TranspPlatformData1*)tp->twp;
-	NJS_VECTOR offset = data->Position;
-	njSubVector(&offset, &data->PreviousPosition);
+	auto twp = (TranspPlatformData1*)tp->twp;
+	NJS_VECTOR offset = twp->pos;
+	njSubVector(&offset, &twp->prevpos);
 	njAddVector(&ptwp->pos, &offset);
 }
 
-void __cdecl TranspPlatform_Delete(ObjectMaster* obj)
+void __cdecl TranspPlatformDestroy(task* tp)
 {
-	// Removes the dyncol before deleting the object
+	auto twp = (TranspPlatformData1*)tp->twp;
 
-	if (obj->Data1->LoopData)
+	if (twp && twp->DynCol)
 	{
-		DynamicCOL_Remove(obj, (NJS_OBJECT*)obj->Data1->LoopData);
-		ObjectArray_Remove((NJS_OBJECT*)obj->Data1->LoopData);
+		WithdrawCollisionEntry(tp, twp->DynCol);  // Destroy the geometry collision
+		ReleaseMobileLandObject(twp->DynCol);     // Release the entry
 	}
 }
 
-void __cdecl TranspPlatform_Display(ObjectMaster* obj)
+void __cdecl TranspPlatformDisplay(task* tp)
 {
-	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
-	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
-
-	SetSecondObjectTexture();
-	njPushMatrixEx();
-	njTranslateEx(&data->Position);
-
-	njRotateY_(data->Rotation.y);
-
-	njPushMatrixEx();
+	if (!MissedFrames)
 	{
-		if (data->Action == TranspPlatformActs::Fall)
+		auto ptwp = (TransporterData1*)tp->ptp->twp;
+		auto twp = (TranspPlatformData1*)tp->twp;
+
+		SetSecondObjectTexture();
+		njPushMatrixEx();
+		njTranslateEx(&twp->pos);
+
+		njRotateY_(twp->ang.y);
+
+		njPushMatrixEx();
 		{
-			njTranslateY(data->PreviousPosition.y); // I use this to offset the platform
+			if (twp->Action == TranspPlatformActs::Fall)
+			{
+				njTranslateY(twp->prevpos.y); // I use this to offset the platform
+			}
+
+			DrawModel(twp->Object->basicdxmodel); // Platform
+			njPopMatrixEx();
 		}
 
-		DrawModel(data->Object->basicdxmodel); // Platform
+		// Draw vines
+		njTranslateY(twp->Object->child->pos[1]);
+		njTranslateZ(-10.0f);
+		DrawModel(twp->Object->child->basicdxmodel);
+		njTranslateZ(20.0f);
+		DrawModel(twp->Object->child->basicdxmodel);
 		njPopMatrixEx();
 	}
-
-	// Draw vines
-	njTranslateY(data->Object->child->pos[1]);
-	njTranslateZ(-10.0f);
-	DrawModel(data->Object->child->basicdxmodel);
-	njTranslateZ(20.0f);
-	DrawModel(data->Object->child->basicdxmodel);
-	njPopMatrixEx();
 }
 
-void __cdecl TranspPlatform_Main(ObjectMaster* obj)
+void __cdecl TranspPlatformExec(task* tp)
 {
-	TransporterData1* pdata = (TransporterData1*)obj->Parent->Data1;
-	TranspPlatformData1* data = (TranspPlatformData1*)obj->Data1;
+	auto ptwp = (TransporterData1*)tp->ptp->twp;
+	auto twp = (TranspPlatformData1*)tp->twp;
 
-	switch (data->Action)
+	switch (twp->Action)
 	{
 	case TranspPlatformActs::Input: // If the player is on the dyncol of our object, launch
-		if (IsPlayerOnDyncol((task*)obj))
+		if (IsPlayerOnDyncol((task*)tp))
 		{
-			data->Action = TranspPlatformActs::Move;
+			twp->Action = TranspPlatformActs::Move;
 			dsPlay_oneshot(466, 0, 0, 160);
 		}
 
 		break;
 	case TranspPlatformActs::Move:
-		dsPlay_timer_v(465, 0, 0, 0, 1, data->Position.x, data->Position.y, data->Position.z);
+		dsPlay_timer_v(465, 0, 0, 0, 1, twp->pos.x, twp->pos.y, twp->pos.z);
 
-		data->progress += 0.001f * (static_cast<float>(pdata->SpeedParam) / 100.0f); // Speed
-		pdata->progress = data->progress;	// Hand that to the parent object to bend the vine
+		twp->progress += 0.001f * (static_cast<float>(ptwp->SpeedParam) / 100.0f); // Speed
+		ptwp->progress = twp->progress;	// Hand that to the parent object to bend the vine
 
-		MovePlatform(pdata, data, data->progress);
+		MovePlatform(ptwp, twp, twp->progress);
 
 		// Update the dyncol position
-		data->DynCol->pos[0] = data->Position.x;
-		data->DynCol->pos[1] = data->Position.y;
-		data->DynCol->pos[2] = data->Position.z;
+		twp->DynCol->pos[0] = twp->pos.x;
+		twp->DynCol->pos[1] = twp->pos.y;
+		twp->DynCol->pos[2] = twp->pos.z;
 
 		// Move the player
-		ForEveryPlayerOnDyncol((task*)obj, MovePlayerOnPlatform);
+		ForEveryPlayerOnDyncol((task*)tp, MovePlayerOnPlatform);
 
 		// Check if we're at the end, sphere check to detach the object a bit sooner
-		if (data->progress >= 1.0f || CheckCollisionPointSphere(&pdata->Destination, &data->Position, 25.0f))
+		if (twp->progress >= 1.0f || CheckCollisionPointSphere(&ptwp->destination, &twp->pos, 25.0f))
 		{
-			data->Action = TranspPlatformActs::Fall;
-			data->PreviousPosition.y = 0;
+			twp->Action = TranspPlatformActs::Fall;
+			twp->prevpos.y = 0;
 		}
 
 		break;
 	case TranspPlatformActs::Fall:
-		data->timer += 1;
+		twp->timer += 1;
 
-		if (data->timer == 30)
+		if (twp->timer == 30)
 		{
-			TranspPlatform_Delete(obj); // remove dynamic collision
+			TranspPlatformDestroy(tp); // remove dynamic collision
 		}
-		else if (data->timer > 30)
+		else if (twp->timer > 30)
 		{
-			data->PreviousPosition.y -= 3.0f;
+			twp->prevpos.y -= 3.0f;
 
 			// Removes the object after a while, creates a new platform at the beginning
-			if (data->timer > 200)
+			if (twp->timer > 200)
 			{
-				LoadTranspPlatform(obj->Parent, pdata, 0.0f);
-				DeleteObject_(obj);
+				LoadTranspPlatform(tp->ptp, ptwp, 0.0f);
+				FreeTask(tp);
 				return;
 			}
 		}
@@ -263,32 +263,32 @@ void __cdecl TranspPlatform_Main(ObjectMaster* obj)
 		break;
 	}
 
-	obj->DisplaySub(obj);
+	tp->disp(tp);
 }
 
-void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progress)
+void LoadTranspPlatform(task* tp, TransporterData1* twp, float progress)
 {
-	ObjectMaster* child = LoadChildObject(LoadObj_Data1, TranspPlatform_Main, obj);
-	TranspPlatformData1* cdata = (TranspPlatformData1*)child->Data1;
+	auto ctp = CreateChildTask(LoadObj_Data1, TranspPlatformExec, tp);
+	auto ctwp = (TranspPlatformData1*)ctp->twp;
 
-	child->DisplaySub = TranspPlatform_Display;
-	child->DeleteSub = TranspPlatform_Delete;
-	cdata->Object = ht_transporter->getmodel()->child;
-	cdata->Rotation.y += 0x4000;
+	ctp->disp = TranspPlatformDisplay;
+	ctp->dest = TranspPlatformDestroy;
+	ctwp->Object = ht_transporter->getmodel()->child;
+	ctwp->ang.y += 0x4000;
 
-	cdata->progress = progress;
-	data->progress = progress;
-	MovePlatform(data, cdata, data->progress);
+	ctwp->progress = progress;
+	twp->progress = progress;
+	MovePlatform(twp, ctwp, twp->progress);
 
 	// Create the dynamic collision
-	NJS_OBJECT* object = ObjectArray_GetFreeObject();
+	NJS_OBJECT* object = GetMobileLandObject();
 
-	object->pos[0] = child->Data1->Position.x;
-	object->pos[1] = child->Data1->Position.y;
-	object->pos[2] = child->Data1->Position.z;
+	object->pos[0] = ctwp->pos.x;
+	object->pos[1] = ctwp->pos.y;
+	object->pos[2] = ctwp->pos.z;
 
 	object->ang[0] = 0;
-	object->ang[1] = child->Data1->Rotation.y;
+	object->ang[1] = ctwp->ang.y;
 	object->ang[2] = 0;
 
 	object->scl[0] = 1.0f;
@@ -297,80 +297,80 @@ void LoadTranspPlatform(ObjectMaster* obj, TransporterData1* data, float progres
 
 	object->basicdxmodel = ht_transportercol->getmodel()->basicdxmodel;
 
-	DynamicCOL_Add((ColFlags)0x08000001, child, object);
+	RegisterCollisionEntry(ColFlags_Dynamic | ColFlags_Solid, ctp, object);
 
-	cdata->DynCol = object;
+	ctwp->DynCol = object;
 }
 
-void __cdecl HillTransporter_Display(ObjectMaster* obj)
+void __cdecl HillTransporterDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		TransporterData1* data = (TransporterData1*)obj->Data1;
+		auto twp = (TransporterData1*)tp->twp;
 
 		SetSecondObjectTexture();
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
 
 		njPushMatrixEx();
-		DrawPoles(data->PoleObject);
+		DrawPoles(twp->PoleObject);
 		njPopMatrixEx();
 
 		njTranslateY(37.0f);
 		njTranslateX(10.0f);
-		DrawVine(data->PoleObject->child->sibling, &data->Position, data->VineY, data->VineZ, data->progress);
+		DrawVine(twp->PoleObject->child->sibling, &twp->pos, twp->VineY, twp->VineZ, twp->progress);
 		njTranslateX(-20.0f);
-		DrawVine(data->PoleObject->child->sibling, &data->Position, data->VineY, data->VineZ, data->progress);
+		DrawVine(twp->PoleObject->child->sibling, &twp->pos, twp->VineY, twp->VineZ, twp->progress);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl HillTransporter_Main(ObjectMaster* obj)
+void __cdecl HillTransporterExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		TransporterData1* data = (TransporterData1*)obj->Data1;
+		auto twp = (TransporterData1*)tp->twp;
 
-		RunObjectChildren(obj);
-		AddToCollisionList((EntityData1*)data);
-		obj->DisplaySub(obj);
+		LoopTaskC(tp);
+		EntryColliList((taskwk*)twp);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl HillTransporter(ObjectMaster* obj)
+void __cdecl HillTransporter(task* tp)
 {
-	TransporterData1* data = (TransporterData1*)obj->Data1;
+	auto twp = (TransporterData1*)tp->twp;
 
 	// Calculates the direction of the zipline vine
-	data->VineY = data->Destination.y - data->Position.y;
-	data->VineZ = sqrtf(powf(data->Destination.x - data->Position.x, 2) + powf(data->Destination.z - data->Position.z, 2));
+	twp->VineY = twp->destination.y - twp->pos.y;
+	twp->VineZ = sqrtf(powf(twp->destination.x - twp->pos.x, 2) + powf(twp->destination.z - twp->pos.z, 2));
 
-	data->PoleObject = ht_transporter->getmodel()->child->sibling;
-	data->PoleObject->child->sibling = ht_vine->getmodel();
-	data->PoleObject->child->sibling->child->sibling->pos[2] = 0;
+	twp->PoleObject = ht_transporter->getmodel()->child->sibling;
+	twp->PoleObject->child->sibling = ht_vine->getmodel();
+	twp->PoleObject->child->sibling->child->sibling->pos[2] = 0;
 
 	// Rotate the objet to face the destination
-	njLookAt(&data->Position, &data->Destination, nullptr, &data->Rotation.y);
+	njLookAt(&twp->pos, &twp->destination, nullptr, &twp->ang.y);
 
-	Collision_Init(obj, arrayptrandlength(HillTransporter_Col), 4);
+	CCL_Init(tp, arrayptrandlength(HillTransporter_Col), 4);
 
-	obj->DisplaySub = HillTransporter_Display;
-	obj->MainSub = HillTransporter_Main;
+	tp->disp = HillTransporterDisplay;
+	tp->exec = HillTransporterExec;
 
 	// Load child objects
-	LoadTranspPlatform(obj, data, static_cast<float>(data->Rotation.x % 100) / 100.0f); // Moving platform
-	LoadEndPoles(obj, data->PoleObject, &data->Destination, data->Rotation.y + 0x8000); // Poles at the destination
+	LoadTranspPlatform(tp, twp, static_cast<float>(twp->ang.x % 100) / 100.0f); // Moving platform
+	LoadEndPoles(tp, twp->PoleObject, &twp->destination, twp->ang.y + 0x8000); // Poles at the destination
 
-	data->SpeedParam = data->Rotation.z;
+	twp->SpeedParam = twp->ang.z;
 
-	if (data->SpeedParam == 0)
+	if (twp->SpeedParam == 0)
 	{
-		data->SpeedParam = 100;
+		twp->SpeedParam = 100;
 	}
 
-	data->Rotation.x = 0;
-	data->Rotation.z = 0;
+	twp->ang.x = 0;
+	twp->ang.z = 0;
 }
 
 void HillTransporter_LoadAssets()

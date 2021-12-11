@@ -72,7 +72,7 @@ ObjectListEntry HillTopObjectList_list[] = {
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow_Main, "O BLOW" },
 	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
 	{ LoadObj_Data1, 3, 1, 638401, 0, (ObjectFuncPtr)HillTree, "O HILLLTREE" },
-	{ LoadObj_Data1, 3, 1, 1000000, 0, HillTransporter, "O TRANSPORTER" },
+	{ LoadObj_Data1 | LoadObj_UnknownB, 3, 1, 1000000, 0, (ObjectFuncPtr)HillTransporter, "O TRANSPORTER" },
 	{ LoadObj_Data1, 4, 1, MinDistance, 0, (ObjectFuncPtr)HillFlowers, "O HILLFLOWERS" },
 	{ LoadObj_Data1, 3, 1, MinDistance, 0, (ObjectFuncPtr)LavaFall, "O LAVAFALL" },
 	{ LoadObj_Data1, 4, 1, MinDistance, 0, (ObjectFuncPtr)LavaEffect, "O EFFLAVA" },

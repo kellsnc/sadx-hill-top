@@ -56,40 +56,6 @@ void njTranslateZ(float f)
 	njTranslate(nullptr, 0, 0, f);
 }
 
-void njRotateZXY(Rotation3* rot)
-{
-	njRotateZ(0, rot->z);
-	njRotateX(0, rot->x);
-	njRotateY(0, rot->y);
-}
-
-void njRotateYXZ(Rotation3* rot)
-{
-	njRotateY(0, rot->y);
-	njRotateX(0, rot->x);
-	njRotateZ(0, rot->z);
-}
-
-void njScaleX(float f)
-{
-	njScale(nullptr, f, 1.0f, 1.0f);
-}
-
-void njScaleY(float f)
-{
-	njScale(nullptr, 1.0f, f, 1.0f);
-}
-
-void njScaleZ(float f)
-{
-	njScale(nullptr, 1.0f, 1.0f, f);
-}
-
-void njScalef(float f)
-{
-	njScale(nullptr, f, f, f);
-}
-
 void njRotateX_(Angle x)
 {
 	if (x)
@@ -112,6 +78,40 @@ void njRotateZ_(Angle z)
 	{
 		njRotateZ(_nj_current_matrix_ptr_, z);
 	}
+}
+
+void njRotateZXY(Angle3* ang)
+{
+	njRotateZ_(ang->z);
+	njRotateX_(ang->x);
+	njRotateY_(ang->y);
+}
+
+void njRotateYXZ(Angle3* ang)
+{
+	njRotateY_(ang->y);
+	njRotateX_(ang->x);
+	njRotateZ_(ang->z);
+}
+
+void njScaleX(float f)
+{
+	njScale(nullptr, f, 1.0f, 1.0f);
+}
+
+void njScaleY(float f)
+{
+	njScale(nullptr, 1.0f, f, 1.0f);
+}
+
+void njScaleZ(float f)
+{
+	njScale(nullptr, 1.0f, 1.0f, f);
+}
+
+void njScalef(float f)
+{
+	njScale(nullptr, f, f, f);
 }
 
 void njLookAt(NJS_VECTOR* from, NJS_VECTOR* to, Angle* outx, Angle* outy)

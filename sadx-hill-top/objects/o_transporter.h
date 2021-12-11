@@ -6,6 +6,6 @@ extern ModelInfo* ht_vine;
 
 void DrawVine(NJS_OBJECT* vine, NJS_VECTOR* orig, float Y, float Z, float progress);
 
-void __cdecl HillTransporter(ObjectMaster* obj);
+void __cdecl HillTransporter(task* tp);
 void HillTransporter_LoadAssets();
 void HillTransporter_FreeAssets();
