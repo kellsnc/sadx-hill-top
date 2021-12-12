@@ -345,9 +345,9 @@ void Spiker_ActionDelete(ObjectMaster* obj, SpikerData1* data)
 {
 	CreateFlash2(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
 	CreateAnimal(3, data->Position.x, data->Position.y + 10.0f, data->Position.z);
-	SetEmeraldObtained(data->Rotation.z, &data->Position);
+	Knuckles_KakeraGame_Set_PutEme(data->Rotation.z, &data->Position);
 	DeadOut((task*)obj);
-	DeleteGammaMissileIfNoTarget(obj);
+	E102KillCursor((task*)obj);
 }
 
 void __cdecl Spiker_Display(ObjectMaster* obj)

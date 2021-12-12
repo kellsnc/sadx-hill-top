@@ -20,14 +20,13 @@ NJS_TEXLIST REXON_TexList = { arrayptrandlength(REXON_TexNames) };
 ModelInfo* e_rexon = nullptr;
 ModelInfo* e_rexoncol = nullptr;
 
-CollisionData Rexon_Col[] =
-{
-	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 },
-	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 },
-	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0, 0.0f, 0.0 }, 2.0f, 0.0f, 0.0f, 0, 0, 0, 0 }
+CCL_INFO Rexon_Col[] {
+	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 },
+	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 },
+	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 }
 };
 
-CollisionData RexonHead_Col = { 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0, 3.0f, 1.0f }, 3.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
+CCL_INFO RexonHead_Col = { 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 3.0f, 1.0f }, 3.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
 
 enum RexonHeadActs
 {
@@ -44,165 +43,148 @@ enum RexonActs
 
 #pragma region RexonHead
 
-void RexonHead_LoadFireBall(ObjectMaster* obj, EntityData1* data)
+void RexonHead_LoadFireBall(task* tp, taskwk* twp)
 {
-	NJS_VECTOR pos =
-	{ 0 };
+	NJS_VECTOR pos = { 0 };
 	Angle roty = 0;
 	Angle rotx = 0;
 
 	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx(&data->Position);
-	njRotateY_(obj->Parent->Data1->Rotation.y);
+	njTranslateEx(&twp->pos);
+	njRotateY_(tp->ptp->twp->ang.y);
 	njTranslate(nullptr, 0, 3.0f, 1.0f);
 	njGetTranslation(nullptr, &pos);
 	njPopMatrixEx();
 
-	njLookAt(&pos, &EntityData1Ptrs[GetTheNearestPlayerNumber(&data->Position)]->Position, &rotx, &roty);
+	njLookAt(&pos, &playertwp[GetTheNearestPlayerNumber(&twp->pos)]->pos, &rotx, &roty);
 
-	LoadFireBall((task*)obj, &pos, roty, rotx, 1.5f, 1.5f, 0.01f, 0);
+	LoadFireBall((task*)tp, &pos, roty, rotx, 1.5f, 1.5f, 0.01f, 0);
 
-	dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, (taskwk*)data);
+	dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, (taskwk*)twp);
 }
 
-void RexonHead_DrawMouth(EntityData1* data, NJS_OBJECT* object, float mouthopen)
+void RexonHead_DrawMouth(taskwk* twp, NJS_OBJECT* object, float mouthopen)
 {
 	njPushMatrixEx();
-	njTranslate(nullptr, Pos3(object->pos));
-	njRotateXYZ(nullptr, Pos3(object->ang));
-	njRotateX(0, static_cast<Angle>(mouthopen));
+	njTranslate(_nj_current_matrix_ptr_, object->pos[0], object->pos[1], object->pos[2]);
+	njRotateXYZ(_nj_current_matrix_ptr_, object->ang[0], object->ang[1], object->ang[2]);
+	njRotateZ(0, -static_cast<Angle>(mouthopen));
 	DrawModel(object->basicdxmodel);
 	njPopMatrixEx();
 
 	DrawObjectRoot(object->sibling);
 }
 
-bool RexonHead_IsInAttackRange(NJS_VECTOR* position, Angle roty, Float radius)
-{
-	NJS_VECTOR pos = { 0 };
-
-	// Calculate point in front of the head
-	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx(position);
-	njRotateY_(roty);
-	njTranslateZ(50.0f);
-	njGetTranslation(0, &pos);
-	njPopMatrixEx();
-
-	return CheckCollisionP(&pos, radius);
-}
-
-void __cdecl RexonHead_Display(ObjectMaster* obj)
+void __cdecl RexonHeadDisp(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
-		EntityData1* pdata = obj->Parent->Data1;
+		auto twp = tp->twp;
+		auto ptwp = tp->ptp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
 
 		njSetTexture(&REXON_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateY_(pdata->Rotation.y);
-		njScalef(pdata->Scale.x);
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
+		njScalef(ptwp->scl.x);
 
-		DrawModel(data->Object->basicdxmodel);
+		DrawModel(object->basicdxmodel);
 
-		RexonHead_DrawMouth(data, data->Object->child, data->Scale.x);
+		RexonHead_DrawMouth(twp, object->child, twp->scl.x);
 
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl RexonHead_Main(ObjectMaster* obj)
+void __cdecl RexonHeadExec(task* tp)
 {
-	EntityData1* data = obj->Data1;
-	EntityData1* pdata = obj->Parent->Data1;
+	auto twp = tp->twp;
+	auto ewp = (enemywk*)tp->mwp;
+	auto ptwp = tp->ptp->twp;
 
-	switch (data->Action)
+	twp->ang.y = ptwp->ang.y;
+
+	switch (twp->mode)
 	{
 	case RexonHeadAct_Normal:
-		if (data->InvulnerableTime == 0 && RexonHead_IsInAttackRange(&data->Position, pdata->Rotation.y, 50.0f) && (rand() % 30) == 0)
+		if (twp->wtimer == 0 && EnemySearchPlayer(twp, ewp) && (rand() % 30) == 0)
 		{
-			data->InvulnerableTime = 80 + (rand() % 50);
-			data->field_A = 1;
-			data->Action = RexonHeadAct_Attacking;
+			twp->wtimer = 80 + (rand() % 50);
+			twp->wtimer = 1;
+			twp->mode = RexonHeadAct_Attacking;
 		}
 
-		if (data->InvulnerableTime > 0)
+		if (twp->wtimer > 0)
 		{
-			--data->InvulnerableTime;
+			--twp->wtimer;
 		}
 		else
 		{
-			data->InvulnerableTime = 0;
+			twp->wtimer = 0;
 		}
 
 		break;
 	case RexonHeadAct_Attacking:
-		++data->field_A;
-		data->Scale.x = -(0x2000 * fmin(0.0f, njSin(static_cast<int>(data->field_A * 1000))));
+		++twp->wtimer;
+		twp->scl.x = -(0x2000 * fmin(0.0f, njSin(static_cast<int>(twp->wtimer * 1000)))); // mouth opening animation
 
-		if (data->field_A == 0x25)
+		if (twp->wtimer == 0x25)
 		{
-			RexonHead_LoadFireBall(obj, data);
+			RexonHead_LoadFireBall(tp, twp);
 		}
 
-		if (data->field_A > 0x40 && data->Scale.x == 0)
+		if (twp->wtimer > 0x40 && twp->scl.x == 0)
 		{
-			data->Action = RexonHeadAct_Normal;
-			data->field_A = 1;
+			twp->mode = RexonHeadAct_Normal;
+			twp->wtimer = 1;
 		}
 
 		break;
 	}
 
-	if (OhNoImDead(data, (ObjectData2*)obj->Data2))
+	if (EnemyCheckDamage(twp, ewp))
 	{
-		CreateFlash2(data->Position.x, data->Position.y + 3.0f, data->Position.z, 1.0f);
-		CreateAnimal(3, data->Position.x, data->Position.y + 6.0f, data->Position.z);
-		SetEmeraldObtained(data->Rotation.z, &data->Position);
-		DeleteObject_(obj);
-		DeleteGammaMissileIfNoTarget(obj);
+		CreateFlash2(twp->pos.x, twp->pos.y + 3.0f, twp->pos.z, 1.0f);
+		CreateAnimal(3, twp->pos.x, twp->pos.y + 6.0f, twp->pos.z);
+		Knuckles_KakeraGame_Set_PutEme(twp->ang.z, &twp->pos);
+		FreeTask(tp);
+		E102KillCursor(tp);
 
-		obj->Parent->SETData.SETData->Flags |= 0x1000;
+		// No respawn flag
+		SetBroken(tp->ptp);
 
 		return;
 	}
 
-	Object_CheckEmerald(data->Rotation.z, &data->Position);
-	RunObjectChildren(obj);
-	AddToCollisionList(data);
-	obj->DisplaySub(obj);
+	Object_CheckEmerald(twp->ang.z, &twp->pos);
+	LoopTaskC(tp);
+	EntryColliList(twp);
+	tp->disp(tp);
 }
 
-void __cdecl RexonHead(ObjectMaster* obj)
+void __cdecl RexonHead(task* tp)
 {
-	EntityData1* data = obj->Data1;
-	EntityData1* pdata = obj->Parent->Data1;
-	enemywk* enmwk = (enemywk*)AllocateObjectData2(obj, (EntityData1*)data);
+	auto twp = tp->twp;
+	auto ptwp = tp->ptp->twp;
+	auto enmwk = EnemyInitialize(tp, twp);
 
-	Collision_Init(obj, &RexonHead_Col, 1, 3);
+	CCL_Init(tp, &RexonHead_Col, 1, 3);
 
-	data->Object = pdata->Object->child->sibling->sibling->sibling->sibling->child->child->child->child;
-	data->Scale.x = 0; // mouth opening
-	data->InvulnerableTime = 0;
+	twp->value.ptr = ((NJS_OBJECT*)ptwp->counter.ptr)->child->sibling->sibling->sibling->sibling->child->child->child->child; // head node
+	twp->scl.x = 0; // mouth opening amount
+	twp->wtimer = 0;
 
-	enmwk->bound_ceiling = 0;
-	enmwk->bound_floor = 0;
-	enmwk->bound_friction = 0;
-	enmwk->bound_side = 0;
-	enmwk->colli_top = 0;
-	enmwk->colli_bottom = 0;
-	enmwk->colli_center = { 0, 0, 0 };
-	enmwk->colli_radius = 1.0f;
-	enmwk->home = data->Position;
+	enmwk->view_range = 10000.0f; // FOV effective radius
+	enmwk->view_angle = 0x2500; // FOV
+	enmwk->hear_range = 0.0f; // Enemy should only react to vision
 
-	data->Rotation.z = pdata->Rotation.z;
-	Object_CheckEmerald(data->Rotation.z, &data->Position);
+	twp->ang.z = ptwp->ang.z;
+	Object_CheckEmerald(twp->ang.z, &twp->pos);
 
-	obj->DeleteSub = Enemy_Delete;
-	obj->MainSub = RexonHead_Main;
-	obj->DisplaySub = RexonHead_Display;
+	tp->dest = UniDestructor;
+	tp->exec = RexonHeadExec;
+	tp->disp = RexonHeadDisp;
 }
 
 #pragma endregion
@@ -233,29 +215,29 @@ inline float Rexon_NeckMovement(int i, int action, float timer)
 	return move;
 }
 
-void Rexon_GetHeadPos(EntityData1* data, NJS_VECTOR* headpos)
+void Rexon_GetHeadPos(taskwk* twp, NJS_VECTOR* headpos)
 {
-	NJS_OBJECT* object = data->Object->child->sibling->sibling->sibling->sibling;
+	NJS_OBJECT* object = ((NJS_OBJECT*)twp->counter.ptr)->child->sibling->sibling->sibling->sibling; // neck node
 
 	njPushMatrix(_nj_unit_matrix_);
-	njRotateY_(data->Rotation.y);
-	njScalef(data->Scale.x);
+	njRotateY_(twp->ang.y);
+	njScalef(twp->scl.x);
 
 	for (int i = 0; i < 4; ++i)
 	{
-		njTranslate(nullptr, Pos3(object->pos));
-		njRotateXYZ(nullptr, Pos3(object->ang));
+		njTranslate(_nj_current_matrix_ptr_, object->pos[0], object->pos[1], object->pos[2]);
+		njRotateXYZ(_nj_current_matrix_ptr_, object->ang[0], object->ang[1], object->ang[2]);
 
 		if (i > 0)
 		{
 			njPushMatrixEx();
-			njTranslateZ(Rexon_NeckMovement(i, data->Action, data->InvulnerableTime));
+			njTranslateX(Rexon_NeckMovement(i, twp->mode, twp->wtimer));
 
-			// get the head position
+			// Get the head position
 			if (i == 3)
 			{
 				njGetTranslation(nullptr, headpos);
-				njAddVector(headpos, &data->Position);
+				njAddVector(headpos, &twp->pos);
 			}
 
 			njPopMatrixEx();
@@ -267,23 +249,23 @@ void Rexon_GetHeadPos(EntityData1* data, NJS_VECTOR* headpos)
 	njPopMatrixEx();
 }
 
-void Rexon_MoveColliNeck(EntityData1* data)
+void Rexon_MoveColliNeck(taskwk* twp)
 {
-	NJS_OBJECT* object = data->Object->child->sibling->sibling->sibling->sibling;
+	NJS_OBJECT* object = ((NJS_OBJECT*)twp->counter.ptr)->child->sibling->sibling->sibling->sibling; // neck node
 
 	njPushMatrix(_nj_unit_matrix_);
-	njScalef(data->Scale.x);
+	njScalef(twp->scl.x);
 
 	for (int i = 0; i < 4; ++i)
 	{
-		njTranslate(nullptr, Pos3(object->pos));
-		njRotateXYZ(nullptr, Pos3(object->ang));
+		njTranslate(_nj_current_matrix_ptr_, object->pos[0], object->pos[1], object->pos[2]);
+		njRotateXYZ(_nj_current_matrix_ptr_, object->ang[0], object->ang[1], object->ang[2]);
 
 		if (i > 0)
 		{
 			njPushMatrixEx();
-			njTranslateZ(Rexon_NeckMovement(i, data->Action, data->InvulnerableTime));
-			njGetTranslation(nullptr, &data->CollisionInfo->CollisionArray[i - 1].center);
+			njTranslateX(Rexon_NeckMovement(i, twp->mode, twp->wtimer));
+			njGetTranslation(nullptr, &twp->cwp->info[i - 1].center); // move collision
 			njPopMatrixEx();
 		}
 
@@ -293,43 +275,40 @@ void Rexon_MoveColliNeck(EntityData1* data)
 	njPopMatrixEx();
 }
 
-void Rexon_MoveDynCol(ObjectMaster* obj, EntityData1* data)
+void Rexon_MoveDynCol(task* tp, taskwk* twp)
 {
-	// Move up and down, like floating
-	data->field_A += 200;
-	data->Position.y = data->Scale.z + 1.0f + (1.0f * njSin(data->field_A));
+	// Move up and down to simulate floating
+	twp->timer.l += 200;
+	twp->pos.y = twp->scl.z + 1.0f + (1.0f * njSin(twp->timer.l));
 
-	// Move the dyncol
-	NJS_OBJECT* dyncol = (NJS_OBJECT*)data->LoopData;
+	// Move the geo collision
+	auto geocol = (NJS_OBJECT*)twp->value.ptr;
 
-	NJS_VECTOR mov = data->Position;
-	njSubVector(&mov, (NJS_VECTOR*)dyncol->pos);
+	NJS_VECTOR mov = twp->pos; // store difference between old and new position
+	njSubVector(&mov, (NJS_VECTOR*)geocol->pos);
 
-	dyncol->pos[0] = data->Position.x;
-	dyncol->pos[1] = data->Position.y;
-	dyncol->pos[2] = data->Position.z;
-	dyncol->ang[1] = data->Rotation.y;
+	geocol->pos[0] = twp->pos.x;
+	geocol->pos[1] = twp->pos.y;
+	geocol->pos[2] = twp->pos.z;
+	geocol->ang[1] = twp->ang.y;
 
+	// Move players by the difference between old and new position
 	for (int i = 0; i < MaxPlayers; ++i)
 	{
-		CharObj2* co2 = CharObj2Ptrs[i];
-
-		if (co2 && co2->DynColObject == obj)
+		if (IsPlayerOnDyncol(tp))
 		{
-			EntityData1* player = EntityData1Ptrs[i];
-
-			njAddVector(&player->Position, &mov);
+			njAddVector(&playertwp[0]->pos, &mov);
 		}
 	}
 }
 
-void Rexon_DrawFins(EntityData1* data, NJS_OBJECT* object, float timer)
+void Rexon_DrawFins(taskwk* twp, NJS_OBJECT* object, float timer)
 {
 	for (int i = 0; i < 4; ++i)
 	{
 		int rot = 0;
 
-		if (data->Action == RexonAct_Stand)
+		if (twp->mode == RexonAct_Stand)
 		{
 			rot = 0x2000 * njSin(static_cast<int>(timer * 100));
 		}
@@ -351,7 +330,7 @@ void Rexon_DrawFins(EntityData1* data, NJS_OBJECT* object, float timer)
 	}
 }
 
-void Rexon_DrawNeck(EntityData1* data, NJS_OBJECT* object, float timer)
+void Rexon_DrawNeck(taskwk* twp, NJS_OBJECT* object, float timer)
 {
 	njPushMatrixEx();
 
@@ -361,7 +340,7 @@ void Rexon_DrawNeck(EntityData1* data, NJS_OBJECT* object, float timer)
 		njRotateXYZ(nullptr, Pos3(object->ang));
 
 		njPushMatrixEx();
-		njTranslateZ(Rexon_NeckMovement(i, data->Action, timer));
+		njTranslateX(Rexon_NeckMovement(i, twp->mode, timer));
 		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 
@@ -371,153 +350,160 @@ void Rexon_DrawNeck(EntityData1* data, NJS_OBJECT* object, float timer)
 	njPopMatrixEx();
 }
 
-void __cdecl Rexon_Display(ObjectMaster* obj)
+void __cdecl RexonDisp(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->counter.ptr; // stored model
 
 		njSetTexture(&REXON_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
-		njScalef(data->Scale.x);
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
+		njScalef(twp->scl.x);
 
-		DrawModel(data->Object->basicdxmodel);
+		DrawModel(object->basicdxmodel);
 
-		if (data->Action != RexonAct_Dead)
+		if (twp->mode != RexonAct_Dead)
 		{
-			Rexon_DrawFins(data, data->Object->child, data->InvulnerableTime);
-			Rexon_DrawNeck(data, data->Object->child->sibling->sibling->sibling->sibling, data->InvulnerableTime);
+			Rexon_DrawFins(twp, object->child, twp->wtimer);
+			Rexon_DrawNeck(twp, object->child->sibling->sibling->sibling->sibling, twp->wtimer);
 		}
 
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl Rexon_Main(ObjectMaster* obj)
+void __cdecl RexonExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
-		// Handle growing lava in act 2
-		int lava_id = data->Rotation.x;
+		// Handle growing lava in act 2:
+		int lava_id = twp->ang.x;
 		if (CurrentAct == 1 && grow_workers[lava_id].Enabled == true)
 		{
-			if (data->Scale.z < grow_workers[lava_id].Height)
+			if (twp->scl.z < grow_workers[lava_id].Height)
 			{
-				data->Scale.z = grow_workers[lava_id].Height;
+				twp->scl.z = grow_workers[lava_id].Height; // adjust height to new lava height
 			}
 		}
-
-		if (data->Action != RexonAct_Dead)
+		
+		if (twp->mode != RexonAct_Dead)
 		{
-			data->InvulnerableTime += 1;
+			twp->wtimer += 1;
 
 			// If the rexon is a moving one
-			if (data->Action == RexonAct_Move)
+			if (twp->mode == RexonAct_Move)
 			{
 				// Turn around if outside of range
-				if (CheckCollisionPointSphere(&obj->SETData.SETData->SETEntry->Position, &data->Position, data->Scale.y) == false)
+				if (CheckCollisionPointSphere((NJS_POINT3*)&tp->ocp->pObjEditEntry->xpos, &twp->pos, twp->scl.y) == false)
 				{
-					njLookAt(&data->Position, &obj->SETData.SETData->SETEntry->Position, nullptr, &data->Rotation.y);
+					twp->ang.y += 0x8000;
 				}
 
 				// Move forward
 				njPushMatrix(_nj_unit_matrix_);
-				njTranslateEx(&data->Position);
-				njRotateY(0, data->Rotation.y);
-				njTranslateZ(data->Scale.y / 1000);
-				njGetTranslation(0, &data->Position);
+				njTranslateEx(&twp->pos);
+				njRotateY(0, twp->ang.y);
+				njTranslateX(twp->scl.y / 1000);
+				njGetTranslation(0, &twp->pos);
 				njPopMatrixEx();
 			}
 
-			if (obj->Child)
+			// If the head is still there
+			if (tp->ctp)
 			{
-				Rexon_MoveColliNeck(data);
-				Rexon_GetHeadPos(data, &obj->Child->Data1->Position);
-				AddToCollisionList(data);
+				Rexon_MoveColliNeck(twp); // calc neck parts pos
+				Rexon_GetHeadPos(twp, &tp->ctp->twp->pos); // calc head pos
+				EntryColliList(twp);
 			}
 			else
 			{
-				data->Action = RexonAct_Dead;
-				Collision_Free(obj);
+				// Otherwise we're dead
+				twp->mode = RexonAct_Dead;
+				FreeColliWork(twp);
 			}
 
-			RunObjectChildren(obj);
+			LoopTaskC(tp);
 		}
 
-		Rexon_MoveDynCol(obj, data);
-		obj->DisplaySub(obj);
+		Rexon_MoveDynCol(tp, twp);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl Rexon_Delete(ObjectMaster* obj)
+void __cdecl RexonDestroy(task* tp)
 {
-	// Removes the dyncol before deleting the object
-
-	if (obj->Data1->LoopData)
+	// Remove the dyncol before deleting the object:
+	if (tp->twp)
 	{
-		DynamicCOL_Remove(obj, (NJS_OBJECT*)obj->Data1->LoopData);
-		ObjectArray_Remove((NJS_OBJECT*)obj->Data1->LoopData);
+		auto object = (NJS_OBJECT*)tp->twp->value.ptr;
+
+		if (object)
+		{
+			WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
+			ReleaseMobileLandObject(object);     // Release the entry
+		}
 	}
 
-	Enemy_Delete(obj);
+	UniDestructor(tp);
 }
 
-void __cdecl Rexon(ObjectMaster* obj)
+void __cdecl Rexon(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
 	// If already dead, load only the floating shell
-	if (obj->SETData.SETData->Flags & 0x1000)
+	if (CheckBroken(tp))
 	{
-		data->Action = RexonAct_Dead;
+		twp->mode = RexonAct_Dead;
 	}
 	else
 	{
-		LoadChildObject(LoadObj_Data1, RexonHead, obj);
-		Collision_Init(obj, arrayptrandlength(Rexon_Col), 4);
+		CreateChildTask(LoadObj_Data1, RexonHead, tp);
+		CCL_Init(tp, arrayptrandlength(Rexon_Col), 4);
 	}
 
-	if (data->Scale.x == 0.0f)
+	if (twp->scl.x == 0.0f)
 	{
-		data->Scale.x = 1.0f;
+		twp->scl.x = 1.0f; // default scale
 	}
 
-	if (data->Scale.y != 0.0f)
+	if (twp->scl.y != 0.0f)
 	{
-		data->Action = RexonAct_Move;
+		twp->mode = RexonAct_Move;
 	}
 
-	data->Scale.z = data->Position.y;
+	twp->ang.y -= 0x4000; // correct rotation
+	twp->scl.z = twp->pos.y; // store original height
+	twp->counter.ptr = e_rexon->getmodel(); // store model
 
-	data->Object = e_rexon->getmodel();
+	tp->dest = RexonDestroy;
+	tp->exec = RexonExec;
+	tp->disp = RexonDisp;
 
-	obj->DeleteSub = Rexon_Delete;
-	obj->MainSub = Rexon_Main;
-	obj->DisplaySub = Rexon_Display;
+	// Create geometry collision for shell:
+	auto object = GetMobileLandObject();
 
-	// Create the dynamic collision
-	NJS_OBJECT* object = ObjectArray_GetFreeObject();
-
-	object->pos[0] = data->Position.x;
-	object->pos[1] = data->Position.y;
-	object->pos[2] = data->Position.z;
+	object->pos[0] = twp->pos.x;
+	object->pos[1] = twp->pos.y;
+	object->pos[2] = twp->pos.z;
 
 	object->ang[0] = 0;
-	object->ang[1] = data->Rotation.y;
+	object->ang[1] = twp->ang.y;
 	object->ang[2] = 0;
 
-	object->scl[0] = data->Scale.x;
-	object->scl[1] = data->Scale.x;
-	object->scl[2] = data->Scale.x;
+	object->scl[0] = twp->scl.x;
+	object->scl[1] = twp->scl.x;
+	object->scl[2] = twp->scl.x;
 
 	object->basicdxmodel = e_rexoncol->getmodel()->basicdxmodel;
 
-	DynamicCOL_Add((ColFlags)0x08000001, obj, object);
-	data->LoopData = (Loop*)object;
+	RegisterCollisionEntry(ColFlags_Dynamic | ColFlags_Solid, tp, object);
+	twp->value.ptr = object; // store geo collision
 }
 
 #pragma endregion
