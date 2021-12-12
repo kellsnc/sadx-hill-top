@@ -60,7 +60,7 @@ void RexonHead_LoadFireBall(ObjectMaster* obj, EntityData1* data)
 
 	njLookAt(&pos, &EntityData1Ptrs[GetTheNearestPlayerNumber(&data->Position)]->Position, &rotx, &roty);
 
-	LoadFireBall(obj, &pos, roty, rotx, 1.5f, 1.5f, 0.01f, 0);
+	LoadFireBall((task*)obj, &pos, roty, rotx, 1.5f, 1.5f, 0.01f, 0);
 
 	dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, (taskwk*)data);
 }

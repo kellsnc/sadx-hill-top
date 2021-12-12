@@ -596,7 +596,7 @@ void EggSub_FireBall(EntityData1* data, eggsubwk* wk, Float scale)
 	Angle x;
 
 	njLookAt(&pos, &EntityData1Ptrs[GetTheNearestPlayerNumber(&pos)]->Position, &x, &y);
-	LoadFireBall(CurrentBoss, &pos, y, -x, 5.0f, 5.0f, 0.0f, 0);
+	LoadFireBall((task*)CurrentBoss, &pos, y, -x, 5.0f, 5.0f, 0.0f, 0);
 	SubEgg_ChangeAnimation(wk, ESubAnm_Attack);
 	dsPlay_oneshot(461, 0, 0, 0);
 }

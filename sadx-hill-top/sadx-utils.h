@@ -44,6 +44,14 @@ TaskFunc(EnemyMountainE104_dispTgt, 0x6056E0); // local name: dispTgt
 TaskFunc(EnemyMountainE104_destTgt, 0x605650); // local name: destTgt
 TaskFunc(EnemyMountainE104, 0x605B40);
 DataArray(NJS_POINT3, pCamTgtLinePos, 0x24C8D00, 5);
+VoidFunc(CCL_ClearSearch, 0x41B9D0);
+FunctionPointer(c_colli_hit_info*, CCL_IsHitKindWithNumEx, (taskwk* twp, uint8_t kind), 0x41BF30);
+FunctionPointer(taskwk*, CCL_IsHitKindWithNum, (taskwk* twp, uint8_t kind), 0x41C910); // Check if twp collides with a collision holding a specific "kind" identifier (see CCL_INFO), returns the object taskwk or 0
+FunctionPointer(taskwk*, CCL_IsHitKindWithNum2, (taskwk* twp, uint8_t kind), 0x41C930); // Same as CCL_IsHitKindWithNum2 but with unnecessary safe checks.
+FunctionPointer(taskwk*, CCL_IsHitPlayer, (taskwk* twp), 0x41CBC0); // Check if a player collides with twp, returns the player's taskwk or 0
+FunctionPointer(c_colli_hit_info*, CCL_IsHitPlayerEx, (taskwk* twp), 0x41C6E0);
+FunctionPointer(taskwk*, CCL_IsHitBullet, (taskwk* twp), 0x41CBE0); // Check if a projectile collides with twp, returns the projectile's taskwk or 0
+FunctionPointer(c_colli_hit_info*, CCL_IsHitBulletEx, (taskwk* twp), 0x41C750);
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);

@@ -40,7 +40,7 @@ void __cdecl LavaFallDisplay(task* tp)
 		auto twp = tp->twp;
 
 		// Change tex address to animate textures
-		CurrentLavaTex.textures = &LAVAFALL_TexNames[twp->btimer];
+		CurrentLavaTex.textures = &LAVAFALL_TexList.textures[twp->btimer];
 
 		njSetTexture(&CurrentLavaTex);
 		njPushMatrixEx();

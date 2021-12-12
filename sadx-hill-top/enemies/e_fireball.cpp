@@ -1,176 +1,185 @@
 #include "pch.h"
 #include "e_fireball.h"
-#include "..\objects\o_lavafall.h"
+#include "..\objects\o_lavafall.h" // For LAVAFALL_TexList
 
 ModelInfo* e_fireball = nullptr;
 
-CollisionData FireBall_Col = { 0, CI_FORM_SPHERE, 0x77, 0x2F, 0, { 0.0f, 1.0f, 0.0f }, 1.0f, 0.0f, 0.0f, 0, 0, 0, 0 };
+CCL_INFO FireBallCol = { 0, CI_FORM_SPHERE, 0x77, 0x2F, 0, { 0.0f, 1.0f, 0.0f }, 1.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
 
-void __cdecl FireBall_Display(ObjectMaster* obj)
+static NJS_TEXLIST CurrentLavaTex = { nullptr, 1 };
+
+static void __cdecl FireBallDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
 
-		njSetTexture(&LAVAFALL_TexList);
+		CurrentLavaTex.textures = &LAVAFALL_TexList.textures[twp->btimer];
+		njSetTexture(&CurrentLavaTex);
+
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
-		njRotateZ_(data->Rotation.x);
-		njScalef(data->Scale.x);
-
-		data->Object->basicdxmodel->mats->attr_texId = data->Index;
-		DrawModel(data->Object->basicdxmodel);
-
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
+		njRotateZ_(twp->ang.x);
+		njScalef(twp->scl.x);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl FireBall_Main(ObjectMaster* obj)
+static void __cdecl FireBallExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
-		if (data->Index >= LAVAFALL_TexList.nbTexture - 1)
+		if (twp->btimer >= LAVAFALL_TexList.nbTexture - 1)
 		{
-			data->Index = 0;
+			twp->btimer = 0;
 		}
 		else
 		{
-			++data->Index;
+			++twp->btimer;
 		}
 
 		// Move
 		njPushMatrix(_nj_unit_matrix_);
-		njTranslateEx(&data->Position);
-		njTranslateY(-(data->Scale.z / 4)); // grav
-		njRotateY_(data->Rotation.y - 0x4000);
-		njRotateZ_(data->Rotation.x);
+		njTranslateEx(&twp->pos);
+		njTranslateY(-(twp->scl.z / 4)); // grav
+		njRotateY_(twp->ang.y - 0x4000);
+		njRotateZ_(twp->ang.x);
 
-		// check direction
-		if (data->Unknown == 0)
+		// Check direction
+		if (twp->wtimer == 0)
 		{
-			njTranslateX(data->Scale.y); // speed
+			njTranslateX(twp->scl.y); // speed
 		}
 		else
 		{
-			njTranslateY(data->Scale.y);
+			njTranslateY(twp->scl.y);
 		}
 
-		njGetTranslation(nullptr, &data->Position);
+		njGetTranslation(nullptr, &twp->pos);
 		njPopMatrixEx();
 
-		// update movement speed
-		data->Scale.z *= 1.02;
-		data->Scale.y *= 0.99;
+		// Update movement speed
+		twp->scl.z *= 1.02;
+		twp->scl.y *= 0.99;
 
-		// Break
-		if (GetCollidingEntityA(data) || GetCollidingEntityB(data))
+		// Destroy if touched
+		if (CCL_IsHitPlayer(twp) || CCL_IsHitBullet(twp))
 		{
-			DeleteObject_(obj);
+			FreeTask(tp);
 			return;
 		}
 
-		AddToCollisionList(data);
-		obj->DisplaySub(obj);
+		EntryColliList(twp);
+		tp->disp(tp);
 	}
 }
 
-void __cdecl FireBall(ObjectMaster* obj)
+void __cdecl FireBall(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	if (data->Scale.x == 0.0f)
+	if (twp->scl.x == 0.0f)
 	{
-		data->Scale.x = 1.0f;
+		twp->scl.x = 1.0f;
 	}
 
-	Collision_Init(obj, &FireBall_Col, 1, 4);
+	twp->value.ptr = e_fireball->getmodel(); // store model
 
-	data->CollisionInfo->CollisionArray->a *= data->Scale.x;
-	data->Object = e_fireball->getmodel();
+	CCL_Init(tp, &FireBallCol, 1, 4);
 
-	obj->MainSub = FireBall_Main;
-	obj->DisplaySub = FireBall_Display;
+	auto cwp = twp->cwp;
+
+	if (cwp)
+	{
+		cwp->info->a *= twp->scl.x; // scale collision size
+	}
+	
+	tp->exec = FireBallExec;
+	tp->disp = FireBallDisplay;
 }
 
-void LoadFireBall(ObjectMaster* obj, NJS_VECTOR* position, Angle roty, Angle rotx, Float Speed, Float size, Float Grav, int dir)
+void LoadFireBall(task* tp, NJS_POINT3* pos, Angle angy, Angle angx, Float spd, Float scl, Float grav, int dir)
 {
-	ObjectMaster* child = LoadChildObject(LoadObj_Data1, FireBall, obj);
-	EntityData1* data = child->Data1;
+	auto ctp = CreateChildTask(LoadObj_Data1, FireBall, tp);
+	auto ctwp = ctp->twp;
 
-	data->Position = *position;
-	data->Rotation.y = roty;
-	data->Rotation.x = rotx;
-	data->Scale.x = size;
-	data->Scale.y = Speed;
-	data->Scale.z = Grav;
-	data->Unknown = dir;
+	ctwp->pos = *pos;
+	ctwp->ang.y = angy;
+	ctwp->ang.x = angx;
+	ctwp->scl.x = scl;
+	ctwp->scl.y = spd;
+	ctwp->scl.z = grav;
+	ctwp->wtimer = dir;
 }
 
 /*
 
 FIREBALL LAUNCHER ENEMY
 
-FloatX = scale (if 0 > 1)
-FloatY = launch speed (if 0 > 1)
+FloatX = scale (default 1)
+FloatY = launch speed (default 1)
 FloatZ = spawn radius (if 0 spawn at position)
-RotZ = Launch rate in frames (if 0 > 180)
+RotZ = Launch rate in frames (default 180)
 
 */
 
-void FireBallLauncher_Main(ObjectMaster* obj)
+static void __cdecl FireBallLauncherExec(task* tp)
 {
-	if (!ClipSetObject(obj))
+	if (!CheckRangeOut(tp))
 	{
-		EntityData1* data = obj->Data1;
+		auto twp = tp->twp;
 
-		if (data->field_A <= 0)
+		if (twp->wtimer <= 0)
 		{
-			NJS_VECTOR pos = data->Position;
+			auto pos = twp->pos;
 
-			if (data->Scale.z != 0)
+			if (twp->scl.z != 0)
 			{
-				pos.x += (data->Scale.z / 2.0f) - static_cast<float>(rand() % static_cast<int>(data->Scale.z));
-				pos.z += (data->Scale.z / 2.0f) - static_cast<float>(rand() % static_cast<int>(data->Scale.z));
+				// Get random position in spawn radius
+				pos.x += (twp->scl.z / 2.0f) - static_cast<float>(rand() % static_cast<int>(twp->scl.z));
+				pos.z += (twp->scl.z / 2.0f) - static_cast<float>(rand() % static_cast<int>(twp->scl.z));
 			}
 
-			LoadFireBall(obj, &pos, data->Rotation.y, data->Rotation.x, data->Scale.y, data->Scale.x, data->Scale.y / 2, 1);
-			dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, (taskwk*)data);
+			LoadFireBall(tp, &pos, twp->ang.y, twp->ang.x, twp->scl.y, twp->scl.x, twp->scl.y / 2, 1);
+			dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, twp);
 
-			data->field_A = data->Rotation.z;
+			twp->wtimer = twp->ang.z; // wait for provided number of frames
 		}
 		else
 		{
-			--data->field_A;
+			--twp->wtimer;
 		}
 
-		RunObjectChildren(obj);
+		LoopTaskC(tp);
 	}
 }
 
-void FireBallLauncher(ObjectMaster* obj)
+void __cdecl FireBallLauncher(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
-	obj->MainSub = FireBallLauncher_Main;
+	tp->exec = FireBallLauncherExec;
 
-	// Default values
+	// Default values:
 
-	if (data->Scale.x == 0.0f)
+	if (twp->scl.x == 0.0f)
 	{
-		data->Scale.x = 1.0f;
+		twp->scl.x = 1.0f;
 	}
 
-	if (data->Scale.y == 0.0f)
+	if (twp->scl.y == 0.0f)
 	{
-		data->Scale.y = 1.0f;
+		twp->scl.y = 1.0f;
 	}
 
-	if (data->Rotation.z == 0)
+	if (twp->ang.z == 0)
 	{
-		data->Rotation.z = 180;
+		twp->ang.z = 180;
 	}
 }
 
