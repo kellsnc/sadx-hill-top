@@ -27,7 +27,6 @@ FunctionPointer(void, RedMountain_SetViewData_Clip, (int clipLevel), 0x6007E0);
 VoidFunc(RedMountain_SetViewData, 0x600730);
 DataArray(Color3, GlobalColorsLevel, 0x90BFE8, 43);
 FunctionPointer(void, KillPlayer, (uint8_t ID), 0x440CD0);
-DataArray(NJS_VECTOR, GammaCamBounds, 0x24C8D00, 5);
 VoidFunc(EnableTimeThing, 0x426030);
 FunctionPointer(void, PlayVoiceCheckSetting, (int voice), 0x571990);
 DataPointer(ObjectMaster*, Egg1ExplosionTask, 0x3C6C940);
@@ -38,7 +37,13 @@ ObjectFunc(ObjectCrash, 0x5A95B0); // position is position, scale is direction, 
 ObjectFunc(DeleteGammaMissileIfNoTarget, 0x4CEFE0);
 FastcallFunctionPointer(void, DrawChunkModel_, (Sint32* a1, Sint16* a2), 0x7917F0);
 FunctionPointer(void, SetPlayerPosition, (uint8_t pno, uint8_t frame, NJS_POINT3* pos, Angle3* ang), 0x441A40);
-FunctionPointer(BOOL, SCPathOnposToPntnmb, (pathtag* tag, float onpos, int* pntnmb), 0x49C5E0); // Converts distance on path to point number, returns FALSE if point outside of range.
+
+// Symbols
+TaskFunc(EnemyMountainE104_execTgt, 0x605A90); // local name: execTgt
+TaskFunc(EnemyMountainE104_dispTgt, 0x6056E0); // local name: dispTgt
+TaskFunc(EnemyMountainE104_destTgt, 0x605650); // local name: destTgt
+TaskFunc(EnemyMountainE104, 0x605B40);
+DataArray(NJS_POINT3, pCamTgtLinePos, 0x24C8D00, 5);
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);
