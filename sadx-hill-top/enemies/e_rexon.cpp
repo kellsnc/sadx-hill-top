@@ -146,6 +146,7 @@ void __cdecl RexonHeadExec(task* tp)
 	if (EnemyCheckDamage(twp, ewp))
 	{
 		CreateFlash2(twp->pos.x, twp->pos.y + 3.0f, twp->pos.z, 1.0f);
+		CreateExpSpring(twp, 2);
 		CreateAnimal(3, twp->pos.x, twp->pos.y + 6.0f, twp->pos.z);
 		Knuckles_KakeraGame_Set_PutEme(twp->ang.z, &twp->pos);
 		FreeTask(tp);

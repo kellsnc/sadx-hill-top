@@ -56,6 +56,10 @@ TaskFunc(UniDestructor, 0x4E21D0); // Destructor task for every enemy, does noth
 TaskFunc(E102KillCursor, 0x4CEFE0); // Remove gamma target on task
 FunctionPointer(BOOL, Knuckles_KakeraGame_Set_PutEme, (uint8_t emeid, NJS_POINT3* emepos), 0x477D90); // Obtain emerald
 FunctionPointer(BOOL, Knuckles_KakeraGame_Set_CheckEme, (uint8_t emeid, NJS_POINT3* emepos), 0x476660); // Check emerald
+FunctionPointer(void, StaticShadow, (taskwk* twp, float ypos), 0x49ED70);
+FunctionPointer(float, Shadow, (taskwk* twp, float scl), 0x49EE30);
+FunctionPointer(float, _DrawShadow, (Angle3* ang, NJS_POINT3* pos, float scl), 0x49EF30);
+FunctionPointer(float, ShadowWithAng, (taskwk* twp, float scl, Angle3* ang), 0x49EFD0);
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);

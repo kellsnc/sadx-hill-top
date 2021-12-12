@@ -5,11 +5,9 @@
 
 SPIKER ENEMY
 
-Rot X = Floor (0) or Ceiling (1)
 Rot Z = Emerald ID (for Knuckles) -> Index
-Scale X = Walking radius (if 0, doesn't move)
-Scale Y = Attack type (0 is homing missile; 1 is vertical attack);
-Scale Z = Attack radius (cylinder)
+Scale X = Walk/Attack radius
+Scale Y = Type (0 is homing missile; 1 is vertical attack);
 
 */
 
@@ -21,502 +19,351 @@ ModelInfo* e_spiker = nullptr;
 AnimationFile* e_spiker_stand = nullptr;
 AnimationFile* e_spiker_walk = nullptr;
 
-CollisionData Spiker_Col = { 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0, 8.0f, 0.0 }, 4.5f, 0.0f, 0.0f, 0, 0, 0, 0 };
-CollisionData Spike_Col = { 0, CI_FORM_SPHERE, 0x77, 0x2F, 0, { 0.0, 20.0f, 0.0 }, 4.5f, 6.0f, 0.0f, 0, 0, 0, 0 };
+CCL_INFO Spiker_Col = { 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 8.0f, 0.0f }, 4.5f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
+CCL_INFO Spike_Col =  { 0, CI_FORM_SPHERE, 0x70, 0x2F, 0, { 0.0f, 15.0f, 0.0f }, 4.5f, 6.0f, 0.0f, 0.0f, 0, 0, 0 };
 
 NJS_ACTION SpikerActions[2] = { 0 };
 
-enum class SpikerAnims {
-	Stand,
-	Walk
+enum SpikerAnim {
+	SpikerAnim_Stand,
+	SpikerAnim_Walk
 };
 
-enum class SpikerActs : Uint32 {
-	Stand,
-	Walk,
-	WalkToPlayer,
-	Attack,
-	Destroyed
+enum SpikerAct {
+	SpikerAct_Walk,
+	SpikerAct_Stand,
+	SpikerAct_Flee,
+	SpikerAct_Dead
 };
 
-enum SpikerAttacks {
+enum SpikerAttack {
+	SpikerAttack_None,
 	SpikerAttack_Homing,
 	SpikerAttack_Vertical
 };
 
-struct SpikerData1 {
-	SpikerActs Action;
-	Uint16 Timer;
-	Uint16 EmeraldID;
-	Bool Ceiling;
-	NJS_OBJECT* Object;
-	Bool SpikeReleased;
-	Rotation3 Rotation;
-	NJS_VECTOR Position;
-	Float WalkRadius;
-	Float AttackType;
-	Float AttackRadius;
-	CollisionInfo* CollisionInfo;
-};
-
 #pragma region Spike
 
-void __cdecl SpikerSpike_Display(ObjectMaster* obj)
+void SpikeUpdatePos(task* tp, float offset)
 {
-	EntityData1* data = obj->Data1;
-	SpikerData1* pdata = (SpikerData1*)obj->Parent->Data1;
-	enemywk* enmwk = (enemywk*)obj->Parent->Data2;
+	auto ptwp = tp->ptp->twp;
 
-	if (!MissedFrames && data->Action != 0)
+	njPushMatrix(_nj_unit_matrix_);
+	njTranslateEx(&ptwp->pos);
+	njRotateZXY(&ptwp->ang);
+	njTranslateY(9.0f);
+	njGetTranslation(0, &tp->twp->pos);
+	njPopMatrixEx();
+}
+
+void __cdecl SpikeDisplay(task* tp)
+{
+	if (!MissedFrames)
 	{
+		auto twp = tp->twp;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
+
 		njSetTexture(&SPIKER_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
+		njTranslateEx(&twp->pos);
 
-		if (data->NextAction == SpikerAttack_Homing)
+		if (twp->mode == SpikerAttack_Homing)
 		{
-			njRotateY_(data->Rotation.y);
-			njRotateX_(data->Rotation.x);
-			njTranslateY(-7.5f);
-		}
-		else if (pdata->Ceiling == true)
-		{
-			njRotateY_(data->Rotation.y);
-			njRotateX(0, 0x8000);
-			njTranslateY(9.0f);
+			njRotateY_(twp->ang.y);
+			njRotateX_(twp->ang.x);
 		}
 		else
 		{
-			njRotateEx((Angle*)&data->Rotation, false);
-			njTranslateY(9.0f);
+			njRotateZXY(&twp->ang);
 		}
 
-		njRotateY(0, 0x8000);
-		DrawModel(data->Object->basicdxmodel);
+		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl SpikerSpike_Main(ObjectMaster* obj)
+void SpikeHoming(taskwk* twp)
 {
-	EntityData1* data = obj->Data1;
-	SpikerData1* pdata = (SpikerData1*)obj->Parent->Data1;
-	enemywk* enmwk = (enemywk*)obj->Parent->Data2;
+	Angle rotx, roty;
 
-	if (data->Action == 0)
+	if (twp->wtimer < 100)
 	{
-		if (pdata->SpikeReleased == true)
-		{
-			data->Action = 1;
-			data->NextAction = pdata->AttackType;
-			data->Scale.x = 0.2f;
+		njLookAt(&twp->pos, &playertwp[GetTheNearestPlayerNumber(&twp->pos)]->pos, &rotx, &roty);
+		rotx += 0x4000;
 
-			if (data->NextAction == SpikerAttack_Homing)
-			{
-				njPushMatrix(_nj_unit_matrix_);
-				njTranslateEx(&data->Position);
-
-				if (pdata->Ceiling == true)
-				{
-					njRotateY_(data->Rotation.y);
-					njRotateX(0, 0x8000);
-				}
-				else
-				{
-					njRotateEx((Angle*)&data->Rotation, false);
-				}
-
-				njRotateY(0, 0x8000);
-				njTranslateY(20.0f);
-				njGetTranslation(0, &data->Position);
-				njPopMatrixEx();
-
-				if (pdata->Ceiling == true)
-				{
-					data->Rotation.x += 0x8000;
-				}
-
-				data->CollisionInfo->CollisionArray->center.y = 0.0f;
-				data->CollisionInfo->CollisionArray->a = 10.0f;
-				data->Rotation.z = 0;
-			}
-		}
-		else
-		{
-			data->Position = pdata->Position;
-			data->Rotation = pdata->Rotation;
-		}
-	}
-	else
-	{
-		if (++data->field_A > 200 || GetCollidingEntityA(data))
-		{
-			CreateFlash2(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
-			DeleteObject_(obj);
-			return;
-		}
-
-		Angle roty = 0;
-		Angle rotx = 0;
-
-		switch (data->NextAction)
-		{
-		case SpikerAttack_Homing:
-			if (data->Scale.x < 1.0f)
-			{
-				data->Scale.x += 0.01f;
-			}
-
-			njLookAt(&data->Position, &EntityData1Ptrs[GetTheNearestPlayerNumber(&data->Position)]->Position, &rotx, &roty);
-			rotx += 0x4000;
-
-			data->Rotation.y = BAMS_SubWrap(data->Rotation.y, roty, 0x300);
-			data->Rotation.x = BAMS_SubWrap(data->Rotation.x, rotx, 0x300);
-
-			njPushMatrix(_nj_unit_matrix_);
-			njTranslateEx(&data->Position);
-			njRotateY_(data->Rotation.y);
-			njRotateX_(data->Rotation.x);
-			njTranslateY(data->Scale.x);
-			njGetTranslation(0, &data->Position);
-			njPopMatrixEx();
-
-			break;
-		case SpikerAttack_Vertical:
-			if (data->Scale.x < 3.0f)
-			{
-				data->Scale.x += 0.05f;
-			}
-
-			njPushMatrix(_nj_unit_matrix_);
-			njTranslateEx(&data->Position);
-
-			if (pdata->Ceiling == true)
-			{
-				njRotateY_(data->Rotation.y);
-				njRotateX(0, 0x8000);
-			}
-			else
-			{
-				njRotateEx((Angle*)&data->Rotation, false);
-			}
-
-			njRotateY(0, 0x8000);
-			njTranslateY(data->Scale.x);
-			njGetTranslation(0, &data->Position);
-			njPopMatrixEx();
-
-			break;
-		}
+		twp->ang.y = BAMS_SubWrap(twp->ang.y, roty, 0x300);
+		twp->ang.x = BAMS_SubWrap(twp->ang.x, rotx, 0x300);
 	}
 
-	AddToCollisionList(data);
-	obj->DisplaySub(obj);
+	njPushMatrix(_nj_unit_matrix_);
+	njTranslateEx(&twp->pos);
+	njRotateY_(twp->ang.y);
+	njRotateX_(twp->ang.x);
+	njTranslateY(twp->scl.x);
+	njGetTranslation(0, &twp->pos);
+	njPopMatrixEx();
 }
 
-void LoadSpikerSpike(ObjectMaster* obj, SpikerData1* data)
+void SpikeVertical(taskwk* twp)
 {
-	ObjectMaster* spike = LoadChildObject(LoadObj_Data1, SpikerSpike_Main, obj);
+	njPushMatrix(_nj_unit_matrix_);
+	njTranslateEx(&twp->pos);
+	njRotateZXY(&twp->ang);
+	njTranslateY(twp->scl.x);
+	njGetTranslation(0, &twp->pos);
+	njPopMatrixEx();
+}
 
-	spike->Data1->Object = (NJS_OBJECT*)e_spiker->getdata("Spike");
-	spike->DisplaySub = SpikerSpike_Display;
+void __cdecl SpikeExec(task* tp)
+{
+	auto twp = tp->twp;
+	auto ptwp = tp->ptp->twp;
 
-	Collision_Init(spike, &Spike_Col, 1, 3);
-
-	if (data->Ceiling == true)
+	switch (twp->mode)
 	{
-		spike->Data1->CollisionInfo->CollisionArray->center.y = -18.0f;
+	case SpikerAttack_None:
+		if (ptwp->mode != SpikerAct_Stand)
+		{
+			SpikeUpdatePos(tp, 9.0f);
+		}
+
+		if (ptwp->flag & Status_Attack)
+		{
+			twp->mode = ptwp->smode;
+			twp->cwp->info->center.y = 0.0f;
+			twp->cwp->info->a = 10.0f;
+		}
+
+		break;
+	case SpikerAttack_Homing:
+		SpikeHoming(twp);
+		break;
+	case SpikerAttack_Vertical:
+		SpikeVertical(twp);
+		break;
 	}
+
+	if (twp->mode != SpikerAttack_None)
+	{
+		++twp->wtimer;
+
+		if (twp->scl.x < 1.0f)
+		{
+			twp->scl.x += 0.05f;
+		}
+
+		if (twp->wtimer > 150 || CCL_IsHitPlayer(twp))
+		{
+			CreateFlash2(twp->pos.x, twp->pos.y, twp->pos.z, 1.0f);
+			FreeTask(tp);
+		}
+	}
+	
+	EntryColliList(twp);
+	tp->disp(tp);
+}
+
+void LoadSpikerSpike(task* tp)
+{
+	auto ctp = CreateChildTask(LoadObj_Data1, SpikeExec, tp);
+	auto ctwp = ctp->twp;
+
+	ctwp->value.ptr = e_spiker->getmodel()->child;
+	ctwp->scl.x = 0.0f;
+
+	CCL_Init(ctp, &Spike_Col, 1, 4);
+	SpikeUpdatePos(ctp, 9.0f);
+
+	ctp->disp = SpikeDisplay;
 }
 
 #pragma endregion
 
 #pragma region Spiker
 
-void Spiker_SetAnim(enemywk* enmwk, SpikerAnims anim)
+void Spiker_SetAnim(enemywk* enmwk, SpikerAnim anim)
 {
-	enmwk->actp = &SpikerActions[static_cast<int>(anim)];
+	enmwk->actp = &SpikerActions[anim];
+	enmwk->nframe = static_cast<float>((rand() % enmwk->actp->motion->nbFrame * 2)) / 2;
 }
 
-void Spiker_MoveForward(SpikerData1* data, float speed)
-{
-	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx(&data->Position);
-	njRotateY(0, data->Rotation.y + 0x8000);
-	njTranslateX(-speed);
-	njGetTranslation(0, &data->Position);
-	njPopMatrixEx();
-}
-
-bool Spiker_AttachFloor(SpikerData1* data)
-{
-	Angle3 rot = { 0, data->Rotation.y, 0 };
-	float posy = GetShadowPos(data->Position.x, data->Position.y + 5.0f, data->Position.z, &rot);
-
-	if (posy > -100000)
-	{
-		data->Position.y = posy;
-		data->Rotation = *(Rotation3*)&rot;
-	}
-	else
-	{
-		return false; // no floor detected
-	}
-
-	return true;
-}
-
-bool Spiker_CanAttack(SpikerData1* data)
-{
-	return data->SpikeReleased == false;
-}
-
-bool Spiker_RunBoundaries(SpikerData1* data, enemywk* enmwk, float radius)
-{
-	// Turn around if out of range, or no floor
-
-	if (CheckCollisionPointSphere(&enmwk->home, &data->Position, radius) == false || Spiker_AttachFloor(data) == false)
-	{
-		njLookAt(&data->Position, &enmwk->home, nullptr, &data->Rotation.y);
-		data->Rotation.y -= 0x4000;
-		return false;
-	}
-
-	return true;
-}
-
-void Spiker_ActionStand(SpikerData1* data, enemywk* enmwk)
-{
-	// Attack if finds player in range
-	if (Spiker_CanAttack(data) == true && CheckCollisionCylinderP(&data->Position, data->AttackRadius, 200.0f))
-	{
-		enmwk->old_mode = static_cast<int>(SpikerActs::Stand); // go back to stand action when attack is finished
-		data->Action = SpikerActs::Attack;
-	}
-}
-
-void Spiker_ActionWalk(SpikerData1* data, enemywk* enmwk)
-{
-	// Move forward
-	Spiker_MoveForward(data, 0.1f);
-	Spiker_RunBoundaries(data, enmwk, data->WalkRadius);
-
-	// Attack if finds player in range
-	if (CheckCollisionCylinderP(&data->Position, data->AttackRadius, 200.0f))
-	{
-		enmwk->old_mode = static_cast<int>(SpikerActs::Walk); // go back to walk action when attack is finished
-
-		if (data->AttackType == SpikerAttack_Homing)
-		{
-			data->Action = SpikerActs::WalkToPlayer;
-		}
-		else
-		{
-			data->Action = SpikerActs::Attack;
-		}
-	}
-}
-
-void Spiker_ActionWalkToPlayer(SpikerData1* data, enemywk* enmwk)
-{
-	// Move forward
-	Spiker_MoveForward(data, 0.2f);
-
-	EnemyTurnToPlayer((taskwk*)data, enmwk, GetTheNearestPlayerNumber(&data->Position));
-
-	if (Spiker_RunBoundaries(data, enmwk, enmwk->hear_range) == false)
-	{
-		data->Action = static_cast<SpikerActs>(enmwk->old_mode);
-	}
-
-	if (Spiker_CanAttack(data) == true && CheckCollisionP(&data->Position, data->AttackRadius / 3))
-	{
-		data->Action = SpikerActs::Attack;
-	}
-}
-
-void Spiker_ActionAttack(SpikerData1* data, enemywk* enmwk)
-{
-	data->SpikeReleased = true;
-	data->Action = static_cast<SpikerActs>(enmwk->old_mode);
-}
-
-void Spiker_ActionDelete(ObjectMaster* obj, SpikerData1* data)
-{
-	CreateFlash2(data->Position.x, data->Position.y + 5.0f, data->Position.z, 1.4f);
-	CreateAnimal(3, data->Position.x, data->Position.y + 10.0f, data->Position.z);
-	Knuckles_KakeraGame_Set_PutEme(data->Rotation.z, &data->Position);
-	DeadOut((task*)obj);
-	E102KillCursor((task*)obj);
-}
-
-void __cdecl Spiker_Display(ObjectMaster* obj)
+void __cdecl SpikerDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
-		SpikerData1* data = (SpikerData1*)obj->Data1;
-		enemywk* enmwk = (enemywk*)obj->Data2;
+		auto twp = tp->twp;
+		auto ewp = (enemywk*)tp->mwp;
 
 		njSetTexture(&SPIKER_TexList);
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-
-		// Rotate with respect to the ground if on the floor, otherwise reverse
-		if (data->Ceiling == true)
-		{
-			njRotateY_(data->Rotation.y);
-			njRotateX(0, 0x8000);
-		}
-		else
-		{
-			njRotateEx((Angle*)&data->Rotation, false);
-		}
-
-		njRotateY(0, 0x8000);
-
-		// Hide the animated spike if it's released
-		if (data->SpikeReleased == false)
-		{
-			data->Object->child->evalflags &= ~NJD_EVAL_HIDE;
-		}
-		else
-		{
-			data->Object->child->evalflags |= NJD_EVAL_HIDE;
-		}
-
-		// Run animation only if in range or visible
-		if (IsPlayerInRange(&data->Position, enmwk->view_range))
-		{
-			njAction(enmwk->actp, enmwk->pframe);
-		}
-		else
-		{
-			DrawObject(data->Object);
-		}
-
+		njTranslateEx(&twp->pos);
+		njRotateZXY(&twp->ang);
+		njAction(ewp->actp, ewp->nframe);
 		njPopMatrixEx();
 
-		// Draw the shadow if on the ground
-		if (data->Ceiling == false)
-		{
-			DrawShadow((EntityData1*)data, enmwk->shadow_scl);
-		}
+		Shadow(twp, ewp->shadow_scl);
 	}
 }
 
-void __cdecl Spiker_Main(ObjectMaster* obj)
+void SpikerDecideAim(taskwk* twp, enemywk* ewp)
 {
-	if (!ClipSetObject(obj))
+	if (EnemyDist2FromHome(twp, ewp) > ewp->view_range)
 	{
-		SpikerData1* data = (SpikerData1*)obj->Data1;
-		enemywk* enmwk = (enemywk*)obj->Data2;
+		ewp->aim = ewp->home;
+		return;
+	}
 
-		// Animate
-		enmwk->pframe += 1.0f;
+	auto pnum = EnemySearchPlayer(twp, ewp);
 
-		// Run most things when in a certain range
-		if (IsPlayerInRange(&data->Position, enmwk->view_range))
+	if (pnum)
+	{
+		ewp->aim = playertwp[pnum - 1]->pos;
+
+		// Check attack
+		if (!(twp->flag & Status_Attack) && EnemyDist2FromPlayer(twp, pnum) < ewp->view_range / 2)
 		{
-			switch (data->Action)
-			{
-			case SpikerActs::Stand:
-				Spiker_ActionStand(data, enmwk);
-				break;
-			case SpikerActs::Walk:
-				Spiker_ActionWalk(data, enmwk);
-				break;
-			case SpikerActs::WalkToPlayer:
-				Spiker_ActionWalkToPlayer(data, enmwk);
-				break;
-			case SpikerActs::Attack:
-				Spiker_ActionAttack(data, enmwk);
-				break;
-			case SpikerActs::Destroyed:
-				Spiker_ActionDelete(obj, data);
-				return;
-			}
-
-			// If the object is killed by something
-			if (EnemyCheckDamage((taskwk*)data, enmwk) == TRUE)
-			{
-				data->Action = SpikerActs::Destroyed;
-				return;
-			}
-
-			Knuckles_KakeraGame_Set_CheckEme(data->EmeraldID, &data->Position);
-			EnemyPreservePreviousPosition((taskwk*)data, enmwk);
-			AddToCollisionList((EntityData1*)data);
-			RunObjectChildren(obj);
+			twp->flag |= Status_Attack;
+			twp->mode = SpikerAct_Flee;
 		}
-
-		// Display
-		obj->DisplaySub(obj);
-	}
-}
-
-void __cdecl Spiker(ObjectMaster* obj)
-{
-	SpikerData1* data = (SpikerData1*)obj->Data1;
-	enemywk* enmwk = (enemywk*)AllocateObjectData2(obj, (EntityData1*)data); // new structure from the debug symbols
-
-	Collision_Init(obj, &Spiker_Col, 1, 3);
-
-	// some enemy information
-
-	enmwk->height = 20.0f;
-	enmwk->view_range = 160000.0f;
-	enmwk->hear_range = 78400.0f;
-	enmwk->colli_top = 5.0f;
-	enmwk->colli_radius = 5.0f;
-	enmwk->aim_angle = data->Rotation.y;
-	enmwk->sub_angle[0] = data->Rotation.y;
-	enmwk->colli_center.x = 0.0f;
-	enmwk->colli_center.y = 0.0f;
-	enmwk->colli_center.z = 0.0f;
-	enmwk->colli_bottom = 0.0f;
-	enmwk->bound_side = 1.0f;
-	enmwk->bound_floor = 1.0f;
-	enmwk->bound_ceiling = 1.0f;
-	enmwk->shadow_scl = 1.3f;
-	enmwk->weight = 0.1f;
-
-	// Randomize animation start
-	enmwk->pframe = rand();
-	data->Object = e_spiker->getmodel();
-
-	obj->DeleteSub = Enemy_Delete;
-	obj->MainSub = Spiker_Main;
-	obj->DisplaySub = Spiker_Display;
-
-	data->EmeraldID = data->Rotation.z;
-	Knuckles_KakeraGame_Set_CheckEme(data->EmeraldID, &data->Position); // signals position to the radar, rotz is emerald id
-
-	// floor or ceiling
-	data->Ceiling = data->Rotation.x % 2;
-
-	LoadSpikerSpike(obj, data);
-
-	// If the enemy is on the floor, attach
-	if (data->Ceiling == false)
-	{
-		Spiker_AttachFloor(data);
-	}
-
-	enmwk->home = data->Position;
-
-	// Set up start action based on set information
-	if (data->WalkRadius)
-	{
-		data->Action = SpikerActs::Walk;
-		Spiker_SetAnim(enmwk, SpikerAnims::Walk);
 	}
 	else
 	{
-		data->Action = SpikerActs::Stand;
-		Spiker_SetAnim(enmwk, SpikerAnims::Stand);
+		ewp->aim = ewp->home;
 	}
+}
 
-	data->Rotation.y += 0x8000; // reverse rotation y as calculations are done globally
+void SpikerMove(taskwk* twp, enemywk* ewp)
+{
+	EnemyPreservePreviousPosition(twp, ewp);
+	ewp->velo.x = njCos(twp->ang.y) * 0.4f;
+	ewp->velo.y = ewp->velo.y - ewp->weight;
+	ewp->velo.z = njSin(-twp->ang.y) * 0.4f;
+	twp->pos.x = twp->pos.x + ewp->velo.x;
+	twp->pos.y = ewp->velo.y + twp->pos.y;
+	twp->pos.z = ewp->velo.z + twp->pos.z;
+	ewp->nframe += ewp->force.z;
+}
+
+void SpikerWalk(taskwk* twp, enemywk* ewp)
+{
+	ewp->force.z = 0.5f;
+	SpikerDecideAim(twp, ewp);
+	EnemyTurnToAim(twp, ewp);
+	SpikerMove(twp, ewp);
+	EnemyCheckGroundCollision(twp, ewp);
+}
+
+void SpikerStand(taskwk* twp, enemywk* ewp)
+{
+	//EnemyCheckGroundCollision(twp, ewp);
+
+	if (!(twp->flag & Status_Attack) && CheckCollisionCylinderP(&twp->pos, twp->scl.x, 200.0f))
+	{
+		twp->flag |= Status_Attack;
+	}
+}
+
+void SpikerFlee(taskwk* twp, enemywk* ewp)
+{
+	NJS_VECTOR aim = playertwp[GetTheNearestPlayerNumber(&twp->pos)]->pos;
+	njSubVector(&aim, &twp->pos);
+	aim.x = -aim.x;
+	aim.y = -aim.y;
+	aim.z = -aim.z;
+	njAddVector(&aim, &twp->pos);
+	ewp->aim = aim;
+	ewp->force.z = 1.0f;
+	EnemyTurnToAim(twp, ewp);
+	SpikerMove(twp, ewp);
+	EnemyCheckGroundCollision(twp, ewp);
+}
+
+void SpikerCollision(taskwk* twp, enemywk* ewp)
+{
+	if (EnemyCheckDamage(twp, ewp) == TRUE)
+	{
+		twp->mode = SpikerAct_Dead;
+		twp->flag |= Status_Hurt;
+	}
+}
+
+void __cdecl SpikerExec(task* tp)
+{
+	if (!CheckRangeOut(tp))
+	{
+		auto twp = tp->twp;
+		auto ewp = (enemywk*)tp->mwp;
+
+		SpikerCollision(twp, ewp);
+
+		switch (twp->mode)
+		{
+		case SpikerAct_Walk:
+			SpikerWalk(twp, ewp);
+			break;
+		case SpikerAct_Stand:
+			SpikerStand(twp, ewp);
+			break;
+		case SpikerAct_Flee:
+			SpikerFlee(twp, ewp);
+			break;
+		case SpikerAct_Dead:
+			Knuckles_KakeraGame_Set_PutEme(twp->btimer, &twp->pos);
+			CreateFlash2(twp->pos.x, twp->pos.y, twp->pos.z, 1.0f);
+			CreateExpSpring(twp, 6);
+			CreateAnimal(20, twp->pos.x, twp->pos.y, twp->pos.z);
+			DeadOut(tp);
+			break;
+		}
+
+		LoopTaskC(tp);
+		EntryColliList(twp);
+		tp->disp(tp);
+	}
+}
+
+void __cdecl Spiker(task* tp)
+{
+	auto twp = tp->twp;
+	auto ewp = EnemyInitialize(tp, twp);
+
+	CCL_Init(tp, &Spiker_Col, 1, 3);
+
+	// some enemy information:
+	ewp->height = 20.0f;
+	ewp->view_angle = 0x2300;
+	ewp->view_range = twp->scl.x * twp->scl.x;
+	ewp->hear_range = ewp->view_range / 4;
+	ewp->aim_angle = twp->ang.y;
+	ewp->colli_radius = 5.0f;
+	ewp->colli_top = 5.0f;
+	ewp->colli_bottom = -5.0f;
+	ewp->weight = 0.1f;
+	ewp->shadow_scl = 1.3f;
+	ewp->shadow_scl_ratio = 1.0f;
+
+	EnemyPreserveHomePosition(twp, ewp);
+	
+	tp->dest = UniDestructor;
+	tp->exec = SpikerExec;
+	tp->disp = SpikerDisplay;
+
+	twp->btimer = twp->ang.z; // emerald id
+	twp->mode = static_cast<char>(twp->scl.y) % 2; // walk or stand
+
+	LoadSpikerSpike(tp);
+
+	// Set up animation:
+	if (twp->mode == SpikerAct_Walk)
+	{
+		Spiker_SetAnim(ewp, SpikerAnim_Walk);
+		twp->smode = SpikerAttack_Homing;
+	}
+	else
+	{
+		Spiker_SetAnim(ewp, SpikerAnim_Stand);
+		twp->smode = SpikerAttack_Vertical;
+	}
 }
 
 #pragma endregion
@@ -528,6 +375,8 @@ void Spiker_LoadAssets()
 	LoadAnimationFile(&e_spiker_walk, "e_spiker_walk");
 
 	NJS_OBJECT* object = e_spiker->getmodel();
+
+	object->child->evalflags |= NJD_EVAL_HIDE;
 
 	SpikerActions[0].object = object;
 	SpikerActions[0].motion = e_spiker_stand->getmotion();
