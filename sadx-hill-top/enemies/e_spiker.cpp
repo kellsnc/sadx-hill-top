@@ -443,7 +443,7 @@ void __cdecl Spiker_Main(ObjectMaster* obj)
 				return;
 			}
 
-			Object_CheckEmerald(data->EmeraldID, &data->Position);
+			Knuckles_KakeraGame_Set_CheckEme(data->EmeraldID, &data->Position);
 			EnemyPreservePreviousPosition((taskwk*)data, enmwk);
 			AddToCollisionList((EntityData1*)data);
 			RunObjectChildren(obj);
@@ -489,7 +489,7 @@ void __cdecl Spiker(ObjectMaster* obj)
 	obj->DisplaySub = Spiker_Display;
 
 	data->EmeraldID = data->Rotation.z;
-	Object_CheckEmerald(data->EmeraldID, &data->Position); // signals position to the radar, rotz is emerald id
+	Knuckles_KakeraGame_Set_CheckEme(data->EmeraldID, &data->Position); // signals position to the radar, rotz is emerald id
 
 	// floor or ceiling
 	data->Ceiling = data->Rotation.x % 2;

@@ -19,7 +19,6 @@ struct Color3 {
 typedef void(__cdecl* VoidFuncPtr)(void);
 
 DataPointer(VoidFuncPtr, LevelDestructor, 0x3B291B4);
-FunctionPointer(bool, Object_CheckEmerald, (unsigned __int8 emerald, NJS_VECTOR* pos), 0x476660);
 FunctionPointer(Bool, IsEventPerforming, (), 0x42FB00);
 FunctionPointer(int, DetectDyncolCollision, (NJS_VECTOR* pos, NJS_VECTOR* output, Rotation3* rotation, ColFlags flagstoignore, float detectionradius), 0x439620);
 FunctionPointer(void, RedMountain_SetViewData_Clip, (int clipLevel), 0x6007E0);
@@ -56,6 +55,7 @@ FunctionPointer(BOOL, CheckBroken, (task* tp), 0x46C110); // Check no respawn fl
 TaskFunc(UniDestructor, 0x4E21D0); // Destructor task for every enemy, does nothing
 TaskFunc(E102KillCursor, 0x4CEFE0); // Remove gamma target on task
 FunctionPointer(BOOL, Knuckles_KakeraGame_Set_PutEme, (uint8_t emeid, NJS_POINT3* emepos), 0x477D90); // Obtain emerald
+FunctionPointer(BOOL, Knuckles_KakeraGame_Set_CheckEme, (uint8_t emeid, NJS_POINT3* emepos), 0x476660); // Check emerald
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);

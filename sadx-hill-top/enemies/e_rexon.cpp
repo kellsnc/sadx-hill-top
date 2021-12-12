@@ -157,7 +157,7 @@ void __cdecl RexonHeadExec(task* tp)
 		return;
 	}
 
-	Object_CheckEmerald(twp->ang.z, &twp->pos);
+	Knuckles_KakeraGame_Set_CheckEme(twp->ang.z, &twp->pos);
 	LoopTaskC(tp);
 	EntryColliList(twp);
 	tp->disp(tp);
@@ -180,7 +180,7 @@ void __cdecl RexonHead(task* tp)
 	enmwk->hear_range = 0.0f; // Enemy should only react to vision
 
 	twp->ang.z = ptwp->ang.z;
-	Object_CheckEmerald(twp->ang.z, &twp->pos);
+	Knuckles_KakeraGame_Set_CheckEme(twp->ang.z, &twp->pos);
 
 	tp->dest = UniDestructor;
 	tp->exec = RexonHeadExec;
