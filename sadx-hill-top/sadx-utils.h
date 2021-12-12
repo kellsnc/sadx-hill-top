@@ -38,6 +38,7 @@ ObjectFunc(ObjectCrash, 0x5A95B0); // position is position, scale is direction, 
 ObjectFunc(DeleteGammaMissileIfNoTarget, 0x4CEFE0);
 FastcallFunctionPointer(void, DrawChunkModel_, (Sint32* a1, Sint16* a2), 0x7917F0);
 FunctionPointer(void, SetPlayerPosition, (uint8_t pno, uint8_t frame, NJS_POINT3* pos, Angle3* ang), 0x441A40);
+FunctionPointer(BOOL, SCPathOnposToPntnmb, (pathtag* tag, float onpos, int* pntnmb), 0x49C5E0); // Converts distance on path to point number, returns FALSE if point outside of range.
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);

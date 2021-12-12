@@ -1,81 +1,26 @@
 #include "pch.h"
 #include "o_transporter.h"
+#include "o_hillpole.h"
 #include "o_zipvine.h"
+#include "o_lantern.h"
 
 /*
 
 Long vines that acts like a zipline.
 
-Path object, data->LoopData contains the path information.
-See paths.cpp for implementation.
+Path object, twp->value contains the path information.
+See paths.cpp for path data.
 
 */
 
-enum class ZipVineActs : Uint8 {
-	Wait,
-	Run,
-	Stop
-};
-
-struct TransporterPathData1 {
-	ZipVineActs Action;
-	Uint8 PlayerDetached;
-	Uint8 State;
-	Uint8 Timer;
-	Float Progress;
-	NJS_OBJECT* Object;
-	NJS_OBJECT* VineObject;
-	LoopHead* PathData;
-	Rotation3 Rotation;
-	NJS_VECTOR Position;
-	NJS_VECTOR Scale;
-	CollisionInfo* CollisionInfo;
-};
-
-CollisionData ZipVine_Col[] = {
-	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
-	{ 0, CI_FORM_CAPSULE, 0x77, 0, 0x430, { 0 }, 2.0f, 40.0f, 0, 0, 0, 0, 0 },
-	{ 1, CI_FORM_SPHERE, 0xF0, 0, 0, { 0 }, 14.0f, 0, 0, 0, 0, 0, 0 }
-};
-
-void GetVinePoint(NJS_VECTOR* vec, Angle* angle, LoopHead* PathData, int state, float progress)
+enum VineMode
 {
-	Loop* spoint = &PathData->LoopList[state];
-	Loop* epoint = &PathData->LoopList[state + 1];
+	VineMode_Input,
+	VineMode_Run,
+	VineMode_Wait
+};
 
-	*vec = GetPositionBetweenPoints(&spoint->Position, &epoint->Position, progress);
-
-	// Get the bending offset, same code as in the parent display
-	float bend = progress;
-
-	if (bend > 0.5f)
-	{
-		bend = fabsf(1.0f - bend);
-	}
-
-	// Adjust y position accordingly
-	vec->y += 7.5f - ((sqrtf(powf(epoint->Position.x - spoint->Position.x, 2) + powf(epoint->Position.z - spoint->Position.z, 2)) / 10.0f) * bend) - 37.0f;
-	*angle = spoint->Ang_Y;
-}
-
-void DrawZipVine(LoopHead* PathData, NJS_OBJECT* vine, int state, float progress)
-{
-	for (int i = 0; i < PathData->Count - 1; ++i)
-	{ // Loop through all vines
-		Loop* spoint = &PathData->LoopList[i];
-		Loop* epoint = &PathData->LoopList[i + 1];
-
-		float p = i == state ? progress : 0.0f; // Bend if the player is on the current vine
-		float Y = epoint->Position.y - spoint->Position.y; // Vine height
-		float Z = sqrtf(powf(epoint->Position.x - spoint->Position.x, 2) + powf(epoint->Position.z - spoint->Position.z, 2)); // Vine length
-
-		njPushMatrixEx();
-		njTranslateEx(&spoint->Position);
-		njRotateY_(spoint->Ang_Y);
-		DrawVine(vine, &spoint->Position, Y, Z, p);
-		njPopMatrixEx();
-	}
-}
+CCL_INFO ZipVine_Col = { 0, CI_FORM_SPHERE, 0xF0, 0, 0, { 0.0f, 0.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
 
 void DrawZipVinePole(NJS_OBJECT* poles, NJS_VECTOR* pos, Angle rot)
 {
@@ -87,143 +32,151 @@ void DrawZipVinePole(NJS_OBJECT* poles, NJS_VECTOR* pos, Angle rot)
 	njPopMatrixEx();
 }
 
-void __cdecl ZipVine_Display(ObjectMaster* obj)
+void DrawZipVine(pathtag* path, NJS_OBJECT* vine)
 {
-	if (!MissedFrames)
+	for (int i = 0; i < path->points - 1; ++i) // Loop through all vines
 	{
-		TransporterPathData1* data = (TransporterPathData1*)obj->Data1;
-		LoopHead* PathData = data->PathData;
+		auto spoint = &path->tblhead[i];
+		auto epoint = &path->tblhead[i + 1];
 
-		SetSecondObjectTexture();
+		float Y = epoint->ypos - spoint->ypos; // Vine height
+		float Z = sqrtf(powf(epoint->xpos - spoint->xpos, 2) + powf(epoint->zpos - spoint->zpos, 2)); // Vine length
 
-		// Draw start pole
-		DrawZipVinePole(data->Object->child->sibling, &data->CollisionInfo->CollisionArray[0].center, data->CollisionInfo->CollisionArray[0].angy);
+		Angle y;
+		njLookAt((NJS_VECTOR*)&spoint->xpos, (NJS_VECTOR*)&epoint->xpos, nullptr, &y);
 
-		// Draw end pole
-		DrawZipVinePole(data->Object->child->sibling, &data->CollisionInfo->CollisionArray[1].center, data->CollisionInfo->CollisionArray[1].angy);
-
-		// Draw vine line
-		DrawZipVine(data->PathData, data->VineObject, data->State, data->Progress);
-
-		// Draw hanging vine
 		njPushMatrixEx();
-		njTranslateEx(&data->Position);
-		njRotateY_(data->Rotation.y);
-		njRotateZ_(data->Rotation.z);
-		njTranslateY(7.5f);
-		DrawModel(data->Object->child->child->basicdxmodel);
+		njTranslateEx((NJS_VECTOR*)&spoint->xpos);
+		njRotateY_(y);
+		DrawVine(vine, (NJS_VECTOR*)&spoint->xpos, Y, Z, 0.0f);
 		njPopMatrixEx();
 	}
 }
 
-void __cdecl ZipVine_Main(ObjectMaster* obj)
+void __cdecl ZipVineDisplay(task* tp)
 {
-	TransporterPathData1* data = (TransporterPathData1*)obj->Data1;
-
-	if (obj->UnknownB_ptr != (void*)CurrentAct)
+	if (!MissedFrames)
 	{
-		DeleteObject_(obj);
+		auto twp = tp->twp;
+		auto path = (pathtag*)twp->value.ptr;
+		auto hangvineobj = ht_transporter->getmodel()->child->child;
+		auto vineobj = ht_vine->getmodel();
+
+		SetSecondObjectTexture();
+
+		DrawZipVine(path, vineobj);
+
+		// Draw hanging vine
+		njPushMatrixEx();
+		njTranslateEx(&twp->pos);
+		njRotateY_(twp->ang.y);
+		njRotateZ_(twp->ang.z);
+		DrawModel(hangvineobj->basicdxmodel);
+		njPopMatrixEx();
 	}
+}
 
-	switch (data->Action)
+bool ZipVineUpdatePos(pathtag* tag, taskwk* twp)
+{
+	pathinfo info;
+	info.onpathpos = twp->counter.f;
+
+	// Get position along path
+	if (GetStatusOnPath(tag, &info) == TRUE)
 	{
-	case ZipVineActs::Wait:
-		if (CheckCollisionP_num(&data->Position, 14.0f, 0))
+		twp->pos = { info.xpos, info.ypos - 23.0f, info.zpos };
+		//twp->ang.y = 0x4000 - NJM_RAD_ANG(atan2f(info.front.x, info.front.z));
+		twp->ang.y = info.slangz;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void __cdecl ZipVineExec(task* tp)
+{
+	auto twp = tp->twp;
+	auto path = (pathtag*)twp->value.ptr;
+	auto& progress = twp->counter.f;
+
+	if (twp->mode == VineMode_Input)
+	{
+		if (CheckCollisionP_num(&twp->pos, 14.0f, 0))
 		{
-			data->Action = ZipVineActs::Run;
+			twp->mode = VineMode_Run;
 			ForcePlayerAction(0, 16);
 		}
-
-		break;
-	case ZipVineActs::Run:
-		data->Progress += (data->PathData->TotalDist / data->PathData->LoopList[data->State].Dist) / data->PathData->TotalDist * 4.0f;
-
-		if (data->Progress >= 1.0f)
-		{
-			data->Progress = 0.0f;
-			data->State += 1;
-		}
-
-		if (data->State == data->PathData->Count - 1 || (data->State == data->PathData->Count - 2 && data->Progress > 0.95f))
-		{
-			data->Action = ZipVineActs::Stop;
-			ForcePlayerAction(0, 24);
-			break;
-		}
-
-		GetVinePoint(&data->Position, &data->Rotation.y, data->PathData, data->State, data->Progress); // Get new position
-
-		if (data->PlayerDetached == false)
-		{
-			ForcePlayerPos(0, &data->Position); // Update player position
-			RotatePlayer(0, data->Rotation.y); // Update player rotation
-
-			if (LevelFrameCount % 300 == 0)
-			{
-				dsPlay_oneshot_Dolby(456, 0, 0, 200, 120, (taskwk*)EntityData1Ptrs[0]);
-			}
-
-			if ((data->State > 0 || data->Progress > 0.3f) && CheckJump(0))
-			{
-				data->PlayerDetached = true;
-			}
-		}
-
-		break;
-	case ZipVineActs::Stop:
-		if (++data->Timer > 100)
-		{
-			data->Progress = 0.01f;
-			data->State = 0;
-			GetVinePoint(&data->Position, &data->Rotation.y, data->PathData, 0, data->Progress);
-			data->Action = ZipVineActs::Wait;
-			data->Timer = 0;
-			data->PlayerDetached = false;
-		}
-
-		break;
 	}
-
-	AddToCollisionList((EntityData1*)data);
-	obj->DisplaySub(obj);
-}
-
-void __cdecl ZipVine(ObjectMaster* obj)
-{
-	TransporterPathData1* data = (TransporterPathData1*)obj->Data1;
-	LoopHead* PathData = data->PathData;
-
-	obj->DisplaySub = ZipVine_Display;
-	obj->MainSub = ZipVine_Main;
-
-	data->Object = ht_transporter->getmodel();
-	data->VineObject = ht_vine->getmodel();
-
-	Collision_Init(obj, arrayptrandlength(ZipVine_Col), 3);
-
-	// Set start position and end position for poles and their collisions
-	data->CollisionInfo->CollisionArray[0].center = PathData->LoopList[0].Position;
-	data->CollisionInfo->CollisionArray[0].center.y -= 37.0f;
-	data->CollisionInfo->CollisionArray[1].center = PathData->LoopList[PathData->Count - 1].Position;
-	data->CollisionInfo->CollisionArray[1].center.y -= 37.0f;
-
-	// Rotate poles to face next/previous point
-	njLookAt(&PathData->LoopList[0].Position, &PathData->LoopList[1].Position, nullptr, &data->Rotation.y);
-	njLookAt(&PathData->LoopList[PathData->Count - 2].Position, &PathData->LoopList[PathData->Count - 1].Position, nullptr, &data->CollisionInfo->CollisionArray[1].angy);
-
-	// Calculate rotations until I'm not lazy to bake them
-	for (int i = 0; i < PathData->Count - 1; ++i)
+	else if (twp->mode == VineMode_Run)
 	{
-		Loop* spoint = &PathData->LoopList[i];
-		Loop* epoint = &PathData->LoopList[i + 1];
+		if (ZipVineUpdatePos(path, twp))
+		{
+			ForcePlayerPos(0, twp->pos.x, twp->pos.y - 7.5f, twp->pos.z);
+			RotatePlayer(0, twp->ang.y);
+			progress += 5.0f;
+			dsPlay_timer_v(465, 0, 0, 0, 1, twp->pos.x, twp->pos.y, twp->pos.z);
+		}
+		else
+		{
+			twp->mode = VineMode_Input;
+			progress = 10.0f;
+			ZipVineUpdatePos(path, twp);
+			ForcePlayerAction(0, 24);
+		}
 
-		njLookAt(&spoint->Position, &epoint->Position, nullptr, (Angle*)&spoint->Ang_Y);
+		if (CheckJump(0))
+		{
+			twp->mode = VineMode_Wait;
+		}
+
+		if (GetDistance(&playertwp[0]->pos, &twp->pos) > 300.0f)
+		{
+			twp->mode = VineMode_Input;
+			progress = 10.0f;
+			ZipVineUpdatePos(path, twp);
+		}
+	}
+	else
+	{
+		if (++twp->wtimer > 50)
+		{
+			twp->mode = VineMode_Input;
+		}
+	}
+	
+	LoopTaskC(tp);
+	EntryColliList(twp);
+	tp->disp(tp);
+}
+
+void SpawnPole(task* tp, pathtbl* pt)
+{
+	auto ctp = CreateChildTask(LoadObj_Data1, HillPole, tp);
+	ctp->twp->pos = { pt->xpos, pt->ypos - 37.0f, pt->zpos };
+}
+
+void __cdecl ZipVine(task* tp)
+{
+	auto twp = tp->twp;
+	auto path = (pathtag*)twp->value.ptr;
+	
+	twp->counter.f = 10.0f;
+	ZipVineUpdatePos(path, twp);
+
+	SpawnPole(tp, &path->tblhead[0]);
+	SpawnPole(tp, &path->tblhead[path->points - 1]);
+	FireFly_Load(tp, 3);
+
+	CCL_Init(tp, &ZipVine_Col, 1, 3);
+
+	// Bake Y pos until not lazy to set normal manually
+	for (int i = 0; i < path->points - 1; ++i)
+	{
+		njLookAt((NJS_VECTOR*)&path->tblhead[i].xpos, (NJS_VECTOR*)&path->tblhead[i + 1].xpos, nullptr, (Angle*)&path->tblhead[i].slangz);
 	}
 
-	// Start position of the hanging vine
-	data->Progress = 0.01f;
-	GetVinePoint(&data->Position, &data->Rotation.y, data->PathData, 0, data->Progress);
-
-	obj->UnknownB_ptr = (void*)CurrentAct;
+	tp->exec = ZipVineExec;
+	tp->disp = ZipVineDisplay;
 }
-#pragma endregion

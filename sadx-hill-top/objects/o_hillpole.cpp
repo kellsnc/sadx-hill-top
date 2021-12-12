@@ -27,7 +27,8 @@ void __cdecl HillPoleDisplay(task* tp)
 
 void __cdecl HillPoleExec(task* tp)
 {
-	if (!CheckRangeOut(tp))
+	// Only clip object if it's not a child
+	if (tp->ptp || !CheckRangeOut(tp))
 	{
 		EntryColliList(tp->twp);
 		tp->disp(tp);

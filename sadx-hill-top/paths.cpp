@@ -13,7 +13,7 @@ Loop HT0_PropPath_Entries[] = {
 	{ 0, 0, 0, { 376.9286f,  -22.22725f,  1460.423f } }
 };
 
-LoopHead HT0_PropPath = { 0, LengthOfArray<int16_t>(HT0_PropPath_Entries), 2197.0f, HT0_PropPath_Entries, ZipVine };
+LoopHead HT0_PropPath = { 0, LengthOfArray<int16_t>(HT0_PropPath_Entries), 2197.0f, HT0_PropPath_Entries, (ObjectFuncPtr)ZipVine };
 
 Loop HT0_LoopPath1_Entries[] = {
 	{ 0, 0, 31.47127, { 1665.611f,  -1.430883f,  296.7416f } },

@@ -1,3 +1,3 @@
 #pragma once
 
-void __cdecl ZipVine(ObjectMaster* obj);
+void __cdecl ZipVine(task* tp);
