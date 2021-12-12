@@ -4,7 +4,7 @@
 
 /*
 
-Draw a secondary landtable for animated lava geometries
+Draw a secondary landtable for animated lava geometries in act 1 (sonic) and 3 (knuckles)
 
 */
 
@@ -13,55 +13,55 @@ NJS_TEXLIST CurrentLavaTex = { CurrentLavaNames, 2 };
 
 static LandTableInfo* LavaTableInfo = nullptr;
 
-void __cdecl HillTopLava_Display(ObjectMaster* obj)
+void __cdecl HillTopLavaDisplay(task* tp)
 {
 	if (!MissedFrames && (CurrentAct == 0 || CurrentAct == 2))
 	{
-		EntityData1* data = obj->Data1;
-		LandTable* land = LavaTableInfo->getlandtable();
+		auto twp = tp->twp;
+		auto land = (_OBJ_LANDTABLE*)LavaTableInfo->getlandtable();
 
 		if (land)
 		{
-			njSetTexture(land->TexList);
+			njSetTexture(land->pTexList);
 
-			for (int i = 0; i < land->COLCount; ++i)
+			for (int i = 0; i < land->ssCount; ++i)
 			{
-				COL* col = &land->Col[i];
+				auto& lnd = land->pLandEntry[i];
 
 				njPushMatrixEx();
-				njTranslateEx((NJS_VECTOR*)&col->Model->pos);
-				njRotateEx((Angle*)&col->Model->ang, 0);
-				DrawModel(col->Model->basicdxmodel);
+				njTranslateEx((NJS_VECTOR*)&lnd.pObject->pos);
+				njRotateEx((Angle*)&lnd.pObject->ang, 0);
+				DrawModel(lnd.pObject->basicdxmodel);
 				njPopMatrixEx();
 			}
 		}
 	}
 }
 
-void __cdecl HillTopLava_Main(ObjectMaster* obj)
+void __cdecl HillTopLavaExec(task* tp)
 {
-	EntityData1* data = obj->Data1;
+	auto twp = tp->twp;
 
 	if (LevelFrameCount % 2 == 0)
 	{
-		++data->Index; // Texture ID
+		++twp->btimer; // Texture ID
 	}
 
-	if (data->Index >= 12)
+	if (twp->btimer >= 12)
 	{
-		data->Index = 0;
+		twp->btimer = 0;
 	}
 
-	CurrentLavaNames[0] = YOUGAN_ANIM_TEXNAMES[data->Index];
-	CurrentLavaNames[1] = LAVAFALL_TexList.textures[data->Index];
+	CurrentLavaTex.textures[0] = YOUGAN_ANIM_TEXNAMES[twp->btimer];
+	CurrentLavaTex.textures[1] = LAVAFALL_TexList.textures[twp->btimer];
 
-	obj->DisplaySub(obj);
+	tp->disp(tp);
 }
 
 void LoadLavaManager()
 {
-	ObjectMaster* lavaobj = LoadObject(LoadObj_Data1, 1, HillTopLava_Main);
-	lavaobj->DisplaySub = HillTopLava_Display;
+	auto lavatp = CreateElementalTask(LoadObj_Data1, 1, HillTopLavaExec);
+	lavatp->disp= HillTopLavaDisplay;
 }
 
 void LoadLavaLandTables()
