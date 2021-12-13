@@ -390,7 +390,7 @@ void __cdecl RexonExec(task* tp)
 
 		// Handle growing lava in act 2:
 		int lava_id = twp->ang.x;
-		if (CurrentAct == 1 && grow_workers[lava_id].Enabled == true)
+		if (ActNumber == 1 && grow_workers[lava_id].Enabled == true)
 		{
 			if (twp->scl.z < grow_workers[lava_id].Height)
 			{

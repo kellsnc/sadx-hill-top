@@ -15,7 +15,7 @@ static LandTableInfo* LavaTableInfo = nullptr;
 
 void __cdecl HillTopLavaDisplay(task* tp)
 {
-	if (!MissedFrames && (CurrentAct == 0 || CurrentAct == 2))
+	if (!MissedFrames && (ActNumber == 0 || ActNumber == 2))
 	{
 		auto twp = tp->twp;
 		auto land = (_OBJ_LANDTABLE*)LavaTableInfo->getlandtable();

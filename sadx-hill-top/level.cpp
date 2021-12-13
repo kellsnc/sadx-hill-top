@@ -30,20 +30,20 @@ StartPosition StartPoses[] = {
 	{ LevelIDs_RedMountain, 3, { 0.0f, -20.0f, 0.0f }, 0 }  // Sonic Act 4 (boss)
 };
 
-FogData HillTopFogData[] = {
-	{ 167, 6000, 0x80FFFFFF, 1 },
-	{ 167, 6000, 0x80FFFFFF, 1 },
-	{ 167, 6000, 0x80FFFFFF, 1 },
-	{ 167, 6000, 0x80FFFFFF, 1 }
+___stcFog HillTopFogData[] = {
+	{ 167.0f, 6000.0f, 0x80FFFFFF, 1 },
+	{ 167.0f, 6000.0f, 0x80FFFFFF, 1 },
+	{ 167.0f, 6000.0f, 0x80FFFFFF, 1 },
+	{ 167.0f, 6000.0f, 0x80FFFFFF, 1 }
 };
 
-DrawDistance HillTopSkyDrawDist[] = {
+___stcClip HillTopSkyDrawDist[] = {
 	{ -1.0f, -9500.0f },
 	{ -1.0f, -5000.0f },
 	{ -1.0f, -2000.0f }
 };
 
-DrawDistance HillTopDrawDists[] = {
+___stcClip HillTopDrawDists[] = {
 	{ -1.0f, -2500.0f },
 	{ -1.0f, -1600.0f },
 	{ -1.0f, -1000.0f }
@@ -55,118 +55,118 @@ static const NJS_POINT3 ACT1END_POS = { -480.0f, 935.0f, 3030.0f };
 
 void HillTop_SetViewData()
 {
-	SkyboxDrawDistance = HillTopSkyDrawDist[ClipLevel];
-	LevelDrawDistance = HillTopDrawDists[ClipLevel];
-	LevelFogData = HillTopFogData[CurrentAct];
+	gClipSky = HillTopSkyDrawDist[ClipLevel];
+	gClipMap = HillTopDrawDists[ClipLevel];
+	gFog = HillTopFogData[ActNumber];
 }
 
 #pragma region Level Handler
 void LoadCurrentActMusic()
 {
-	ObjectMaster* musicobj = LoadObject(LoadObj_Data1, 1, LoadMusic_EventDelayed);
-	musicobj->Data1->Action = CurrentAct == 1 ? MusicIDs_hilltop2 : MusicIDs_hilltop1;
-	musicobj->Data1->InvulnerableTime = 3;
+	auto musictp = CreateElementalTask(LoadObj_Data1, LEV_1, mt_gdcontrol);
+	musictp->twp->mode = ActNumber == 1 ? MusicIDs_hilltop2 : MusicIDs_hilltop1; // music id
+	musictp->twp->wtimer = 3; // wait time
 }
 
-void __cdecl HillTopZone_Main(ObjectMaster* obj)
+void __cdecl HillTopZoneExec(task* tp)
 {
-	if (CurrentAct == 0)
+	if (ActNumber == 0)
 	{
 		// Act 1-2 swap
 		if (CheckCollisionP_num((NJS_POINT3*)&ACT0TRIGGER_POS, 100.0f, 0))
 		{
-			SoundManager_Delete2();
-			NextAct_FreeLandTable(1);
-			NextAct_IncrementCurrentStageAndAct(1);
-			NextAct_SetCameraData(1);
-			NextAct_IncrementAct(1);
-			ForcePlayerAction(0, 24);
-			MovePlayerToStartPoint(EntityData1Ptrs[0]);
+			ADX_Close();
+			LandChangeStage(1);
+			AddSetStage(1);
+			AddCameraStage(1);
+			AdvanceAct(1);
+			SetPlayerInitialPosition(playertwp[0]);
+			SetInputP(0, 24);
 			HillTop_SetViewData();
 			LoadCurrentActMusic();
 		}
 	}
-	else if (CurrentAct == 1)
+	else if (ActNumber == 1)
 	{
 		// Act 2-4 swap
 		int player = CheckCollisionP((NJS_POINT3*)&ACT1TRIGGER_POS, 50.0f) - 1;
 
 		if (player >= 0)
 		{
-			ForcePlayerAction(player, 24);
+			SetInputP(player, 24);
 
 			// If level has been completed once, go to boss instead
 			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true && CFG_NoBoss == false)
 			{
-				NextAct_FreeLandTable(2);
-				NextAct_IncrementCurrentStageAndAct(2);
-				NextAct_SetCameraData(2);
-				NextAct_IncrementAct(2);
-				MovePlayerToStartPoint(EntityData1Ptrs[0]);
+				LandChangeStage(2);
+				AddSetStage(2);
+				AddCameraStage(2);
+				AdvanceAct(2);
+				SetPlayerInitialPosition(playertwp[0]);
 				HillTop_SetViewData();
-				Boss_SubEggman_Init(obj);
+				Boss_SubEggman_Init((ObjectMaster*)tp);
 			}
 			else
 			{
-				// teleport to end of level that's further way
+				// Teleport to end of level that is further way
 				ForcePlayerPos(player, (NJS_POINT3*)&ACT1END_POS);
-				EntityData1Ptrs[player]->Rotation.y = 0x3E80;
-				CharObj2Ptrs[player]->Speed = { 2, 8, 0 };
+				playertwp[player]->ang.y = 0x3E80;
+				playerpwp[player]->spd = { 2.0f, 8.0f, 0.0f };
 			}
 		}
 	}
 }
 
-void __cdecl HillTopZone_Init(ObjectMaster* obj)
+void __cdecl HillTopZone_Init(task* tp)
 {
 	HillTop_SetViewData(); // Set fog, view distance, etc.
 	LoadLavaManager(); // Load the object that handles animated lava geometry
 
 	// If current act is Eggman boss, load that instead
-	if (CurrentAct == 3)
+	if (ActNumber == 3)
 	{
-		obj->MainSub = Boss_SubEggman_Init;
+		tp->exec = (TaskFuncPtr)Boss_SubEggman_Init;
 	}
 	else
 	{
-		// This initializes the music only if no event is running.
+		// This initializes the music once events are done
 		LoadCurrentActMusic();
 
 		// Main level function ran every frame, used mostly for act swaps.
-		obj->MainSub = HillTopZone_Main;
+		tp->exec = HillTopZoneExec;
 	}
 }
 #pragma endregion
 
-// Replace Red Mountain with our level:
-
-void LoadSkyboxObject_r()
+// Fix RM skybox draw order
+void SetScrollTask_r()
 {
-	SetGlobalPoint2Col_Colors(GlobalColorsLevel[CurrentLevel].c1, GlobalColorsLevel[CurrentLevel].c2, GlobalColorsLevel[CurrentLevel].c3);
+	___njSetBackColor(BackColorList[StageNumber].c1, BackColorList[StageNumber].c2, BackColorList[StageNumber].c3);
 
-	if (SkyboxObjects[CurrentLevel])
+	if (ScrollMasterList[StageNumber])
 	{
-		if (CurrentLevel == LevelIDs_RedMountain)
+		if (StageNumber == LevelIDs_RedMountain)
 		{
-			LoadObject(LoadObj_Data1, 2, SkyboxObjects[CurrentLevel]); // Put this in object index 2 to fix transparency issues
+			CreateElementalTask(LoadObj_Data1, LEV_2, ScrollMasterList[StageNumber]); // Put this in object index 2 to fix transparency issues
 		}
 		else
 		{
-			LoadObject(LoadObj_Data1, 1, SkyboxObjects[CurrentLevel]);
+			CreateElementalTask(LoadObj_Data1, LEV_1, ScrollMasterList[StageNumber]);
 		}
 	}
 }
 
+// Replace landtables
 void LoadHillTopLandTables()
 {
 	LoadLandTableFile(&HillTopLands[0], "system\\hilltopzone0.sa1lvl", &HillTop_TexList);
 	LoadLandTableFile(&HillTopLands[1], "system\\hilltopzone1.sa1lvl", &HillTop_TexList);
 	LoadLandTableFile(&HillTopLands[2], "system\\hilltopzone3.sa1lvl", &HillTop_TexList);
 
-	GeoLists[LevelIDs_RedMountain * 8] = HillTopLands[0]->getlandtable();
-	GeoLists[LevelIDs_RedMountain * 8 + 1] = HillTopLands[1]->getlandtable();
-	GeoLists[LevelIDs_RedMountain * 8 + 2] = HillTopLands[0]->getlandtable();
-	GeoLists[LevelIDs_RedMountain * 8 + 3] = HillTopLands[2]->getlandtable();
+	objLandTable[LevelIDs_RedMountain * 8] = (_OBJ_LANDTABLE*)HillTopLands[0]->getlandtable();
+	objLandTable[LevelIDs_RedMountain * 8 + 1] = (_OBJ_LANDTABLE*)HillTopLands[1]->getlandtable();
+	objLandTable[LevelIDs_RedMountain * 8 + 2] = (_OBJ_LANDTABLE*)HillTopLands[0]->getlandtable();
+	objLandTable[LevelIDs_RedMountain * 8 + 3] = (_OBJ_LANDTABLE*)HillTopLands[2]->getlandtable();
 }
 
 void FreeHillTopLandTables()
@@ -232,7 +232,7 @@ void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config)
 	// Fix an obvious error in RunLevelDestructor (OR instead of AND)
 	// Vanilla levels don't use the level destructor in SADX PC since it doesn't load levels externally so it doesn't crash.
 	WriteJump(RunLevelDestructor, RunLevelDestructor_r);
-
+	
 	// Paths
 	helperFunctions.RegisterPathList(hilltop0_pathdata);
 	helperFunctions.RegisterPathList(hilltop1_pathdata);
@@ -246,13 +246,13 @@ void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config)
 	helperFunctions.RegisterStartPosition(Characters_Sonic, StartPoses[4]);
 
 	// Level Handler
-	LevelObjects[LevelIDs_RedMountain] = HillTopZone_Init;
+	RoundMasterList[LevelIDs_RedMountain] = HillTopZone_Init;
 
 	// Deathzones
-	DeathZoneList[LevelIDs_RedMountain][0] = hilltope0_deathzones;
-	DeathZoneList[LevelIDs_RedMountain][1] = hilltope1_deathzones;
-	DeathZoneList[LevelIDs_RedMountain][2] = hilltope2_deathzones;
-	DeathZoneList[LevelIDs_RedMountain][3] = hilltope0_deathzones;
+	KillingCollisionModelsListList[LevelIDs_RedMountain][0] = hilltope0_deathzones;
+	KillingCollisionModelsListList[LevelIDs_RedMountain][1] = hilltope1_deathzones;
+	KillingCollisionModelsListList[LevelIDs_RedMountain][2] = hilltope2_deathzones;
+	KillingCollisionModelsListList[LevelIDs_RedMountain][3] = hilltope0_deathzones;
 
 	// Music
 	if (helperFunctions.Version >= 9)
@@ -267,13 +267,13 @@ void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config)
 	}
 
 	// Sky color
-	GlobalColorsLevel[LevelIDs_RedMountain] = { 0xFF1844FF, 0xFF2149FF, 0xFF002EFF };
+	BackColorList[LevelIDs_RedMountain] = { 0xFF1844FF, 0xFF2149FF, 0xFF002EFF };
 
 	// Events
 	HookRedMountainEvent();
 
 	// Fix skybox transparency
-	WriteJump(LoadSkyboxObject, LoadSkyboxObject_r);
+	WriteJump(SetScrollTask, SetScrollTask_r);
 
 	// Read config
 	CFG_NoBoss = config->getBool("Boss", "NoBoss", false);

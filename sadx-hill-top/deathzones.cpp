@@ -126,18 +126,18 @@ NJS_MODEL_SADX bsc_attach_ht2dz = { bsc_attach_ht2dz_pos, bsc_attach_ht2dz_nrm, 
 
 NJS_OBJECT ht2_dz = { NJD_EVAL_UNIT_ANG | NJD_EVAL_UNIT_SCL | NJD_EVAL_BREAK | NJD_EVAL_SHAPE_SKIP, &bsc_attach_ht2dz, 1279.172f, -350, 968.6458f, 0, 0, 0, 1, 1, 1, NULL, NULL };
 
-DeathZone hilltope0_deathzones[] = {
+PL_KILLCOLLI hilltope0_deathzones[] = {
 	{ CharacterFlags_Sonic, &ht0_dz },
 	{ 0 }
 };
 
-DeathZone hilltope1_deathzones[] = {
+PL_KILLCOLLI hilltope1_deathzones[] = {
 	{ CharacterFlags_Sonic | CharacterFlags_Gamma, &ht1_dz0 },
 	{ CharacterFlags_Sonic | CharacterFlags_Gamma, &ht1_dz1 },
 	{ 0 }
 };
 
-DeathZone hilltope2_deathzones[] = {
+PL_KILLCOLLI hilltope2_deathzones[] = {
 	{ CharacterFlags_Knuckles, &ht2_dz },
 	{ 0 }
 };

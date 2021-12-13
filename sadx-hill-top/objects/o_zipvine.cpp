@@ -113,7 +113,7 @@ void __cdecl ZipVineExec(task* tp)
 		if (CheckCollisionP_num(&twp->pos, 14.0f, 0))
 		{
 			twp->mode = VineMode_Run;
-			ForcePlayerAction(0, 16);
+			SetInputP(0, 16);
 		}
 	}
 	else if (twp->mode == VineMode_Run)
@@ -130,7 +130,7 @@ void __cdecl ZipVineExec(task* tp)
 			twp->mode = VineMode_Input;
 			progress = 10.0f;
 			ZipVineUpdatePos(path, twp);
-			ForcePlayerAction(0, 24);
+			SetInputP(0, 24);
 		}
 
 		if (CheckJump(0))

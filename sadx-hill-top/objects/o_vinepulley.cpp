@@ -64,7 +64,7 @@ void __cdecl VinePulleyExec(task* tp)
 				if (player)
 				{
 					twp->btimer = TASKWK_PLAYERID(player);
-					ForcePlayerAction(0, 16);
+					SetInputP(0, 16);
 					dsPlay_oneshot(463, 0, 0, 0);
 					twp->mode = 1;
 				}

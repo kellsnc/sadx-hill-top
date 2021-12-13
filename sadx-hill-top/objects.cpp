@@ -191,7 +191,7 @@ void Objects_Init(const HelperFunctions& helperFunctions)
 	ObjLists[LevelIDs_RedMountain * 8 + 2] = &HillTopObjectList;
 	ObjLists[LevelIDs_RedMountain * 8 + 3] = &HillTopObjectList; // custom act
 
-	SkyboxObjects[LevelIDs_RedMountain] = (ObjectFuncPtr)HillTopZone_SkyBox;
+	ScrollMasterList[LevelIDs_RedMountain] = HillTopZone_SkyBox;
 
 	// Adjust E104 fight positions
 	EpsilonBoss_Init();
