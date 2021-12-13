@@ -195,7 +195,7 @@ static void __cdecl HillTopSkyDisplay(task* tp)
 	{
 		auto twp = tp->twp;
 		auto clouds = reinterpret_cast<NJS_OBJECT*>(twp->value.ptr);
-
+		
 		njSetTexture(&HillTopBG_TexList);
 
 		___njClipZ(gClipSky.Near, gClipSky.Far); // farther draw distance

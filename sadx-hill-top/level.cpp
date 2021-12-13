@@ -70,6 +70,8 @@ void LoadCurrentActMusic()
 
 void __cdecl HillTopZoneExec(task* tp)
 {
+	HT_WindDirection = njSin(GameTimer * 15) * 0x1500; // smoothly change wind direction
+
 	if (ActNumber == 0)
 	{
 		// Act 1-2 swap
