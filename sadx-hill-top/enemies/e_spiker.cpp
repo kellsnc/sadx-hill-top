@@ -205,7 +205,7 @@ void __cdecl SpikerDisplay(task* tp)
 	}
 }
 
-void SpikerDecideAim(taskwk* twp, enemywk* ewp)
+void SpikerDecideAim(task* tp, taskwk* twp, enemywk* ewp)
 {
 	if (EnemyDist2FromHome(twp, ewp) > ewp->view_range)
 	{
@@ -222,6 +222,7 @@ void SpikerDecideAim(taskwk* twp, enemywk* ewp)
 		// Check attack
 		if (!(twp->flag & Status_Attack) && EnemyDist2FromPlayer(twp, pnum) < ewp->view_range / 2)
 		{
+			SetBroken(tp);
 			twp->flag |= Status_Attack;
 			twp->mode = SpikerAct_Flee;
 		}
@@ -244,21 +245,22 @@ void SpikerMove(taskwk* twp, enemywk* ewp)
 	ewp->nframe += ewp->force.z;
 }
 
-void SpikerWalk(taskwk* twp, enemywk* ewp)
+void SpikerWalk(task* tp, taskwk* twp, enemywk* ewp)
 {
 	ewp->force.z = 0.5f;
-	SpikerDecideAim(twp, ewp);
+	SpikerDecideAim(tp, twp, ewp);
 	EnemyTurnToAim(twp, ewp);
 	SpikerMove(twp, ewp);
 	EnemyCheckGroundCollision(twp, ewp);
 }
 
-void SpikerStand(taskwk* twp, enemywk* ewp)
+void SpikerStand(task* tp, taskwk* twp, enemywk* ewp)
 {
-	//EnemyCheckGroundCollision(twp, ewp);
+	EnemyCheckGroundCollision(twp, ewp);
 
 	if (!(twp->flag & Status_Attack) && CheckCollisionCylinderP(&twp->pos, twp->scl.x, 200.0f))
 	{
+		SetBroken(tp);
 		twp->flag |= Status_Attack;
 	}
 }
@@ -272,7 +274,7 @@ void SpikerFlee(taskwk* twp, enemywk* ewp)
 	aim.z = -aim.z;
 	njAddVector(&aim, &twp->pos);
 	ewp->aim = aim;
-	ewp->force.z = 1.0f;
+	ewp->force.z = 0.25f;
 	EnemyTurnToAim(twp, ewp);
 	SpikerMove(twp, ewp);
 	EnemyCheckGroundCollision(twp, ewp);
@@ -299,10 +301,10 @@ void __cdecl SpikerExec(task* tp)
 		switch (twp->mode)
 		{
 		case SpikerAct_Walk:
-			SpikerWalk(twp, ewp);
+			SpikerWalk(tp, twp, ewp);
 			break;
 		case SpikerAct_Stand:
-			SpikerStand(twp, ewp);
+			SpikerStand(tp, twp, ewp);
 			break;
 		case SpikerAct_Flee:
 			SpikerFlee(twp, ewp);
@@ -341,6 +343,7 @@ void __cdecl Spiker(task* tp)
 	ewp->weight = 0.1f;
 	ewp->shadow_scl = 1.3f;
 	ewp->shadow_scl_ratio = 1.0f;
+	ewp->ang_spd.y = 0x500;
 
 	EnemyPreserveHomePosition(twp, ewp);
 	
@@ -351,7 +354,11 @@ void __cdecl Spiker(task* tp)
 	twp->btimer = twp->ang.z; // emerald id
 	twp->mode = static_cast<char>(twp->scl.y) % 2; // walk or stand
 
-	LoadSpikerSpike(tp);
+	// If enemy hasn't already lost its spike
+	if (CheckBroken(tp) == FALSE)
+	{
+		LoadSpikerSpike(tp);
+	}
 
 	// Set up animation:
 	if (twp->mode == SpikerAct_Walk)
