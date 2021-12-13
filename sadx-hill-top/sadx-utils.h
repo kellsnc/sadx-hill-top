@@ -60,6 +60,7 @@ FunctionPointer(void, StaticShadow, (taskwk* twp, float ypos), 0x49ED70);
 FunctionPointer(float, Shadow, (taskwk* twp, float scl), 0x49EE30);
 FunctionPointer(float, _DrawShadow, (Angle3* ang, NJS_POINT3* pos, float scl), 0x49EF30);
 FunctionPointer(float, ShadowWithAng, (taskwk* twp, float scl, Angle3* ang), 0x49EFD0);
+FunctionPointer(int, GetStageNumber, (), 0x414650);
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);

@@ -101,6 +101,13 @@ void __cdecl ZipVineExec(task* tp)
 	auto path = (pathtag*)twp->value.ptr;
 	auto& progress = twp->counter.f;
 
+	// If act changed, remove the object (not automatic for path tasks)
+	if (twp->timer.w[0] != GetStageNumber())
+	{
+		FreeTask(tp);
+		return;
+	}
+
 	if (twp->mode == VineMode_Input)
 	{
 		if (CheckCollisionP_num(&twp->pos, 14.0f, 0))
