@@ -95,7 +95,7 @@ void __cdecl HillPlatform(task* tp)
 
 	RegisterCollisionEntry((0x4000 | ColFlags_Dynamic | ColFlags_Solid | ColFlags_UseRotation), tp, object);
 
-	twp->value.ptr = (Loop*)object;
+	twp->value.ptr = object;
 	
 	tp->exec = HillPlatformExec;
 	tp->disp = HillPlatformDisplay;

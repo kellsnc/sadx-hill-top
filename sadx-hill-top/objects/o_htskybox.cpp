@@ -12,7 +12,7 @@ Also handles the Egg Carrier if the level has never been completed.
 
 */
 
-extern Angle HT_WindDirection;
+Angle HT_WindDirection = 0;
 
 NJS_TEXNAME HillTopBG_TexNames[2];
 NJS_TEXLIST HillTopBG_TexList = { arrayptrandlength(HillTopBG_TexNames) };
@@ -247,6 +247,8 @@ static void __cdecl HillTopSkyExec(task* tp)
 		LoadSkyboxAct(tp);
 		return;
 	}
+
+	HT_WindDirection = njSin(GameTimer * 15) * 0x1500; // smoothly change wind direction
 
 	// Move the cloud layers texture to simulate wind
 	if (GameTimer % 2 == 0)

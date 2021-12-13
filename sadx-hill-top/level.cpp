@@ -7,8 +7,6 @@
 
 #include "enemies/e_subeggman.h"
 
-Angle HT_WindDirection = 0;
-
 static bool CFG_NoBoss = false;
 
 static int MusicIDs_hilltop1 = MusicIDs_redmntn1;
@@ -70,8 +68,6 @@ void LoadCurrentActMusic()
 
 void __cdecl HillTopZoneExec(task* tp)
 {
-	HT_WindDirection = njSin(GameTimer * 15) * 0x1500; // smoothly change wind direction
-
 	if (ActNumber == 0)
 	{
 		// Act 1-2 swap
