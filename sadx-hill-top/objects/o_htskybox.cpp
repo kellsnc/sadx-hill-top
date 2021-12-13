@@ -18,7 +18,7 @@ NJS_TEXNAME HillTopBG_TexNames[2];
 NJS_TEXLIST HillTopBG_TexList = { arrayptrandlength(HillTopBG_TexNames) };
 
 static ModelInfo* ht_clouds = nullptr;
-static ModelInfo* ht_cloudlayers = nullptr;
+static ModelInfo* ht_skybox = nullptr;
 
 struct CloudData {
 	NJS_VECTOR pos;
@@ -151,7 +151,6 @@ static void LoadSkyboxAct(task* tp)
 	case 2:
 		LoadLenseFlareAtPosition(&SunPositions[0]);
 		CreateChildTask(LoadObj_Data1, CloudHandler, tp)->twp->pos.y = -150.0f;
-		CreateChildTask(LoadObj_Data1, CloudHandler, tp)->twp->pos.y = 1100.0f;
 		twp->pos.y = -300.0f;
 		break;
 	case 1:
@@ -160,7 +159,6 @@ static void LoadSkyboxAct(task* tp)
 	case 3:
 		LoadLenseFlareAtPosition(&SunPositions[1]);
 		CreateChildTask(LoadObj_Data1, CloudHandler, tp)->twp->pos.y = -500.0f;
-		CreateChildTask(LoadObj_Data1, CloudHandler, tp)->twp->pos.y = 800.0f;
 		twp->pos.y = -600.0f;
 		break;
 	}
@@ -194,28 +192,35 @@ static void __cdecl HillTopSkyDisplay(task* tp)
 	if (!MissedFrames)
 	{
 		auto twp = tp->twp;
-		auto clouds = reinterpret_cast<NJS_OBJECT*>(twp->value.ptr);
+		auto object = reinterpret_cast<NJS_OBJECT*>(twp->value.ptr);
 		
 		njSetTexture(&HillTopBG_TexList);
 
-		___njClipZ(gClipSky.f32Near, gClipSky.f32Far); // farther draw distance
+		___njClipZ(gClipSky.f32Near, gClipSky.f32Far * 4); // farther draw distance
 
 		// Cloud layers
 		njPushMatrixEx();
 		{
 			njTranslate(0, Camera_Data1->Position.x, twp->pos.y, Camera_Data1->Position.z);
 
-			while (clouds)
+			// Draw upper clouds
+			njDisableFog();
+			dsDrawModel(object->child->basicdxmodel);
+			njEnableFog();
+
+			// Draw cloud layers:
+			NJS_OBJECT* layers = object->child->sibling;
+			while (layers)
 			{
-				njTranslateEx((NJS_VECTOR*)&clouds->pos);
-				njScaleEx((NJS_VECTOR*)&clouds->scl);
+				njTranslateEx((NJS_VECTOR*)&layers->pos);
+				njScaleEx((NJS_VECTOR*)&layers->scl);
 
 				njPushMatrixEx();
 				njRotateY(0, 0xC000 + HT_WindDirection); // Rotated in direction of the wind
-				dsDrawModel(clouds->basicdxmodel);
+				dsDrawModel(layers->basicdxmodel);
 				njPopMatrixEx();
 
-				clouds = clouds->child;
+				layers = layers->child;
 			}
 
 			njPopMatrixEx();
@@ -240,7 +245,7 @@ static void __cdecl HillTopSkyDisplay(task* tp)
 static void __cdecl HillTopSkyExec(task* tp)
 {
 	auto twp = tp->twp;
-	auto clouds = (NJS_OBJECT*)twp->value.ptr;
+	auto object = reinterpret_cast<NJS_OBJECT*>(twp->value.ptr);
 
 	if (twp->btimer != ssActNumber)
 	{
@@ -255,17 +260,19 @@ static void __cdecl HillTopSkyExec(task* tp)
 	{
 		int spd = 0;
 
-		while (clouds)
-		{
-			NJS_MESHSET_SADX* mesh = &clouds->basicdxmodel->meshsets[0];
+		NJS_OBJECT* layers = object->child->sibling;
 
-			for (int i = 0; i < 96; ++i)
+		while (layers)
+		{
+			auto mesh = &layers->basicdxmodel->meshsets[0];
+
+			for (int i = 0; i < GetUVCount(mesh); ++i)
 			{
 				mesh->vertuv[i].u += 1 + spd;
 				mesh->vertuv[i].v += 2 - spd;
 			}
 
-			clouds = clouds->child;
+			layers = layers->child;
 			++spd;
 		}
 	}
@@ -293,7 +300,7 @@ void __cdecl HillTopZone_SkyBox(task* tp)
 {
 	auto twp = tp->twp;
 
-	twp->value.ptr = ht_cloudlayers->getmodel();
+	twp->value.ptr = ht_skybox->getmodel();
 
 	tp->exec = HillTopSkyExec;
 	tp->disp = HillTopSkyDisplay;
@@ -304,11 +311,11 @@ void __cdecl HillTopZone_SkyBox(task* tp)
 void SkyBox_LoadAssets()
 {
 	LoadModelFile(&ht_clouds, "ht_clouds", ModelFormat_Basic);
-	LoadModelFile(&ht_cloudlayers, "ht_cloudlayers", ModelFormat_Basic);
+	LoadModelFile(&ht_skybox, "ht_skybox", ModelFormat_Basic);
 }
 
 void SkyBox_FreeAssets()
 {
 	FreeFileInfo(&ht_clouds);
-	FreeFileInfo(&ht_cloudlayers);
+	FreeFileInfo(&ht_skybox);
 }

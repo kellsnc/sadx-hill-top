@@ -28,5 +28,6 @@ void ForcePlayerPos(int id, float x, float y, float z);
 void ForcePlayerPos(int id, NJS_POINT3* pos);
 bool CheckJump(int id);
 NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id);
+int GetUVCount(NJS_MESHSET_SADX* meshset);
 void SetLevelTexture();
 void SetSecondObjectTexture();
