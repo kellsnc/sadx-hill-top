@@ -1,7 +1,5 @@
 #pragma once
 
-#define Pos3(data) data[0], data[1], data[2]
-
 void DrawObject_Queue(NJS_OBJECT* object, QueuedModelFlagsB flags);
 void DrawObjectRoot(NJS_OBJECT* obj);
 void DrawChunkModel(NJS_CNK_MODEL* model);

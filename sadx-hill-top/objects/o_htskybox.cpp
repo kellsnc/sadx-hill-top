@@ -70,7 +70,7 @@ static void __cdecl CloudHandlerDisplay(task* tp)
 		njSetTexture(&HillTopBG_TexList);
 
 		SetMaterial(1.0f, 1.0f, 1.0f, 1.0f);
-		___njClipZ(gClipSky.Near, gClipSky.Far);
+		___njClipZ(gClipSky.f32Near, gClipSky.f32Far);
 
 		for (int i = 0; i < 30; ++i)
 		{
@@ -85,7 +85,7 @@ static void __cdecl CloudHandlerDisplay(task* tp)
 			njPopMatrixEx();
 		}
 
-		___njClipZ(gClipMap.Near, gClipMap.Far);
+		___njClipZ(gClipMap.f32Near, gClipMap.f32Far);
 		ResetMaterial();
 	}
 }
@@ -146,7 +146,7 @@ static void LoadSkyboxAct(task* tp)
 	// Remove any existing cloud subtask
 	FreeTaskC(tp);
 
-	switch (ActNumber) {
+	switch (ssActNumber) {
 	case 0:
 	case 2:
 		LoadLenseFlareAtPosition(&SunPositions[0]);
@@ -166,9 +166,9 @@ static void LoadSkyboxAct(task* tp)
 	}
 
 	if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == false
-		&& CurrentCharacter != Characters_Gamma && ActNumber < 2)
+		&& CurrentCharacter != Characters_Gamma && ssActNumber < 2)
 	{
-		if (ActNumber == 0)
+		if (ssActNumber == 0)
 		{
 			EggCarrierPosition = { 1215.0f, 839.0f, 3520.0f };
 			EggCarrierRotation = { 0, 0x8725, 0 };
@@ -186,7 +186,7 @@ static void LoadSkyboxAct(task* tp)
 		twp->wtimer = 0;
 	}
 
-	twp->btimer = ActNumber;
+	twp->btimer = ssActNumber;
 }
 
 static void __cdecl HillTopSkyDisplay(task* tp)
@@ -198,7 +198,7 @@ static void __cdecl HillTopSkyDisplay(task* tp)
 		
 		njSetTexture(&HillTopBG_TexList);
 
-		___njClipZ(gClipSky.Near, gClipSky.Far); // farther draw distance
+		___njClipZ(gClipSky.f32Near, gClipSky.f32Far); // farther draw distance
 
 		// Cloud layers
 		njPushMatrixEx();
@@ -233,7 +233,7 @@ static void __cdecl HillTopSkyDisplay(task* tp)
 			njPopMatrixEx();
 		}
 		
-		___njClipZ(gClipMap.Near, gClipMap.Far);
+		___njClipZ(gClipMap.f32Near, gClipMap.f32Far);
 	}
 }
 
@@ -242,7 +242,7 @@ static void __cdecl HillTopSkyExec(task* tp)
 	auto twp = tp->twp;
 	auto clouds = (NJS_OBJECT*)twp->value.ptr;
 
-	if (twp->btimer != ActNumber)
+	if (twp->btimer != ssActNumber)
 	{
 		LoadSkyboxAct(tp);
 		return;
@@ -276,7 +276,7 @@ static void __cdecl HillTopSkyExec(task* tp)
 		twp->scl.x += 0.5f;
 
 		// Remove the Egg Carrier at the end of act 1
-		if (ActNumber == 1 && playertwp[0]->pos.z > 2200.0f)
+		if (ssActNumber == 1 && playertwp[0]->pos.z > 2200.0f)
 		{
 			twp->wtimer = 0; // don't draw Egg Carrier
 		}

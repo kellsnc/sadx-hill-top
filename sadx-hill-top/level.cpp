@@ -55,20 +55,20 @@ void HillTop_SetViewData()
 {
 	gClipSky = HillTopSkyDrawDist[ClipLevel];
 	gClipMap = HillTopDrawDists[ClipLevel];
-	gFog = HillTopFogData[ActNumber];
+	gFog = HillTopFogData[ssActNumber];
 }
 
 #pragma region Level Handler
 void LoadCurrentActMusic()
 {
 	auto musictp = CreateElementalTask(LoadObj_Data1, LEV_1, mt_gdcontrol);
-	musictp->twp->mode = ActNumber == 1 ? MusicIDs_hilltop2 : MusicIDs_hilltop1; // music id
+	musictp->twp->mode = ssActNumber == 1 ? MusicIDs_hilltop2 : MusicIDs_hilltop1; // music id
 	musictp->twp->wtimer = 3; // wait time
 }
 
 void __cdecl HillTopZoneExec(task* tp)
 {
-	if (ActNumber == 0)
+	if (ssActNumber == 0)
 	{
 		// Act 1-2 swap
 		if (CheckCollisionP_num((NJS_POINT3*)&ACT0TRIGGER_POS, 100.0f, 0))
@@ -84,7 +84,7 @@ void __cdecl HillTopZoneExec(task* tp)
 			LoadCurrentActMusic();
 		}
 	}
-	else if (ActNumber == 1)
+	else if (ssActNumber == 1)
 	{
 		// Act 2-4 swap
 		int player = CheckCollisionP((NJS_POINT3*)&ACT1TRIGGER_POS, 50.0f) - 1;
@@ -121,7 +121,7 @@ void __cdecl HillTopZone_Init(task* tp)
 	LoadLavaManager(); // Load the object that handles animated lava geometry
 
 	// If current act is Eggman boss, load that instead
-	if (ActNumber == 3)
+	if (ssActNumber == 3)
 	{
 		tp->exec = (TaskFuncPtr)Boss_SubEggman_Init;
 	}
@@ -139,17 +139,17 @@ void __cdecl HillTopZone_Init(task* tp)
 // Fix RM skybox draw order
 void SetScrollTask_r()
 {
-	___njSetBackColor(BackColorList[StageNumber].c1, BackColorList[StageNumber].c2, BackColorList[StageNumber].c3);
+	___njSetBackColor(BackColorList[ssStageNumber].c1, BackColorList[ssStageNumber].c2, BackColorList[ssStageNumber].c3);
 
-	if (ScrollMasterList[StageNumber])
+	if (ScrollMasterList[ssStageNumber])
 	{
-		if (StageNumber == LevelIDs_RedMountain)
+		if (ssStageNumber == LevelIDs_RedMountain)
 		{
-			CreateElementalTask(LoadObj_Data1, LEV_2, ScrollMasterList[StageNumber]); // Put this in object index 2 to fix transparency issues
+			CreateElementalTask(LoadObj_Data1, LEV_2, ScrollMasterList[ssStageNumber]); // Put this in object index 2 to fix transparency issues
 		}
 		else
 		{
-			CreateElementalTask(LoadObj_Data1, LEV_1, ScrollMasterList[StageNumber]);
+			CreateElementalTask(LoadObj_Data1, LEV_1, ScrollMasterList[ssStageNumber]);
 		}
 	}
 }
@@ -190,7 +190,7 @@ void __cdecl LoadHillTopFiles()
 	LoadObjectFiles();
 	Boss_LoadAssets();
 
-	LevelDestructor = UnloadHillTopFiles;
+	___epilogfunc = UnloadHillTopFiles;
 }
 
 __declspec(naked) void HookLoadLevelFilesRM()
@@ -203,9 +203,9 @@ __declspec(naked) void HookLoadLevelFilesRM()
 	}
 }
 
-void __cdecl RunLevelDestructor_r(int mode)
+void __cdecl ReleaseModule_r(int mode)
 {
-	if (mode != 5 && LevelDestructor != LevelDestructor_MissionMode)
+	if (mode != 5 && ___epilogfunc != LevelDestructor_MissionMode)
 	{
 		if (mode == 0)
 		{
@@ -213,10 +213,10 @@ void __cdecl RunLevelDestructor_r(int mode)
 			ReleaseCamFile();
 		}
 
-		if (LevelDestructor)
+		if (___epilogfunc)
 		{
-			LevelDestructor();
-			LevelDestructor = nullptr;
+			___epilogfunc();
+			___epilogfunc = nullptr;
 		}
 	}
 }
@@ -227,9 +227,9 @@ void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config)
 	// This effectively removes what Dreamcast Conversion does in it
 	WriteJump((void*)0x422D0A, HookLoadLevelFilesRM);
 
-	// Fix an obvious error in RunLevelDestructor (OR instead of AND)
+	// Fix an obvious error in ReleaseModule (OR instead of AND)
 	// Vanilla levels don't use the level destructor in SADX PC since it doesn't load levels externally so it doesn't crash.
-	WriteJump(RunLevelDestructor, RunLevelDestructor_r);
+	WriteJump(ReleaseModule, ReleaseModule_r);
 	
 	// Paths
 	helperFunctions.RegisterPathList(hilltop0_pathdata);

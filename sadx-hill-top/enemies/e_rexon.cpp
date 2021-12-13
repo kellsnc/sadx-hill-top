@@ -325,11 +325,11 @@ void Rexon_DrawFins(taskwk* twp, NJS_OBJECT* object, float timer)
 		}
 
 		njPushMatrixEx();
-		njTranslate(nullptr, Pos3(object->pos));
-		njRotateXYZ(nullptr, Pos3(object->ang));
+		njTranslateEx((NJS_POINT3*)object->pos);
+		njRotateEx((Angle*)object->ang, FALSE);
 		njRotateY_(rot);
 		njRotateX_(rot / 4);
-		njScale(nullptr, Pos3(object->scl));
+		njScaleEx((NJS_POINT3*)object->scl);
 		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 
@@ -343,8 +343,8 @@ void Rexon_DrawNeck(taskwk* twp, NJS_OBJECT* object, float timer)
 
 	for (int i = 0; i < 4; ++i)
 	{
-		njTranslate(nullptr, Pos3(object->pos));
-		njRotateXYZ(nullptr, Pos3(object->ang));
+		njTranslateEx((NJS_POINT3*)object->pos);
+		njRotateEx((Angle*)object->ang, FALSE);
 
 		njPushMatrixEx();
 		njTranslateX(Rexon_NeckMovement(i, twp->mode, timer));
@@ -390,7 +390,7 @@ void __cdecl RexonExec(task* tp)
 
 		// Handle growing lava in act 2:
 		int lava_id = twp->ang.x;
-		if (ActNumber == 1 && grow_workers[lava_id].Enabled == true)
+		if (ssActNumber == 1 && grow_workers[lava_id].Enabled == true)
 		{
 			if (twp->scl.z < grow_workers[lava_id].Height)
 			{

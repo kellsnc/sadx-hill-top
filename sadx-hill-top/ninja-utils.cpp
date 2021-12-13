@@ -3,8 +3,8 @@
 void DrawObject_Queue(NJS_OBJECT* object, QueuedModelFlagsB flags)
 {
 	njPushMatrixEx();
-	njTranslate(nullptr, Pos3(object->pos));
-	njRotateXYZ(nullptr, Pos3(object->ang));
+	njTranslateEx((NJS_POINT3*)object->pos);
+	njRotateEx((Angle*)object->ang, object->evalflags & NJD_EVAL_ZXY_ANG);
 	DrawModel_Queue(object->basicdxmodel, QueuedModelFlagsB_EnableZWrite);
 	njPopMatrixEx();
 }
@@ -12,9 +12,9 @@ void DrawObject_Queue(NJS_OBJECT* object, QueuedModelFlagsB flags)
 void DrawObjectRoot(NJS_OBJECT* object)
 {
 	njPushMatrixEx();
-	njTranslate(nullptr, Pos3(object->pos));
-	njRotateXYZ(nullptr, Pos3(object->ang));
-	njScale(nullptr, Pos3(object->scl));
+	njTranslateEx((NJS_POINT3*)object->pos);
+	njRotateEx((Angle*)object->ang, object->evalflags & NJD_EVAL_ZXY_ANG);
+	njScaleEx((NJS_POINT3*)object->scl);
 	DrawModel(object->basicdxmodel);
 	njPopMatrixEx();
 }
