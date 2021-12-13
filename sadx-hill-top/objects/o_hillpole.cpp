@@ -20,7 +20,7 @@ void __cdecl HillPoleDisplay(task* tp)
 		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
-		DrawModel(object->basicdxmodel);
+		dsDrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }

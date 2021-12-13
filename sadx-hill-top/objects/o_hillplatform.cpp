@@ -39,7 +39,7 @@ static void __cdecl HillPlatformDisplay(task* tp)
 		njTranslateEx(&twp->pos);
 		njRotateY_(twp->ang.y);
 		njScalef(twp->scl.x);
-		DrawModel(object->basicdxmodel);
+		dsDrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }

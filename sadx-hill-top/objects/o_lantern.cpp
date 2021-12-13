@@ -84,7 +84,7 @@ void __cdecl LanternDisplay(task* tp)
 		njTranslateEx(&twp->pos);
 		njRotateEx((Angle*)&twp->ang, false);
 		njRotateX_(twp->counter.l); // balancing rotation
-		DrawModel(object->basicdxmodel);
+		dsDrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }

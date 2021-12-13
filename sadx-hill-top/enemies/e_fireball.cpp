@@ -23,7 +23,7 @@ static void __cdecl FireBallDisplay(task* tp)
 		njRotateY_(twp->ang.y);
 		njRotateZ_(twp->ang.x);
 		njScalef(twp->scl.x);
-		DrawModel(object->basicdxmodel);
+		dsDrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 
 		Shadow(twp, twp->scl.x * 0.25f);

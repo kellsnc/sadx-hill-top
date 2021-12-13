@@ -45,7 +45,7 @@ void __cdecl HillFlowersDisplay(task* tp)
 		}
 		else
 		{
-			DrawModel(((NJS_OBJECT*)twp->timer.ptr)->basicdxmodel);
+			dsDrawModel(((NJS_OBJECT*)twp->timer.ptr)->basicdxmodel);
 		}
 
 		njPopMatrixEx();

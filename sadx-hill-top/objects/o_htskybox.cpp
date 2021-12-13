@@ -81,7 +81,7 @@ static void __cdecl CloudHandlerDisplay(task* tp)
 			njTranslateEx(&clouds[i].pos);
 			njRotateY(0, HT_WindDirection);
 			njScalef(clouds[i].scl);
-			DrawModel(object->basicdxmodel);
+			dsDrawModel(object->basicdxmodel);
 			njPopMatrixEx();
 		}
 
@@ -212,7 +212,7 @@ static void __cdecl HillTopSkyDisplay(task* tp)
 
 				njPushMatrixEx();
 				njRotateY(0, 0xC000 + HT_WindDirection); // Rotated in direction of the wind
-				DrawModel(clouds->basicdxmodel);
+				dsDrawModel(clouds->basicdxmodel);
 				njPopMatrixEx();
 
 				clouds = clouds->child;

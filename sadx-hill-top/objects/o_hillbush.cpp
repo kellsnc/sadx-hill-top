@@ -24,7 +24,7 @@ void __cdecl HillBushDisplay(task* tp)
 		njPushMatrixEx();
 		{
 			njRotateEx((Angle*)&twp->ang, false);
-			DrawModel(object->basicdxmodel);
+			dsDrawModel(object->basicdxmodel);
 			njPopMatrixEx();
 		}
 
@@ -36,7 +36,7 @@ void __cdecl HillBushDisplay(task* tp)
 		njRotateX_(static_cast<int>(1.0f - njSin(twp->wtimer * 0x200) * 300.0f));
 		njScaleY(1.0f + (1.0f - njSin(twp->wtimer * 0x5DC)) / 50.0f);
 
-		DrawModel(object->child->basicdxmodel); // draw bush
+		dsDrawModel(object->child->basicdxmodel); // draw bush
 
 		njPopMatrixEx();
 	}

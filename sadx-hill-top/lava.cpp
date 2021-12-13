@@ -31,7 +31,7 @@ void __cdecl HillTopLavaDisplay(task* tp)
 				njPushMatrixEx();
 				njTranslateEx((NJS_VECTOR*)&lnd.pObject->pos);
 				njRotateEx((Angle*)&lnd.pObject->ang, 0);
-				DrawModel(lnd.pObject->basicdxmodel);
+				dsDrawModel(lnd.pObject->basicdxmodel);
 				njPopMatrixEx();
 			}
 		}

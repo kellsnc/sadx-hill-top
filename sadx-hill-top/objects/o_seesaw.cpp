@@ -129,11 +129,11 @@ static void __cdecl HillSeesawDisplay(task* tp)
 		njTranslateEx(&twp->pos);
 		njRotateY_(twp->ang.y);
 
-		DrawModel(object->basicdxmodel);
+		dsDrawModel(object->basicdxmodel);
 
 		njTranslateY(3.0f);
 		njRotateZ_(twp->ang.x);
-		DrawModel(object->child->basicdxmodel);
+		dsDrawModel(object->child->basicdxmodel);
 
 		njPopMatrixEx();
 	}

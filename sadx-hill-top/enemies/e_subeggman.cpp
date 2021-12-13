@@ -247,7 +247,7 @@ void __cdecl BossLava_Display(ObjectMaster* obj)
 		njSetTexture(&CurrentLavaTex);
 		njPushMatrixEx();
 		njTranslateY(wk->Object->pos[1]);
-		DrawModel(wk->Object->basicdxmodel);
+		dsDrawModel(wk->Object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }
@@ -359,7 +359,7 @@ void __cdecl PlatformChild_Display(ObjectMaster* obj)
 			njTranslate(_nj_current_matrix_ptr_, data->Position.x, data->Object->pos[1], data->Position.z);
 			njRotateY_(data->Rotation.y);
 			njScalef(data->Scale.x);
-			DrawModel(data->Object->basicdxmodel);
+			dsDrawModel(data->Object->basicdxmodel);
 			njPopMatrixEx();
 		}
 	}

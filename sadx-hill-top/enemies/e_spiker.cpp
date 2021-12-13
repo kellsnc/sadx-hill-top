@@ -77,7 +77,7 @@ void __cdecl SpikeDisplay(task* tp)
 			njRotateZXY(&twp->ang);
 		}
 
-		DrawModel(object->basicdxmodel);
+		dsDrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}
 }

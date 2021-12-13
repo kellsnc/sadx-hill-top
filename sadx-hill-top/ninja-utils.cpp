@@ -15,7 +15,7 @@ void DrawObjectRoot(NJS_OBJECT* object)
 	njTranslateEx((NJS_POINT3*)object->pos);
 	njRotateEx((Angle*)object->ang, object->evalflags & NJD_EVAL_ZXY_ANG);
 	njScaleEx((NJS_POINT3*)object->scl);
-	DrawModel(object->basicdxmodel);
+	dsDrawModel(object->basicdxmodel);
 	njPopMatrixEx();
 }
 

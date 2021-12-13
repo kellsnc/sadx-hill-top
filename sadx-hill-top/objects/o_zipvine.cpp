@@ -27,8 +27,8 @@ void DrawZipVinePole(NJS_OBJECT* poles, NJS_VECTOR* pos, Angle rot)
 	njPushMatrixEx();
 	njTranslateEx(pos);
 	njRotateY_(rot);
-	DrawModel(poles->basicdxmodel);
-	DrawModel(poles->child->basicdxmodel);
+	dsDrawModel(poles->basicdxmodel);
+	dsDrawModel(poles->child->basicdxmodel);
 	njPopMatrixEx();
 }
 
@@ -71,7 +71,7 @@ void __cdecl ZipVineDisplay(task* tp)
 		njTranslateEx(&twp->pos);
 		njRotateY_(twp->ang.y);
 		njRotateZ_(twp->ang.z);
-		DrawModel(hangvineobj->basicdxmodel);
+		dsDrawModel(hangvineobj->basicdxmodel);
 		njPopMatrixEx();
 	}
 }

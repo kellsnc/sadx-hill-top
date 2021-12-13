@@ -39,7 +39,7 @@ void __cdecl HillTreeDisplay(task* tp)
 
 		njPushMatrixEx();
 		njScale(nullptr, twp->scl.x, twp->scl.x + twp->scl.y, twp->scl.x);
-		DrawModel(object->basicdxmodel);
+		dsDrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 
 		// Draw branches:
