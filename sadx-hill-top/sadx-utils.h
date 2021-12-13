@@ -100,6 +100,7 @@ VoidFunc(___njFogDisable, 0x411B40);
 DataPointer(___stcClip, gClipMap, 0x3ABDC70);
 DataPointer(___stcClip, gClipSky, 0x3ABDCA0);
 DataPointer(___stcFog, gFog, 0x3ABDC60);
+DataPointer(int, GameTimer, 0x3B0F108);
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);

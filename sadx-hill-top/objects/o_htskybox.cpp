@@ -249,7 +249,7 @@ static void __cdecl HillTopSkyExec(task* tp)
 	}
 
 	// Move the cloud layers texture to simulate wind
-	if (LevelFrameCount % 2 == 0)
+	if (GameTimer % 2 == 0)
 	{
 		int spd = 0;
 

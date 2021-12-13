@@ -70,7 +70,7 @@ void __cdecl LavaFallExec(task* tp)
 
 		twp->wtimer += 1;
 
-		if (LevelFrameCount % 2 == 0)
+		if (GameTimer % 2 == 0)
 		{
 			twp->btimer += 1;
 		}

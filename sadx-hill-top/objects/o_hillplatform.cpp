@@ -51,7 +51,7 @@ static void __cdecl HillPlatformExec(task* tp)
 		auto twp = tp->twp;
 
 		// Update height
-		twp->pos.y = twp->scl.z + static_cast<float>(1.0 - pow(njSin(LevelFrameCount * twp->ang.z), 2.0)) * twp->scl.y;
+		twp->pos.y = twp->scl.z + static_cast<float>(1.0 - pow(njSin(GameTimer * twp->ang.z), 2.0)) * twp->scl.y;
 
 		// Update geometry collision
 		reinterpret_cast<NJS_OBJECT*>(twp->value.ptr)->pos[1] = twp->pos.y;

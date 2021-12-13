@@ -42,7 +42,7 @@ void __cdecl HillTopLavaExec(task* tp)
 {
 	auto twp = tp->twp;
 
-	if (LevelFrameCount % 2 == 0)
+	if (GameTimer % 2 == 0)
 	{
 		++twp->btimer; // Texture ID
 	}

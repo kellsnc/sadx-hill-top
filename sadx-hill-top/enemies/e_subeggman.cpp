@@ -374,7 +374,7 @@ void __cdecl PlatformChild_Main(ObjectMaster* obj)
 	{
 		if (IsEggSubAlive() == true)
 		{
-			data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(LevelFrameCount * data->Scale.z), 2.0f)) * data->Scale.y;
+			data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(GameTimer * data->Scale.z), 2.0f)) * data->Scale.y;
 		}
 
 		obj->DisplaySub(obj);
@@ -664,7 +664,7 @@ void EggSubDeflarg_Main(ObjectMaster* obj)
 
 	if (data->Index < 9)
 	{
-		if (LevelFrameCount % 10 == 0) ++data->Index;
+		if (GameTimer % 10 == 0) ++data->Index;
 	}
 	else
 	{
@@ -694,7 +694,7 @@ void EggSubFire_Main(ObjectMaster* obj)
 
 	if (data->Index < 9)
 	{
-		if (LevelFrameCount % 5 == 0) ++data->Index;
+		if (GameTimer % 5 == 0) ++data->Index;
 	}
 	else
 	{
@@ -1438,7 +1438,7 @@ void __cdecl Boss_SubEggman_Main(ObjectMaster* obj)
 	SetCameraControlEnabled(0);
 
 	// Little help from time to time
-	if (LevelFrameCount % 1800 == 0 && IsEggSubAlive() == true)
+	if (GameTimer % 1800 == 0 && IsEggSubAlive() == true)
 	{
 		Boss_SpawnAirItemBox();
 	}
