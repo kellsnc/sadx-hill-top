@@ -25,6 +25,8 @@ static void __cdecl FireBallDisplay(task* tp)
 		njScalef(twp->scl.x);
 		DrawModel(object->basicdxmodel);
 		njPopMatrixEx();
+
+		Shadow(twp, twp->scl.x * 0.25f);
 	}
 }
 
@@ -145,6 +147,8 @@ static void __cdecl FireBallLauncherExec(task* tp)
 				pos.z += (twp->scl.z / 2.0f) - static_cast<float>(rand() % static_cast<int>(twp->scl.z));
 			}
 
+			NJS_VECTOR velo = { 0, 1.0f, 0 };
+			CreateSmoke(&twp->pos, &velo, 1.0f);
 			LoadFireBall(tp, &pos, twp->ang.y, twp->ang.x, twp->scl.y, twp->scl.x, twp->scl.y / 2, 1);
 			dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, twp);
 

@@ -93,6 +93,16 @@ void __cdecl LavaEffectExec(task* tp)
 		{
 			dsPlay_Dolby_time(459, 0, 0, 60, 120, twp);
 		}
+
+		// Create random smoke effects
+		if (rand() % 20 == 0)
+		{
+			NJS_VECTOR pos;
+			SpawnLavaParticule(&pos, twp->scl.x, twp->scl.z);
+			njAddVector(&pos, &twp->pos);
+			NJS_VECTOR velo = { 0, 1.0f, 0 };
+			CreateSmoke(&pos, &velo, 1.0f);
+		}
 		
 		// Divide in 10 groups, each group moves at a different speed
 		for (int i = 0; i < 10; ++i)

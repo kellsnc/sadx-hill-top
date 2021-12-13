@@ -45,20 +45,26 @@ enum RexonActs
 
 void RexonHead_LoadFireBall(task* tp, taskwk* twp)
 {
-	NJS_VECTOR pos = { 0 };
-	Angle roty = 0;
-	Angle rotx = 0;
+	NJS_VECTOR pos = { 0.0f, 3.0f, 1.0f };
+	Angle roty, rotx;
 
+	// Get fireball direction and spawn
 	njPushMatrix(_nj_unit_matrix_);
 	njTranslateEx(&twp->pos);
 	njRotateY_(tp->ptp->twp->ang.y);
-	njTranslate(nullptr, 0, 3.0f, 1.0f);
-	njGetTranslation(nullptr, &pos);
+	njCalcPoint(0, &pos, &pos);
 	njPopMatrixEx();
-
 	njLookAt(&pos, &playertwp[GetTheNearestPlayerNumber(&twp->pos)]->pos, &rotx, &roty);
+	LoadFireBall((task*)tp, &pos, roty, -rotx, 1.5f, 1.5f, 0.01f, 0);
 
-	LoadFireBall((task*)tp, &pos, roty, rotx, 1.5f, 1.5f, 0.01f, 0);
+	// Spawn smoke effect (convert rotation to direction vector)
+	NJS_VECTOR velo = { 0.0f, 0.0f, 1.0f };
+	njPushMatrix(_nj_unit_matrix_);
+	njRotateY_(roty);
+	njRotateX_(rotx);
+	njCalcVector(0, &velo, &velo);
+	njPopMatrixEx();
+	CreateSmoke(&twp->pos, &velo, 1.0f);
 
 	dsPlay_oneshot_Dolby(464, 0, 0, 60, 120, (taskwk*)twp);
 }

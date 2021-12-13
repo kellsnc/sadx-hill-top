@@ -61,6 +61,7 @@ FunctionPointer(float, Shadow, (taskwk* twp, float scl), 0x49EE30);
 FunctionPointer(float, _DrawShadow, (Angle3* ang, NJS_POINT3* pos, float scl), 0x49EF30);
 FunctionPointer(float, ShadowWithAng, (taskwk* twp, float scl, Angle3* ang), 0x49EFD0);
 FunctionPointer(int, GetStageNumber, (), 0x414650);
+FunctionPointer(void, CreateSmoke, (NJS_POINT3* pos, NJS_POINT3* velo, float scl), 0x4B9820);
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);
