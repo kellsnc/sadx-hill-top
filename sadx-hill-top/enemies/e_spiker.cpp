@@ -224,7 +224,7 @@ void SpikerDecideAim(task* tp, taskwk* twp, enemywk* ewp)
 		{
 			SetBroken(tp);
 			twp->flag |= Status_Attack;
-			twp->mode = SpikerAct_Flee;
+			if (rand() % 2 == 0) twp->mode = SpikerAct_Flee; // 1 chance out of 2 to be a shy robot!
 		}
 	}
 	else
@@ -236,9 +236,9 @@ void SpikerDecideAim(task* tp, taskwk* twp, enemywk* ewp)
 void SpikerMove(taskwk* twp, enemywk* ewp)
 {
 	EnemyPreservePreviousPosition(twp, ewp);
-	ewp->velo.x = njCos(twp->ang.y) * 0.4f;
+	ewp->velo.x = njCos(twp->ang.y) * ewp->force.z;
 	ewp->velo.y = ewp->velo.y - ewp->weight;
-	ewp->velo.z = njSin(-twp->ang.y) * 0.4f;
+	ewp->velo.z = njSin(-twp->ang.y) * ewp->force.z;
 	twp->pos.x = twp->pos.x + ewp->velo.x;
 	twp->pos.y = ewp->velo.y + twp->pos.y;
 	twp->pos.z = ewp->velo.z + twp->pos.z;
@@ -247,7 +247,7 @@ void SpikerMove(taskwk* twp, enemywk* ewp)
 
 void SpikerWalk(task* tp, taskwk* twp, enemywk* ewp)
 {
-	ewp->force.z = 0.5f;
+	ewp->force.z = 0.4f;
 	SpikerDecideAim(tp, twp, ewp);
 	EnemyTurnToAim(twp, ewp);
 	SpikerMove(twp, ewp);
@@ -274,7 +274,7 @@ void SpikerFlee(taskwk* twp, enemywk* ewp)
 	aim.z = -aim.z;
 	njAddVector(&aim, &twp->pos);
 	ewp->aim = aim;
-	ewp->force.z = 0.25f;
+	ewp->force.z = 0.35f;
 	EnemyTurnToAim(twp, ewp);
 	SpikerMove(twp, ewp);
 	EnemyCheckGroundCollision(twp, ewp);

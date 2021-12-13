@@ -32,7 +32,7 @@ static void __cdecl HillPlatformDisplay(task* tp)
 	if (!MissedFrames)
 	{
 		auto twp = tp->twp;
-		auto object = (NJS_OBJECT*)twp->counter.ptr;
+		auto object = (NJS_OBJECT*)twp->value.ptr;
 
 		SetLevelTexture();
 		njPushMatrixEx();
@@ -93,10 +93,9 @@ void __cdecl HillPlatform(task* tp)
 
 	object->basicdxmodel = ht_platform->getmodel()->basicdxmodel;
 
-	RegisterCollisionEntry((0x4000 | ColFlags_Dynamic | ColFlags_Solid | ColFlags_UseRotation), tp, object);
+	RegisterCollisionEntry(0x4000 | ColFlags_Dynamic | ColFlags_Solid | ColFlags_UseRotation, tp, object);
 
 	twp->value.ptr = object;
-	twp->counter.ptr = ht_platform->getmodel();
 	
 	tp->exec = HillPlatformExec;
 	tp->disp = HillPlatformDisplay;
