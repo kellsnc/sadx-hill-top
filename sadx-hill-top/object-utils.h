@@ -14,8 +14,8 @@ void FreeFileInfo(T** info)
 	}
 }
 
-NJS_VECTOR GetPositionBetweenPoints(NJS_VECTOR* orig, NJS_VECTOR* dest, float dist);
-float GetDistance(NJS_POINT3* orig, NJS_POINT3* dest);
+NJS_POINT3 LerpPoints(NJS_POINT3* v1, NJS_POINT3* v2, float dist);
+float GetDistance(NJS_POINT3* v1, NJS_POINT3* v2);
 bool ComparePoints(NJS_POINT3* v1, NJS_POINT3* v2);
 bool CheckCollisionPointSphere(NJS_POINT3* center, NJS_POINT3* pos, float radius);
 int IsPlayerInRange(NJS_POINT3* center, float range);

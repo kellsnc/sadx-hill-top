@@ -136,7 +136,7 @@ void LoadTranspPlatform(task* tp, TransporterData1* twp, float progress);
 
 void MovePlatform(TransporterData1* ptwp, TranspPlatformData1* twp, float progress)
 {
-	twp->pos = GetPositionBetweenPoints(&ptwp->pos, &ptwp->destination, twp->progress); // Move along the vine
+	twp->pos = LerpPoints(&ptwp->pos, &ptwp->destination, twp->progress); // Move along the vine
 
 	// Get the bending offset, same code as in the parent display
 	float bend = twp->progress;

@@ -959,9 +959,11 @@ bool SubEgg_Emerge(EntityData1* data, eggsubwk* wk, float speed)
 
 void SubEgg_LookAtPlayer(EntityData1* data, eggsubwk* wk)
 {
-	EntityData1* entity = EntityData1Ptrs[GetTheNearestPlayerNumber(&data->Position)];
+	Angle roty;
+	auto pltwp = playertwp[GetTheNearestPlayerNumber(&data->Position)];
 
-	njLookAt(&data->Position, &entity->Position, nullptr, &data->Rotation.y);
+	njLookAt(&data->Position, &pltwp->pos, nullptr, &roty);
+	data->Rotation.y = AdjustAngle(data->Rotation.y, roty, 0x120);
 }
 
 // Get a random position around the lava outer circle
@@ -1297,12 +1299,14 @@ void __cdecl SubEggman_Display(ObjectMaster* obj)
 
 	if (!MissedFrames && (wk->HitTimer == 0 || wk->HitTimer % 5) && wk->Subs != eggsubmtnacts::hidden)
 	{
+		___dsSetPalette(6);
 		njSetTexture(&EGGSUB_TEXLIST);
 		njPushMatrixEx();
 		njTranslateEx(&data->Position);
 		njRotateY_(data->Rotation.y);
 		njAction(wk->bwk.plactptr[wk->bwk.action].actptr, wk->bwk.nframe);
 		njPopMatrixEx();
+		___dsSetPalette(0);
 	}
 }
 

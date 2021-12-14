@@ -13,9 +13,9 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state)
 	case EVTSTATES::Main:
 		HillTop_SetViewData();
 		EV_CameraOn();
-		DisableControl();
-		EV_SetCurrentEvt();
-		EV_AllocMem(4);
+		PadReadOff();
+		EV_CanselOn();
+		EventSe_Init(4);
 		LoadSoundList(78);
 
 		// Load Egg Carrier model & animation
@@ -30,7 +30,7 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state)
 		EventSe_Play(1, 1344, 1800);
 		EventSe_Volume(1, 106, 1);
 
-		EventWait(1);
+		EV_Wait(1);
 
 		EV_SetPos(EV_GetPlayer(0), StartPoses[0].Position.x, StartPoses[0].Position.y, StartPoses[0].Position.z);
 		EV_SetAng(EV_GetPlayer(0), 0, StartPoses[0].YRot, 0);
@@ -43,19 +43,19 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state)
 		EV_CameraPos(1, 400, 498.0F, 122.0F, 215.0F);
 		EV_CameraAng(1, 400, 0x1000, 0xC725, 0);
 
-		EventWait(420);
+		EV_Wait(420);
 
 		break;
 	case EVTSTATES::Free:
 		EV_CameraOff();
-		EnableControl();
-		EV_FreeMem();
+		PadReadOn();
+		EventSe_Close();
 		EV_InitPlayer(0);
 		stopObjectAll();
 		EV_FreeObject(0);
 		EV_SetPos(EV_GetPlayer(0), StartPoses[0].Position.x, StartPoses[0].Position.y, StartPoses[0].Position.z);
 		EV_SetAng(EV_GetPlayer(0), 0, StartPoses[0].YRot, 0);
-		EventWait(1);
+		EV_Wait(1);
 		break;
 	}
 }

@@ -90,7 +90,7 @@ void __cdecl RexonHeadDisp(task* tp)
 		auto ptwp = tp->ptp->twp;
 		auto object = (NJS_OBJECT*)twp->value.ptr;
 
-		Direct3D_PerformLighting(6);
+		___dsSetPalette(6);
 		njSetTexture(&REXON_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
@@ -102,7 +102,7 @@ void __cdecl RexonHeadDisp(task* tp)
 		RexonHead_DrawMouth(twp, object->child, twp->scl.x);
 
 		njPopMatrixEx();
-		Direct3D_PerformLighting(0);
+		___dsSetPalette(0);
 	}
 }
 
@@ -360,7 +360,7 @@ void __cdecl RexonDisp(task* tp)
 		auto twp = tp->twp;
 		auto object = (NJS_OBJECT*)twp->counter.ptr; // stored model
 
-		Direct3D_PerformLighting(6);
+		___dsSetPalette(6);
 		njSetTexture(&REXON_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
@@ -376,7 +376,7 @@ void __cdecl RexonDisp(task* tp)
 		}
 
 		njPopMatrixEx();
-		Direct3D_PerformLighting(0);
+		___dsSetPalette(0);
 	}
 }
 

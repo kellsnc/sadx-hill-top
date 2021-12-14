@@ -44,7 +44,7 @@ enum SpikerAttack {
 
 #pragma region Spike
 
-void SpikeUpdatePos(task* tp, float offset)
+void SpikeUpdatePos(task* tp)
 {
 	auto ptwp = tp->ptp->twp;
 
@@ -88,8 +88,8 @@ void SpikeHoming(taskwk* twp)
 
 	// Calc angle:
 	njLookAt(&twp->pos, &playertwp[GetTheNearestPlayerNumber(&twp->pos)]->pos, &rotx, &roty);
-	twp->ang.y = BAMS_SubWrap(twp->ang.y, roty, 0x250 + twp->wtimer);
-	twp->ang.x = BAMS_SubWrap(twp->ang.x, rotx + 0x4000, 0x100 + twp->wtimer);
+	twp->ang.y = AdjustAngle(twp->ang.y, roty, 0x250 + twp->wtimer);
+	twp->ang.x = AdjustAngle(twp->ang.x, rotx + 0x4000, 0x100 + twp->wtimer);
 
 	// Calc direction vector:
 	NJS_VECTOR dir{ 0.0f, twp->scl.x, 0.0f };
@@ -156,7 +156,7 @@ void __cdecl SpikeExec(task* tp)
 	case SpikerAttack_None:
 		if (ptwp->mode != SpikerAct_Stand)
 		{
-			SpikeUpdatePos(tp, 9.0f);
+			SpikeUpdatePos(tp);
 		}
 
 		if (ptwp->flag & Status_Attack)
@@ -196,7 +196,7 @@ void LoadSpikerSpike(task* tp)
 	ctwp->scl.x = 0.0f;
 
 	CCL_Init(ctp, &Spike_Col, 1, 4);
-	SpikeUpdatePos(ctp, 9.0f);
+	SpikeUpdatePos(ctp);
 
 	ctp->disp = SpikeDisplay;
 }
@@ -218,14 +218,14 @@ void __cdecl SpikerDisplay(task* tp)
 		auto twp = tp->twp;
 		auto ewp = (enemywk*)tp->mwp;
 
-		Direct3D_PerformLighting(6);
+		___dsSetPalette(6);
 		njSetTexture(&SPIKER_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
 		njRotateZXY(&twp->ang);
 		njAction(ewp->actp, ewp->nframe);
 		njPopMatrixEx();
-		Direct3D_PerformLighting(0);
+		___dsSetPalette(0);
 
 		Shadow(twp, ewp->shadow_scl);
 	}

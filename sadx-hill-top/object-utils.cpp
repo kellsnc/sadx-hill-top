@@ -64,21 +64,18 @@ void LoadLandTableFile(LandTableInfo** info, const char* name, NJS_TEXLIST* texl
 	}
 }
 
-NJS_VECTOR GetPositionBetweenPoints(NJS_VECTOR* orig, NJS_VECTOR* dest, float dist)
+NJS_POINT3 LerpPoints(NJS_POINT3* v1, NJS_POINT3* v2, float dist)
 {
 	NJS_VECTOR result;
-	result.x = (dest->x - orig->x) * dist + orig->x;
-	result.y = (dest->y - orig->y) * dist + orig->y;
-	result.z = (dest->z - orig->z) * dist + orig->z;
-
+	result.x = (v2->x - v1->x) * dist + v1->x;
+	result.y = (v2->y - v1->y) * dist + v1->y;
+	result.z = (v2->z - v1->z) * dist + v1->z;
 	return result;
 }
 
-float GetDistance(NJS_POINT3* orig, NJS_POINT3* dest)
+float GetDistance(NJS_POINT3* v1, NJS_POINT3* v2)
 {
-	NJS_POINT3 v = *dest;
-	njSubVector(&v, orig);
-	return njScalor(&v);
+	return sqrtf((v1->x - v2->x) * (v1->x - v2->x) + (v1->y - v2->y) * (v1->y - v2->y) + (v1->z - v2->z) * (v1->z - v2->z));
 }
 
 // True if equal, false if not
@@ -277,7 +274,7 @@ void RotYGeoCollision(task* tp, NJS_OBJECT* object, Angle y)
 	// Ignore if no change
 	if (prev_angle != y)
 	{
-		Angle difference = BAMS_Subtract(prev_angle, y);
+		Angle difference = SubAngle(prev_angle, y);
 
 		for (int i = 0; i < MaxPlayers; ++i)
 		{
