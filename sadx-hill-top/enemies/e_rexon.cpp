@@ -21,12 +21,13 @@ ModelInfo* e_rexon = nullptr;
 ModelInfo* e_rexoncol = nullptr;
 
 CCL_INFO Rexon_Col[] {
-	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 },
-	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 },
-	{ 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 }
+	{ 0, CI_FORM_SPHERE, 0x77, 0x21, 0x400, { 7.5f, 2.5f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 },
+	{ 0, CI_FORM_SPHERE, 0x77, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 },
+	{ 0, CI_FORM_SPHERE, 0x77, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 },
+	{ 0, CI_FORM_SPHERE, 0x77, 0x21, 0x400, { 0.0f, 0.0f, 0.0f }, 2.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 }
 };
 
-CCL_INFO RexonHead_Col = { 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 0.0f, 3.0f, 1.0f }, 3.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
+CCL_INFO RexonHead_Col = { 0, CI_FORM_SPHERE, 0x10, 0x21, 0x400, { 1.0f, 3.0f, 0.0f }, 2.5f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
 
 enum RexonHeadActs
 {
@@ -89,6 +90,7 @@ void __cdecl RexonHeadDisp(task* tp)
 		auto ptwp = tp->ptp->twp;
 		auto object = (NJS_OBJECT*)twp->value.ptr;
 
+		Direct3D_PerformLighting(6);
 		njSetTexture(&REXON_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
@@ -100,6 +102,7 @@ void __cdecl RexonHeadDisp(task* tp)
 		RexonHead_DrawMouth(twp, object->child, twp->scl.x);
 
 		njPopMatrixEx();
+		Direct3D_PerformLighting(0);
 	}
 }
 
@@ -177,6 +180,15 @@ void __cdecl RexonHead(task* tp)
 	auto enmwk = EnemyInitialize(tp, twp);
 
 	CCL_Init(tp, &RexonHead_Col, 1, 3);
+
+	// Scale collision:
+	auto cwp = twp->cwp;
+	if (cwp)
+	{
+		cwp->info->a *= ptwp->scl.x;
+		cwp->info->center.x *= ptwp->scl.x;
+		cwp->info->center.y *= ptwp->scl.x;
+	}
 
 	twp->value.ptr = ((NJS_OBJECT*)ptwp->counter.ptr)->child->sibling->sibling->sibling->sibling->child->child->child->child; // head node
 	twp->scl.x = 0; // mouth opening amount
@@ -272,7 +284,7 @@ void Rexon_MoveColliNeck(taskwk* twp)
 		{
 			njPushMatrixEx();
 			njTranslateX(Rexon_NeckMovement(i, twp->mode, twp->wtimer));
-			njGetTranslation(nullptr, &twp->cwp->info[i - 1].center); // move collision
+			njGetTranslation(nullptr, &twp->cwp->info[i].center); // move collision
 			njPopMatrixEx();
 		}
 
@@ -281,32 +293,16 @@ void Rexon_MoveColliNeck(taskwk* twp)
 
 	njPopMatrixEx();
 }
-
-void Rexon_MoveDynCol(task* tp, taskwk* twp)
+void RexonMove(task* tp, taskwk* twp)
 {
 	// Move up and down to simulate floating
 	twp->timer.l += 200;
 	twp->pos.y = twp->scl.z + 1.0f + (1.0f * njSin(twp->timer.l));
 
-	// Move the geo collision
 	auto geocol = (NJS_OBJECT*)twp->value.ptr;
 
-	NJS_VECTOR mov = twp->pos; // store difference between old and new position
-	njSubVector(&mov, (NJS_VECTOR*)geocol->pos);
-
-	geocol->pos[0] = twp->pos.x;
-	geocol->pos[1] = twp->pos.y;
-	geocol->pos[2] = twp->pos.z;
-	geocol->ang[1] = twp->ang.y;
-
-	// Move players by the difference between old and new position
-	for (int i = 0; i < MaxPlayers; ++i)
-	{
-		if (IsPlayerOnDyncol(tp))
-		{
-			njAddVector(&playertwp[0]->pos, &mov);
-		}
-	}
+	MoveGeoCollision(tp, geocol, &twp->pos);
+	RotYGeoCollision(tp, geocol, twp->ang.y);
 }
 
 void Rexon_DrawFins(taskwk* twp, NJS_OBJECT* object, float timer)
@@ -364,6 +360,7 @@ void __cdecl RexonDisp(task* tp)
 		auto twp = tp->twp;
 		auto object = (NJS_OBJECT*)twp->counter.ptr; // stored model
 
+		Direct3D_PerformLighting(6);
 		njSetTexture(&REXON_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
@@ -379,6 +376,7 @@ void __cdecl RexonDisp(task* tp)
 		}
 
 		njPopMatrixEx();
+		Direct3D_PerformLighting(0);
 	}
 }
 
@@ -437,23 +435,17 @@ void __cdecl RexonExec(task* tp)
 			LoopTaskC(tp);
 		}
 
-		Rexon_MoveDynCol(tp, twp);
+		RexonMove(tp, twp);
+		EntryColliList(twp);
 		tp->disp(tp);
 	}
 }
 
 void __cdecl RexonDestroy(task* tp)
 {
-	// Remove the dyncol before deleting the object:
 	if (tp->twp)
 	{
-		auto object = (NJS_OBJECT*)tp->twp->value.ptr;
-
-		if (object)
-		{
-			WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
-			ReleaseMobileLandObject(object);     // Release the entry
-		}
+		RemoveGeoCollision(tp, (NJS_OBJECT*)tp->twp->value.ptr);
 	}
 
 	UniDestructor(tp);
@@ -472,6 +464,18 @@ void __cdecl Rexon(task* tp)
 	{
 		CreateChildTask(LoadObj_Data1, RexonHead, tp);
 		CCL_Init(tp, arrayptrandlength(Rexon_Col), 4);
+
+		// Scale collision:
+		auto cwp = twp->cwp;
+		if (cwp)
+		{
+			for (int i = 0; i < cwp->nbInfo; ++i)
+			{
+				cwp->info[i].a *= twp->scl.x;
+				cwp->info[i].center.x *= twp->scl.x;
+				cwp->info[i].center.y *= twp->scl.x;
+			}
+		}
 	}
 
 	if (twp->scl.x == 0.0f)

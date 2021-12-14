@@ -81,6 +81,12 @@ float GetDistance(NJS_POINT3* orig, NJS_POINT3* dest)
 	return njScalor(&v);
 }
 
+// True if equal, false if not
+bool ComparePoints(NJS_POINT3* v1, NJS_POINT3* v2)
+{
+	return v1->x == v2->x && v1->y == v2->y && v1->z == v2->z;
+}
+
 bool CheckCollisionPointSphere(NJS_POINT3* center, NJS_POINT3* pos, float radius)
 {
 	return GetDistance(center, pos) <= radius;
@@ -106,7 +112,7 @@ int IsPlayerInRange(NJS_POINT3* center, float range)
 	return 0;
 }
 
-int IsPlayerOnDyncol(task* tp)
+int IsPlayerOnGeoCol(task* tp)
 {
 	for (int i = 0; i < MaxPlayers; ++i)
 	{
@@ -134,19 +140,6 @@ void ForEveryCollidingPlayer(task* tp, void(__cdecl* function)(task*, taskwk*))
 		if (hit->hit_twp->cwp->id == 0)
 		{
 			function(tp, hit->hit_twp);
-		}
-	}
-}
-
-void ForEveryPlayerOnDyncol(task* tp, void(__cdecl* function)(task*, taskwk*))
-{
-	for (int i = 0; i < MaxPlayers; ++i)
-	{
-		auto pwp = playerpwp[i];
-		
-		if (pwp && pwp->ttp == tp)
-		{
-			function(tp, playertwp[i]);
 		}
 	}
 }
@@ -233,6 +226,69 @@ int GetUVCount(NJS_MESHSET_SADX* meshset)
 	}
 
 	return 0;
+}
+
+int IsPlayerOnGeoCol(task* tp, int pnum)
+{
+	auto pwp = playerpwp[pnum];
+	return pwp && pwp->ttp == tp;
+}
+
+void RemoveGeoCollision(task* tp, NJS_OBJECT* object)
+{
+	if (object)
+	{
+		WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
+		ReleaseMobileLandObject(object);     // Release the entry
+	}
+}
+
+// Move collision and players that are on it
+void MoveGeoCollision(task* tp, NJS_OBJECT* object, NJS_POINT3* pos)
+{
+	NJS_POINT3* prev_pos = (NJS_POINT3*)&object->pos;
+
+	// Ignore if no movement
+	if (!ComparePoints(prev_pos, pos))
+	{
+		// Get difference between previous and current position
+		NJS_VECTOR difference = *pos;
+		njSubVector(&difference, prev_pos);
+
+		for (int i = 0; i < MaxPlayers; ++i)
+		{
+			if (IsPlayerOnGeoCol(tp, i))
+			{
+				njAddVector(&playertwp[i]->pos, &difference); // move player by differnce between previous and current pos
+			}
+		}
+
+		// Move collision
+		object->pos[0] += difference.x;
+		object->pos[1] += difference.y;
+		object->pos[2] += difference.z;
+	}
+}
+
+void RotYGeoCollision(task* tp, NJS_OBJECT* object, Angle y)
+{
+	Angle prev_angle = object->ang[1];
+	
+	// Ignore if no change
+	if (prev_angle != y)
+	{
+		Angle difference = BAMS_Subtract(prev_angle, y);
+
+		for (int i = 0; i < MaxPlayers; ++i)
+		{
+			if (IsPlayerOnGeoCol(tp, i))
+			{
+				playertwp[i]->ang.y += difference;
+			}
+		}
+
+		object->ang[1] += difference;
+	}
 }
 
 void SetLevelTexture()

@@ -17,13 +17,7 @@ static void __cdecl HillPlatformDestroy(task* tp)
 {
 	if (tp->twp)
 	{
-		auto object = (NJS_OBJECT*)tp->twp->value.ptr;
-
-		if (object)
-		{
-			WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
-			ReleaseMobileLandObject(object);     // Release the entry
-		}
+		RemoveGeoCollision(tp, (NJS_OBJECT*)tp->twp->value.ptr);
 	}
 }
 
@@ -54,7 +48,8 @@ static void __cdecl HillPlatformExec(task* tp)
 		twp->pos.y = twp->scl.z + static_cast<float>(1.0 - pow(njSin(GameTimer * twp->ang.z), 2.0)) * twp->scl.y;
 
 		// Update geometry collision
-		reinterpret_cast<NJS_OBJECT*>(twp->value.ptr)->pos[1] = twp->pos.y;
+
+		MoveGeoCollision(tp, reinterpret_cast<NJS_OBJECT*>(twp->value.ptr), &twp->pos);
 
 		tp->disp(tp);
 	}

@@ -194,12 +194,14 @@ void __cdecl SpikerDisplay(task* tp)
 		auto twp = tp->twp;
 		auto ewp = (enemywk*)tp->mwp;
 
+		Direct3D_PerformLighting(6);
 		njSetTexture(&SPIKER_TexList);
 		njPushMatrixEx();
 		njTranslateEx(&twp->pos);
 		njRotateZXY(&twp->ang);
 		njAction(ewp->actp, ewp->nframe);
 		njPopMatrixEx();
+		Direct3D_PerformLighting(0);
 
 		Shadow(twp, ewp->shadow_scl);
 	}

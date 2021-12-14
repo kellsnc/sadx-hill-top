@@ -17,12 +17,10 @@ static CCL_INFO GrowLavaTrigger_Col = { 0, CI_FORM_SPHERE, 0xF0, 0, 0, { 0.0f, 0
 
 Grow_WK grow_workers[3] = { };
 
-static void UpdateDynCol(NJS_OBJECT* dyncol, NJS_POINT3* pos, int id)
+static void UpdateDynCol(task* tp, NJS_OBJECT* dyncol, NJS_POINT3* pos, int id)
 {
-	dyncol->pos[0] = pos->x;
-	dyncol->pos[1] = pos->y;
-	dyncol->pos[2] = pos->z;
-	dyncol->pos[1] += grow_workers[id].Offset;
+	NJS_VECTOR newpos = { pos->x, pos->y + grow_workers[id].Offset, pos->z };
+	MoveGeoCollision(tp, dyncol, &newpos);
 }
 
 #pragma region GrowLava
@@ -39,13 +37,7 @@ void __cdecl GrowLavaDestroy(task* tp)
 {
 	if (tp->twp)
 	{
-		auto object = (NJS_OBJECT*)tp->twp->value.ptr;
-
-		if (object)
-		{
-			WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
-			ReleaseMobileLandObject(object);     // Release the entry
-		}
+		RemoveGeoCollision(tp, (NJS_OBJECT*)tp->twp->value.ptr);
 	}
 }
 
@@ -94,7 +86,7 @@ void __cdecl GrowLavaExec(task* tp)
 			twp->pos.y = twp->scl.z;
 		}
 
-		UpdateDynCol((NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
+		UpdateDynCol(tp, (NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
 	}
 
 	tp->disp(tp);
@@ -156,13 +148,7 @@ void __cdecl GrowLavaPlatformDestroy(task* tp)
 {
 	if (tp->twp)
 	{
-		auto object = (NJS_OBJECT*)tp->twp->value.ptr;
-
-		if (object)
-		{
-			WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
-			ReleaseMobileLandObject(object);     // Release the entry
-		}
+		RemoveGeoCollision(tp, (NJS_OBJECT*)tp->twp->value.ptr);
 	}
 }
 
@@ -205,7 +191,7 @@ void __cdecl GrowLavaPlatformExec(task* tp)
 
 		twp->pos.y = twp->scl.z + (1.0f - powf(njSin(GameTimer * twp->ang.z), 2.0f) * twp->scl.y);
 
-		UpdateDynCol((NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
+		UpdateDynCol(tp, (NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
 		tp->disp(tp);
 	}
 }
@@ -289,8 +275,6 @@ void __cdecl GrowLavaTriggerExec(task* tp)
 	{
 		if (CheckCollisionP_num(&twp->pos, twp->scl.x, 0))
 		{
-			EntityData1* entity = EntityData1Ptrs[0];
-
 			if (twp->ang.y == 1)
 			{
 				DeadOut(tp);
@@ -384,7 +368,7 @@ void __cdecl KillCeiling(task* tp)
 			taskwk* entity = (taskwk*)GetCollidingEntityA((EntityData1*)twp);
 
 			// if the player collides while being on the ground
-			if (grow_workers[twp->ang.z].Enabled == true && entity && (entity->flag & Status_Ground) && (playerpwp[TASKWK_PLAYERID(entity)]->attr & ColFlags_Dynamic))
+			if (grow_workers[twp->ang.x].Enabled == true && entity && (entity->flag & Status_Ground) && (playerpwp[TASKWK_PLAYERID(entity)]->attr & ColFlags_Dynamic))
 			{
 				KillPlayer(TASKWK_PLAYERID(entity));
 			}

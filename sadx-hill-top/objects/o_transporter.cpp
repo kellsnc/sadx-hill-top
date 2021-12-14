@@ -26,7 +26,7 @@ struct TranspPlatformData1 {
 	NJS_OBJECT* DynCol;
 	Rotation3 ang;
 	NJS_VECTOR pos;
-	NJS_VECTOR prevpos;
+	NJS_VECTOR scl;
 	CollisionInfo* CollisionInfo;
 };
 
@@ -136,7 +136,6 @@ void LoadTranspPlatform(task* tp, TransporterData1* twp, float progress);
 
 void MovePlatform(TransporterData1* ptwp, TranspPlatformData1* twp, float progress)
 {
-	twp->prevpos = twp->pos; // Store the previous position to move the player later
 	twp->pos = GetPositionBetweenPoints(&ptwp->pos, &ptwp->destination, twp->progress); // Move along the vine
 
 	// Get the bending offset, same code as in the parent display
@@ -147,24 +146,10 @@ void MovePlatform(TransporterData1* ptwp, TranspPlatformData1* twp, float progre
 	twp->pos.y += twp->Object->pos[1] - ((ptwp->VineZ / 10.0f) * bend);
 }
 
-void MovePlayerOnPlatform(task* tp, taskwk* ptwp)
-{
-	// Move the player by the different between previous position and current position
-	auto twp = (TranspPlatformData1*)tp->twp;
-	NJS_VECTOR offset = twp->pos;
-	njSubVector(&offset, &twp->prevpos);
-	njAddVector(&ptwp->pos, &offset);
-}
-
 void __cdecl TranspPlatformDestroy(task* tp)
 {
 	auto twp = (TranspPlatformData1*)tp->twp;
-
-	if (twp && twp->DynCol)
-	{
-		WithdrawCollisionEntry(tp, twp->DynCol);  // Destroy the geometry collision
-		ReleaseMobileLandObject(twp->DynCol);     // Release the entry
-	}
+	RemoveGeoCollision(tp, twp->DynCol);
 }
 
 void __cdecl TranspPlatformDisplay(task* tp)
@@ -184,7 +169,7 @@ void __cdecl TranspPlatformDisplay(task* tp)
 		{
 			if (twp->Action == TranspPlatformActs::Fall)
 			{
-				njTranslateY(twp->prevpos.y); // I use this to offset the platform
+				njTranslateY(twp->scl.y); // I use this to offset the platform
 			}
 
 			dsDrawModel(twp->Object->basicdxmodel); // Platform
@@ -209,7 +194,7 @@ void __cdecl TranspPlatformExec(task* tp)
 	switch (twp->Action)
 	{
 	case TranspPlatformActs::Input: // If the player is on the dyncol of our object, launch
-		if (IsPlayerOnDyncol((task*)tp))
+		if (IsPlayerOnGeoCol((task*)tp))
 		{
 			twp->Action = TranspPlatformActs::Move;
 			dsPlay_oneshot(466, 0, 0, 160);
@@ -223,20 +208,13 @@ void __cdecl TranspPlatformExec(task* tp)
 		ptwp->progress = twp->progress;	// Hand that to the parent object to bend the vine
 
 		MovePlatform(ptwp, twp, twp->progress);
-
-		// Update the dyncol position
-		twp->DynCol->pos[0] = twp->pos.x;
-		twp->DynCol->pos[1] = twp->pos.y;
-		twp->DynCol->pos[2] = twp->pos.z;
-
-		// Move the player
-		ForEveryPlayerOnDyncol((task*)tp, MovePlayerOnPlatform);
+		MoveGeoCollision(tp, twp->DynCol, &twp->pos);
 
 		// Check if we're at the end, sphere check to detach the object a bit sooner
 		if (twp->progress >= 1.0f || CheckCollisionPointSphere(&ptwp->destination, &twp->pos, 25.0f))
 		{
 			twp->Action = TranspPlatformActs::Fall;
-			twp->prevpos.y = 0;
+			twp->scl.y = 0.0f;
 		}
 
 		break;
@@ -246,10 +224,11 @@ void __cdecl TranspPlatformExec(task* tp)
 		if (twp->timer == 30)
 		{
 			TranspPlatformDestroy(tp); // remove dynamic collision
+			twp->DynCol = nullptr;
 		}
 		else if (twp->timer > 30)
 		{
-			twp->prevpos.y -= 3.0f;
+			twp->scl.y -= 3.0f; // make platform fall
 
 			// Removes the object after a while, creates a new platform at the beginning
 			if (twp->timer > 200)
