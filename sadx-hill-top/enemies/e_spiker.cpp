@@ -86,32 +86,64 @@ void SpikeHoming(taskwk* twp)
 {
 	Angle rotx, roty;
 
-	if (twp->wtimer < 100)
-	{
-		njLookAt(&twp->pos, &playertwp[GetTheNearestPlayerNumber(&twp->pos)]->pos, &rotx, &roty);
-		rotx += 0x4000;
+	// Calc angle:
+	njLookAt(&twp->pos, &playertwp[GetTheNearestPlayerNumber(&twp->pos)]->pos, &rotx, &roty);
+	twp->ang.y = BAMS_SubWrap(twp->ang.y, roty, 0x250 + twp->wtimer);
+	twp->ang.x = BAMS_SubWrap(twp->ang.x, rotx + 0x4000, 0x100 + twp->wtimer);
 
-		twp->ang.y = BAMS_SubWrap(twp->ang.y, roty, 0x300);
-		twp->ang.x = BAMS_SubWrap(twp->ang.x, rotx, 0x300);
-	}
-
+	// Calc direction vector:
+	NJS_VECTOR dir{ 0.0f, twp->scl.x, 0.0f };
 	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx(&twp->pos);
 	njRotateY_(twp->ang.y);
 	njRotateX_(twp->ang.x);
-	njTranslateY(twp->scl.x);
-	njGetTranslation(0, &twp->pos);
+	njCalcVector(0, &dir, &dir);
 	njPopMatrixEx();
+
+	// This check if the object can move in direction "dir" without touching a collision
+	// If it does touch a collision in that direction, it adjusts "dir" to not go behind the collision and returns TRUE.
+	if (MSetPosition(&twp->pos, &dir, nullptr, 5.0f) == TRUE)
+	{
+		twp->flag |= Status_Hurt; // explose if touched a geometry collision
+	}
+
+	njAddVector(&twp->pos, &dir);
 }
 
 void SpikeVertical(taskwk* twp)
 {
+	// Calc direction vector:
+	NJS_VECTOR dir{ 0.0f, twp->scl.x, 0.0f };
 	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx(&twp->pos);
 	njRotateZXY(&twp->ang);
-	njTranslateY(twp->scl.x);
-	njGetTranslation(0, &twp->pos);
+	njCalcVector(0, &dir, &dir);
 	njPopMatrixEx();
+
+	// This check if the object can move in direction "dir" without touching a collision
+	// If it does touch a collision in that direction, it adjusts "dir" to not go behind the collision and returns TRUE.
+	if (MSetPosition(&twp->pos, &dir, nullptr, 5.0f) == TRUE)
+	{
+		twp->flag |= Status_Hurt; // explose if touched a geometry collision
+	}
+
+	njAddVector(&twp->pos, &dir);
+}
+
+void SpikeCollision(taskwk* twp)
+{
+	if (twp->mode != SpikerAttack_None)
+	{
+		++twp->wtimer;
+
+		if (twp->scl.x < 1.0f)
+		{
+			twp->scl.x += 0.05f;
+		}
+
+		if (twp->wtimer > 150 || CCL_IsHitPlayer(twp))
+		{
+			twp->flag |= Status_Hurt;
+		}
+	}
 }
 
 void __cdecl SpikeExec(task* tp)
@@ -143,20 +175,12 @@ void __cdecl SpikeExec(task* tp)
 		break;
 	}
 
-	if (twp->mode != SpikerAttack_None)
+	SpikeCollision(twp);
+
+	if (twp->flag & Status_Hurt)
 	{
-		++twp->wtimer;
-
-		if (twp->scl.x < 1.0f)
-		{
-			twp->scl.x += 0.05f;
-		}
-
-		if (twp->wtimer > 150 || CCL_IsHitPlayer(twp))
-		{
-			CreateFlash2(twp->pos.x, twp->pos.y, twp->pos.z, 1.0f);
-			FreeTask(tp);
-		}
+		CreateFlash2(twp->pos.x, twp->pos.y, twp->pos.z, 1.0f);
+		FreeTask(tp);
 	}
 	
 	EntryColliList(twp);
@@ -269,6 +293,13 @@ void SpikerStand(task* tp, taskwk* twp, enemywk* ewp)
 
 void SpikerFlee(taskwk* twp, enemywk* ewp)
 {
+	// Stop fleeing if far from home
+	if (EnemyDist2FromHome(twp, ewp) > ewp->view_range)
+	{
+		twp->mode = SpikerAct_Walk;
+		return;
+	}
+
 	NJS_VECTOR aim = playertwp[GetTheNearestPlayerNumber(&twp->pos)]->pos;
 	njSubVector(&aim, &twp->pos);
 	aim.x = -aim.x;
@@ -345,7 +376,7 @@ void __cdecl Spiker(task* tp)
 	ewp->weight = 0.1f;
 	ewp->shadow_scl = 1.3f;
 	ewp->shadow_scl_ratio = 1.0f;
-	ewp->ang_spd.y = 0x500;
+	ewp->ang_spd.y = 0x600;
 
 	EnemyPreserveHomePosition(twp, ewp);
 	

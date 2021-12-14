@@ -19,7 +19,6 @@ typedef void(__cdecl* VoidFuncPtr)(void);
 FunctionPointer(void, ReleaseModule, (unsigned int u32ModuleType), 0x4228F0);
 DataPointer(VoidFuncPtr, ___epilogfunc, 0x3B291B4);
 FunctionPointer(BOOL, EV_CheckCansel, (), 0x42FB00);
-FunctionPointer(int, DetectDyncolCollision, (NJS_VECTOR* pos, NJS_VECTOR* output, Rotation3* rotation, ColFlags flagstoignore, float detectionradius), 0x439620);
 FunctionPointer(void, RedMountain_SetViewData_Clip, (int clipLevel), 0x6007E0);
 VoidFunc(RedMountain_SetViewData, 0x600730);
 DataArray(Color3, BackColorList, 0x90BFE8, 43);
@@ -42,6 +41,9 @@ FunctionPointer(void, StaticShadow, (taskwk* twp, float ypos), 0x49ED70);
 FunctionPointer(float, Shadow, (taskwk* twp, float scl), 0x49EE30);
 FunctionPointer(float, _DrawShadow, (Angle3* ang, NJS_POINT3* pos, float scl), 0x49EF30);
 FunctionPointer(float, ShadowWithAng, (taskwk* twp, float scl, Angle3* ang), 0x49EFD0);
+FunctionPointer(int, MSetPositionWIgnoreAttribute, (NJS_POINT3* p, NJS_POINT3* v, Angle3* a, int attrmask, float r), 0x439620); // Move position "p" with direction "v" and angle "a"; outputs in "v" and "a"; handles intersection with geo collisions in radius "r" except those whose attributes match attrmask; returns bitmask (1: touched a collision, 2: touched a collision upside down).
+FunctionPointer(BOOL, MSetPosition, (NJS_POINT3* p, NJS_POINT3* v, Angle3* a, float r), 0x43A030); // Move position "p" with direction "v" and angle "a"; outputs in "v" and "a"; handles intersection with any geometry collision in radius "r"; returns whether it touched a collision or not.
+FunctionPointer(BOOL, MSetPositionIgnoreAttribute, (NJS_POINT3* p, NJS_POINT3* v, Angle3* a, int attrmask, float r), 0x43A060); // Move position "p" with direction "v" and angle "a"; outputs in "v" and "a"; handles intersection with geo collisions in radius "r" except those whose attributes match attrmask; returns whether it touched a collision or not.
 
 // Event related
 VoidFunc(EV_SetCurrentEvt, 0x42F630);

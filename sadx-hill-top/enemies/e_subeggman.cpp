@@ -724,7 +724,7 @@ void EggSubFire_Main(ObjectMaster* obj)
 		}
 
 		NJS_VECTOR idk = { 0, 0, 0 };
-		if (DetectDyncolCollision(&data->Position, &idk, &data->Rotation, (ColFlags)(ColFlags_Hurt | 0x08000000), 10.0f))
+		if (MSetPositionIgnoreAttribute(&data->Position, &idk, (Angle3*)&data->Rotation, ColFlags_Hurt | 0x08000000, 10.0f))
 		{
 			data->Action = 1;
 		}
