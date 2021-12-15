@@ -155,24 +155,23 @@ bool CheckJump(int id)
 {
 	if (PressedButtons[id] & Buttons_A)
 	{
-		EntityData1* pdata = EntityData1Ptrs[id];
-		CharObj2* pco2 = CharObj2Ptrs[id];
+		auto twp = playertwp[id];
+		auto pwp = playerpwp[id];
 
-		switch (pdata->CharID) {
+		twp->flag = twp->flag & ~(Status_OnColli | Status_Ground) | Status_Attack | Status_Ball;
+		pwp->spd.y = pwp->p.jmp_y_spd;
+		
+		switch (TASKWK_CHARID(twp)) {
 		case Characters_Sonic:
-			pdata->Action = 8;
-			pdata->Status = pdata->Status & ~Status_OnColli | Status_Attack | Status_Ball;
-			pco2->Speed.y = pco2->PhysicsData.JumpSpeed;
-			pco2->SpindashSpeed = 5.0f;
-			Sonic_Spin(pco2);
+			twp->mode = 8; // jump mode
+			Sonic_Spin((CharObj2*)pwp); // jump animation
+			pwp->work.f = 5.0f;
 			break;
 		case Characters_Tails:
 		case Characters_Knuckles:
-			pdata->Action = 6;
-			pdata->Status = pdata->Status & ~Status_OnColli | Status_Attack | Status_Ball;
-			pco2->Speed.y = pco2->PhysicsData.JumpSpeed;
-			pco2->SpindashSpeed = 2.0f;
-			pco2->AnimationThing.Index = 14;
+			twp->mode = 6; // jump mode
+			pwp->mj.reqaction = 14; // jump animation
+			pwp->work.f = 2.0f;
 			break;
 		}
 

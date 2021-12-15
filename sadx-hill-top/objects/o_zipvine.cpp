@@ -149,6 +149,7 @@ void __cdecl ZipVineExec(task* tp)
 	{
 		if (++twp->wtimer > 50)
 		{
+			twp->wtimer = 0;
 			twp->mode = VineMode_Input;
 		}
 	}
