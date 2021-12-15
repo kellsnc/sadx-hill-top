@@ -182,12 +182,13 @@ void __cdecl RexonHead(task* tp)
 	CCL_Init(tp, &RexonHead_Col, 1, 3);
 
 	// Scale collision:
-	auto cwp = twp->cwp;
-	if (cwp)
+	if (twp->cwp)
 	{
-		cwp->info->a *= ptwp->scl.x;
-		cwp->info->center.x *= ptwp->scl.x;
-		cwp->info->center.y *= ptwp->scl.x;
+		auto cclinfo = twp->cwp->info;
+		cclinfo->a *= ptwp->scl.x;
+		cclinfo->center.x *= ptwp->scl.x;
+		cclinfo->center.y *= ptwp->scl.x;
+		CCL_CalcRange(twp);
 	}
 
 	twp->value.ptr = ((NJS_OBJECT*)ptwp->value.ptr)->child->sibling->sibling->sibling->sibling->child->child->child->child; // head node
@@ -471,6 +472,7 @@ void __cdecl Rexon(task* tp)
 				cwp->info[i].center.x *= twp->scl.x;
 				cwp->info[i].center.y *= twp->scl.x;
 			}
+			CCL_CalcRange(twp);
 		}
 	}
 

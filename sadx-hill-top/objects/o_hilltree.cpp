@@ -105,18 +105,14 @@ void __cdecl HillTree(task* tp)
 		twp->scl.x = 1; // default scale
 	}
 
-	auto cwp = twp->cwp;
-
-	if (cwp)
+	// Adjust collision with scale:
+	if (twp->cwp)
 	{
-		auto cclinfo = cwp->info;
-
-		// Adjust center with scale
+		auto cclinfo = twp->cwp->info;
 		cclinfo->center.y *= twp->scl.x + twp->scl.y;
-
-		// Adjust collision size with scale
 		cclinfo->a *= twp->scl.x;
 		cclinfo->b *= twp->scl.x + twp->scl.y;
+		CCL_CalcRange(twp);
 	}
 
 	tp->exec = HillTreeExec;

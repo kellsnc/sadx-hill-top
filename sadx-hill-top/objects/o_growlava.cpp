@@ -324,8 +324,13 @@ void __cdecl GrowLavaTrigger(task* tp)
 
 	CCL_Init(tp, &GrowLavaTrigger_Col, 1, 4);
 
-	twp->cwp->info->a = twp->scl.x;
-
+	// Adapt collision to scale:
+	if (twp->cwp)
+	{
+		twp->cwp->info->a = twp->scl.x;
+		CCL_CalcRange(twp);
+	}
+	
 	tp->exec = GrowLavaTriggerExec;
 	tp->dest = GrowLavaTriggerDestroy;
 }
@@ -363,15 +368,17 @@ void __cdecl KillCeiling(task* tp)
 		{
 			CCL_Init(tp, (CCL_INFO*)&C_Cube_Collision, 1, 4u);
 
-			auto colinfo = twp->cwp->info;
-
-			colinfo->push = 0xF0;
-			colinfo->a = twp->scl.x + 10.0f;
-			colinfo->b = twp->scl.y + 10.0f;
-			colinfo->c = twp->scl.z + 10.0f;
-
-			CCL_CalcRange(twp);
-
+			// Adjust collision to scale:
+			if (twp->cwp)
+			{
+				auto colinfo = twp->cwp->info;
+				colinfo->push = 0xF0;
+				colinfo->a = twp->scl.x + 10.0f;
+				colinfo->b = twp->scl.y + 10.0f;
+				colinfo->c = twp->scl.z + 10.0f;
+				CCL_CalcRange(twp);
+			}
+			
 			twp->mode = 1;
 		}
 	}

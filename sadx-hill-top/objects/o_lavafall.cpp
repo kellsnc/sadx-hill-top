@@ -116,16 +116,14 @@ void __cdecl LavaFall(task* tp)
 		twp->scl.x = 1; // default scale
 	}
 
-	auto cwp = twp->cwp;
-	
-	if (cwp)
+	// Adjust collision size with scale
+	if (twp->cwp)
 	{
-		auto cclinfo = cwp->info;
-
-		// Adjust collision size with scale
+		auto cclinfo = twp->cwp->info;
 		cclinfo->center.y *= twp->scl.x + (twp->scl.y / 8);
 		cclinfo->a *= twp->scl.x;
 		cclinfo->b *= twp->scl.x + (twp->scl.y / 8);
+		CCL_CalcRange(twp);
 	}
 
 	twp->scl.x *= 8.0f; // adjust model scaling

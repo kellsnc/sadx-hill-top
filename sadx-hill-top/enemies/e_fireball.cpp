@@ -94,11 +94,11 @@ void __cdecl FireBall(task* tp)
 
 	CCL_Init(tp, &FireBallCol, 1, 4);
 
-	auto cwp = twp->cwp;
-
-	if (cwp)
+	// Adjust collision to scale:
+	if (twp->cwp)
 	{
-		cwp->info->a *= twp->scl.x; // scale collision size
+		twp->cwp->info->a *= twp->scl.x;
+		CCL_CalcRange(twp);
 	}
 	
 	tp->exec = FireBallExec;
