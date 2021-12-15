@@ -2,14 +2,15 @@
 - Kell @conankell
 
 [Musics]
-- Act1: Snakeshroom @snakeshroom
+- Act1, Boss: Snakeshroom @snakeshroom
 - Act2: BlazeHedghehog @blazehedghehog
 
 [Copyrights]
-- SEGA & SONICTEAM (textures and some models are based on game assets)
+- SEGA & SONICTEAM (all textures and some models are based on game assets)
 
 [Help]
 - The SA TOOLS team (tools)
 - Justin113D (Blender add-on)
 - MainMemory (Mod Loader libraries)
-- Sora (general help)
+- Sora @Sora_yxow (general help)
+- Dexterity @ItsDexterity (adx music conversion)

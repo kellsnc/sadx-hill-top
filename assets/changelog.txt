@@ -1,0 +1,45 @@
+Version 1.3.1
+- Improved the skybox (new top model, wind direction change)
+- Added new visual effects.
+- Added vine sound for transporter and zipvine.
+- Reworked Spiker and Rexon enemies.
+- Reworked the zipvine.
+- General improvements.
+- Internal code changes to use symbol includes and for stability improvements.
+
+Version 1.3.0
+- Remodeled the moving platforms.
+- Improved the SeeSaw model.
+- Reduced the size of texture files.
+- Stability improvements.
+
+Patch 1.2.2
+- Added more cameras.
+- Seesaws can now be taken by more than 1 player.
+- Adjusted ADX music volume. (Dexterity)
+- Mods that replace the music list won't conflict anymore.
+
+Patch 1.2.1
+- ADX music format with loop points thanks to Dexterity.
+
+Version 1.2.0
+- SADX-style boss fight music by @Snakeshroom.
+
+Patch 1.1.2
+- Fix growing lava/land disappearing once at the top.
+
+Patch 1.1.1
+- Fix crash when exiting the level.
+- Add more decoration to act 2.
+
+Version 1.1.0
+- All new music by @Snakeshroom (for act 1), BlazeHedghehog version remains for Act 2 and Gamma's level.
+- Reworked the geometry of the interior sections of Act 2 entirely.
+
+Patch 1.0.1
+- Layout fixes for all acts (mainly bigger platforms, rings in Gamma's boss arena.)
+- Improve crunched death in the growing lava section.
+- E104-related fixes (triggers better, will recover if he falls from the stage)
+
+Version 1.0.0
+Initial version featuring three acts and three characters, with a boss fight for Sonic.
