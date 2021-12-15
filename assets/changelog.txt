@@ -1,3 +1,8 @@
+Patch 1.3.2
+- Spiker: add shadow to spike.
+- Lavafall: fix collision.
+- Zipvine: fix jump mode.
+
 Version 1.3.1
 - Improved the skybox (new top model, wind direction change)
 - Added new visual effects.
