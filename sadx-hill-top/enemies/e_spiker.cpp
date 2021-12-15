@@ -79,6 +79,12 @@ void __cdecl SpikeDisplay(task* tp)
 
 		dsDrawModel(object->basicdxmodel);
 		njPopMatrixEx();
+
+		// Draw Shadow if moving on its own:
+		if (twp->mode == SpikerAttack_Homing)
+		{
+			Shadow(twp, 1.8f);
+		}
 	}
 }
 
