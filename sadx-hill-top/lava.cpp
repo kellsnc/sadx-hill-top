@@ -60,7 +60,7 @@ void __cdecl HillTopLavaExec(task* tp)
 
 void LoadLavaManager()
 {
-	auto lavatp = CreateElementalTask(LoadObj_Data1, 1, HillTopLavaExec);
+	auto lavatp = CreateElementalTask(IM_TWK, 1, HillTopLavaExec);
 	lavatp->disp= HillTopLavaDisplay;
 }
 

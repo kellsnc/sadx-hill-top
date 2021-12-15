@@ -150,7 +150,7 @@ static void LoadSkyboxAct(task* tp)
 	case 0:
 	case 2:
 		LoadLenseFlareAtPosition(&SunPositions[0]);
-		CreateChildTask(LoadObj_Data1, CloudHandler, tp)->twp->pos.y = -150.0f;
+		CreateChildTask(IM_TWK, CloudHandler, tp)->twp->pos.y = -150.0f;
 		twp->pos.y = -300.0f;
 		break;
 	case 1:
@@ -158,7 +158,7 @@ static void LoadSkyboxAct(task* tp)
 		break;
 	case 3:
 		LoadLenseFlareAtPosition(&SunPositions[1]);
-		CreateChildTask(LoadObj_Data1, CloudHandler, tp)->twp->pos.y = -500.0f;
+		CreateChildTask(IM_TWK, CloudHandler, tp)->twp->pos.y = -500.0f;
 		twp->pos.y = -600.0f;
 		break;
 	}

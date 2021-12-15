@@ -122,7 +122,7 @@ void __cdecl EndPolesExec(task* tp)
 
 void LoadEndPoles(task* tp, NJS_OBJECT* PoleObject, NJS_VECTOR* destination, Angle rot)
 {
-	auto ctp = CreateChildTask(LoadObj_Data1, EndPolesExec, tp);
+	auto ctp = CreateChildTask(IM_TWK, EndPolesExec, tp);
 	auto ctwp = ctp->twp;
 
 	ctp->disp = EndPolesDisplay;
@@ -247,7 +247,7 @@ void __cdecl TranspPlatformExec(task* tp)
 
 void LoadTranspPlatform(task* tp, TransporterData1* twp, float progress)
 {
-	auto ctp = CreateChildTask(LoadObj_Data1, TranspPlatformExec, tp);
+	auto ctp = CreateChildTask(IM_TWK, TranspPlatformExec, tp);
 	auto ctwp = (TranspPlatformData1*)ctp->twp;
 
 	ctp->disp = TranspPlatformDisplay;

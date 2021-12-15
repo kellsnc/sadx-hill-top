@@ -189,7 +189,7 @@ void __cdecl SpikeExec(task* tp)
 
 void LoadSpikerSpike(task* tp)
 {
-	auto ctp = CreateChildTask(LoadObj_Data1, SpikeExec, tp);
+	auto ctp = CreateChildTask(IM_TWK, SpikeExec, tp);
 	auto ctwp = ctp->twp;
 
 	ctwp->value.ptr = e_spiker->getmodel()->child;

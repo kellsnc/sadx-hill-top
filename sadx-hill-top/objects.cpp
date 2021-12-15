@@ -21,80 +21,78 @@
 #include "enemies/e_fireball.h"
 #include "enemies/e_epsilon.h"
 
-static constexpr int MinDistance = 460000;
-
 NJS_TEXNAME HillTopOBJ_TexNames[14];
 NJS_TEXLIST HillTopOBJ_TexList = { arrayptrandlength(HillTopOBJ_TexNames) };
 
-ObjectListEntry HillTopObjectList_list[] = {
-	{ LoadObj_Data1, 3, 0, 360000, 0, Ring_Main, "RING   " },
-	{ LoadObj_Data1, 2, 0, 360000, 0, Spring_Main, "SPRING " },
-	{ LoadObj_Data1, 2, 0, 360000, 0, SpringB_Main, "SPRINGB" },
-	{ LoadObj_Data2 | LoadObj_Data1, 3, 0, 360000, 0, DashPanel_Main, "O AXPNL" },
-	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 360000, 0, SwingSpikeBall_Load, "O IRONB" },
-	{ LoadObj_Data1, 3, 0, 360000, 0, FallingSpikeBall_Load, "O FeBJG" },
-	{ LoadObj_Data1, 3, 0, 360000, 0, Spikes_Main, "O TOGE" },
-	{ LoadObj_Data2 | LoadObj_Data1, 3, 0, 360000, 0, EmeraldPiece_Load, "O EME P" },
-	{ LoadObj_Data1, 3, 0, 360000, 0, Capsule_Load, "O RELEASE" },
-	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 0, 360000, 0, Switch_Main, "O SWITCH" },
-	{ LoadObj_Data1 | LoadObj_UnknownB, 3, 0, 160000, 0, Weed_Main, "CMN KUSA" },
-	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 3, 0, 360000, 0, DashHoop_Main, "DashHoop" },
-	{ LoadObj_Data1, 3, 0, 360000, 0, Balloon_Main, "O BALOON" },
-	{ LoadObj_Data1, 3, 0, 160000, 0, ItemBox_Main, "O ITEMBOX" },
-	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 2, 0, 360000, 0, RocketH_Main, "Rocket H" },
-	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 2, 0, 360000, 0, RocketHS_Main, "Rocket HS" },
-	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 2, 0, 360000, 0, RocketV_Main, "Rocket V" },
-	{ LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 2, 0, 360000, 0, RocketVS_Main, "Rocket VS" },
-	{ LoadObj_Data1, 2, 1, 30000000, 0, JumpPanel_Load, "O JPanel" },
-	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 6, 0, 360000, 0, CheckPoint_Main, "O Save Point" },
-	{ LoadObj_Data1, 3, 0, 0, 0, Wall_Main, "WALL   " },
-	{ LoadObj_Data1, 3, 1, 1000000, 0, ODynamite, "O DYNAMITE" },
-	{ LoadObj_Data1, 2, 0, 0, 0, CSphere, "C SPHERE" },
-	{ LoadObj_Data1, 2, 0, 0, 0, ColCylinder_Main, "C CYLINDER" },
-	{ LoadObj_Data1, 2, 0, 0, 0, ColCube_Main, "C CUBE" },
-	{ LoadObj_Data1, 2, 0, 0, 0, Ottotto_Main, "OTTOTTO" },
-	{ LoadObj_Data1, 2, 0, 0, 0, TikalHint_Load, "O TIKAL" },
-	{ LoadObj_Data2 | LoadObj_Data1 | LoadObj_UnknownA | LoadObj_UnknownB, 4, 0, 0, 0, ItemBoxAir_Main, "O ItemBoxAir" },
-	{ LoadObj_Data1, 3, 5, 250000, 0, Kiki_Load, "E SARU  " },
-	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerA_Main, "SPINA A" },
-	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerB_Main, "SPINA B" },
-	{ LoadObj_Data1, 3, 4, 0, 0, SpinnerC_Main, "SPINA C" },
-	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusA_Main, "E UNI A" },
-	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusB_Main, "E UNI B" },
-	{ LoadObj_Data1, 3, 5, 250000, 0, UnidusC_Main, "E UNI C" }, // 34
-	{ LoadObj_Data1, 3, 1, 4000000, 0, E104Enemy_Main, "E E_104" },
-	{ LoadObj_Data1, 3, 4, 0, 0, (ObjectFuncPtr)Spiker, "SPIKER" },
-	{ LoadObj_Data1, 3, 4, 0, 0, (ObjectFuncPtr)Rexon, "REXON" },
-	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 640000, 0, OTuri1_Main, "O TURI 1" }, // 38
-	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_Main, "O ZAKO" },
-	{ LoadObj_Data1 | LoadObj_UnknownA, 3, 1, 638401, 0, OZako_b_Main, "O ZAKO B" },
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, OSaku_Main, "O SAKU" },
-	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow_Main, "O BLOW" },
-	{ LoadObj_Data1, 3, 1, 10000, 0, OBlow2_Main, "O BLOW2" },
-	{ LoadObj_Data1, 3, 1, 638401, 0, (ObjectFuncPtr)HillTree, "O HILLLTREE" },
-	{ LoadObj_Data1 | LoadObj_UnknownB, 3, 1, 1000000, 0, (ObjectFuncPtr)HillTransporter, "O TRANSPORTER" },
-	{ LoadObj_Data1, 4, 1, MinDistance, 0, (ObjectFuncPtr)HillFlowers, "O HILLFLOWERS" },
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, (ObjectFuncPtr)LavaFall, "O LAVAFALL" },
-	{ LoadObj_Data1, 4, 1, MinDistance, 0, (ObjectFuncPtr)LavaEffect, "O EFFLAVA" },
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, (ObjectFuncPtr)HillGrass, "O HILLGRASS" },
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, (ObjectFuncPtr)HillLantern, "O HILLLANTERN" },
-	{ LoadObj_Data1, 4, 1, MinDistance, 0, (ObjectFuncPtr)HillBush, "O HILLBUSH" },
-	{ LoadObj_Data2 | LoadObj_Data1, 3, 1, MinDistance, 0, (ObjectFuncPtr)PickRock, "O PICKROCK" },
-	{ LoadObj_Data1, 3, 0, 0, 0, (ObjectFuncPtr)FireBallLauncher, "E FIREBALL" },
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, (ObjectFuncPtr)HillSeesaw, "O HILLSEESAW" },
-	{ LoadObj_Data1, 3, 1, 640000, 0, (ObjectFuncPtr)HillPole, "O HILLPOLE" },
-	{ LoadObj_Data1, 3, 1, 640000, 0, (ObjectFuncPtr)VinePulley, "O VINEPULLEY" },
-	{ LoadObj_Data1, 3, 1, 1280000, 0, (ObjectFuncPtr)HillPlatform, "O HILLPLATFORM" },
-	{ LoadObj_Data1, 3, 1, MinDistance, 0, RingGroup_Main, "O_GRING" },
-	{ LoadObj_Data1, 3, 1, 5280000, 0, (ObjectFuncPtr)GrowLava, "O GROWLAVA" },
-	{ LoadObj_Data1, 3, 1, 1280000, 0, (ObjectFuncPtr)GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
-	{ LoadObj_Data1, 2, 0, 0, 0, (ObjectFuncPtr)GrowLavaTrigger, "O GRAWLAVATRIGGER" },
-	{ LoadObj_Data1, 2, 0, 0, 0, (ObjectFuncPtr)KillCeiling, "O KILLCEILING" }
+_OBJ_ITEMENTRY HillTopObjectList_list[] = {
+	{ IM_TWK, 3, 0, 360000.0f, 0, Ring, "RING   " },
+	{ IM_TWK, 2, 0, 360000.0f, 0, ObjectSpring, "SPRING " },
+	{ IM_TWK, 2, 0, 360000.0f, 0, ObjectSpringB, "SPRINGB" },
+	{ IM_MWK | IM_TWK, 3, 0, 360000.0f, 0, ObjectAxelPanel, "O AXPNL" },
+	{ IM_TWK | IM_FWK, 3, 0, 360000.0f, 0, ObjectIronBall, "O IRONB" },
+	{ IM_TWK, 3, 0, 360000.0f, 0, ObjectIronBallJG, "O FeBJG" },
+	{ IM_TWK, 3, 0, 360000.0f, 0, ObjectToge, "O TOGE" },
+	{ IM_MWK | IM_TWK, 3, 0, 360000.0f, 0, ObjectEmeraldP, "O EME P" },
+	{ IM_TWK, 3, 0, 360000.0f, 0, ObjectReleaseBox, "O RELEASE" },
+	{ IM_TWK | IM_FWK, 3, 0, 360000.0f, 0, ObjectSwitch, "O SWITCH" },
+	{ IM_TWK | IM_AWK, 3, 0, 160000.0f, 0, ObjectCmnKusa, "CMN KUSA" },
+	{ IM_TWK | IM_FWK | IM_AWK, 3, 0, 360000.0f, 0, ObjectCmnDushRing, "CMN_DRING" },
+	{ IM_TWK, 3, 0, 360000.0f, 0, ObjectBaloon, "O BALOON" },
+	{ IM_TWK, 3, 0, 160000.0f, 0, ObjectItemBox, "O ITEMBOX" },
+	{ IM_TWK | IM_FWK | IM_AWK, 2, 0, 360000.0f, 0, ObjectRocketBaseH, "Rocket H" },
+	{ IM_TWK | IM_FWK | IM_AWK, 2, 0, 360000.0f, 0, ObjectRocketBaseHS, "Rocket HS" },
+	{ IM_TWK | IM_FWK | IM_AWK, 2, 0, 360000.0f, 0, ObjectRocketBaseV, "Rocket V" },
+	{ IM_TWK | IM_FWK | IM_AWK, 2, 0, 360000.0f, 0, ObjectRocketBaseVS, "Rocket VS" },
+	{ IM_TWK, 2, 1, 30000000.0f, 0, ObjectJumpPanel, "O JPanel" },
+	{ IM_MWK | IM_TWK | IM_FWK | IM_AWK, 6, 0, 360000.0f, 0, ObjectSavePoint, "O Save Point" },
+	{ IM_TWK, 3, 0, 0.0f, 0, ColliWall, "WALL   " },
+	{ IM_TWK, 3, 1, 1000000.0f, 0, Object_Dynamite, "O DYNAMITE" },
+	{ IM_TWK, 2, 0, 0.0f, 0, ColliSphere, "C SPHERE" },
+	{ IM_TWK, 2, 0, 0.0f, 0, ColliCylinder, "C CYLINDER" },
+	{ IM_TWK, 2, 0, 0.0f, 0, ColliCube, "C CUBE" },
+	{ IM_TWK, 2, 0, 0.0f, 0, ColliOttottoRange, "OTTOTTO" },
+	{ IM_TWK, 2, 0, 0.0f, 0, ObjectTikalHint, "O TIKAL" },
+	{ IM_MWK | IM_TWK | IM_FWK | IM_AWK, 4, 0, 0.0f, 0, ObjectItemboxAir, "O ItemBoxAir" },
+	{ IM_TWK, 3, 5, 250000.0f, 0, EnemySaru, "E SARU  " },
+	{ IM_TWK, 3, 4, 0.0f, 0, EnemySpinnaA, "SPINA A" },
+	{ IM_TWK, 3, 4, 0.0f, 0, EnemySpinnaB, "SPINA B" },
+	{ IM_TWK, 3, 4, 0.0f, 0, EnemySpinnaC, "SPINA C" },
+	{ IM_TWK, 3, 5, 250000.0f, 0, EnemyUniA, "E UNI A" },
+	{ IM_TWK, 3, 5, 250000.0f, 0, EnemyUniB, "E UNI B" },
+	{ IM_TWK, 3, 5, 250000.0f, 0, EnemyUniC, "E UNI C" }, // 34
+	{ IM_TWK, 3, 1, 4000000.0f, 0, EnemyMountainE104, "E E_104" },
+	{ IM_TWK, 3, 4, 0.0f, 0, Spiker, "SPIKER" },
+	{ IM_TWK, 3, 4, 0.0f, 0, Rexon, "REXON" },
+	{ IM_TWK | IM_FWK, 3, 1, 640000.0f, 0, ObjectMountainTuribasi1, "O TURI 1" }, // 38
+	{ IM_TWK | IM_FWK, 3, 1, 638400.0f, 0, Object_Mountain_Zako, "O ZAKO" },
+	{ IM_TWK | IM_FWK, 3, 1, 638400.0f, 0, Object_Mountain_ZakoB, "O ZAKO B" },
+	{ IM_TWK, 3, 1, 460000.0f, 0, ObjectMountainSaku, "O SAKU" },
+	{ IM_TWK, 3, 1, 10000.0f, 0, Object_Mountain_Blow, "O BLOW" },
+	{ IM_TWK, 3, 1, 10000.0f, 0, Object_Mountain_Blow2, "O BLOW2" },
+	{ IM_TWK, 3, 1, 638400.0f, 0, HillTree, "O HILLLTREE" },
+	{ IM_TWK | IM_AWK, 3, 1, 1000000.0f, 0, HillTransporter, "O TRANSPORTER" },
+	{ IM_TWK, 4, 1, 460000.0f, 0, HillFlowers, "O HILLFLOWERS" },
+	{ IM_TWK, 3, 1, 460000.0f, 0, LavaFall, "O LAVAFALL" },
+	{ IM_TWK, 4, 1, 460000.0f, 0, LavaEffect, "O EFFLAVA" },
+	{ IM_TWK, 3, 1, 460000.0f, 0, HillGrass, "O HILLGRASS" },
+	{ IM_TWK, 3, 1, 460000.0f, 0, HillLantern, "O HILLLANTERN" },
+	{ IM_TWK, 4, 1, 460000.0f, 0, HillBush, "O HILLBUSH" },
+	{ IM_MWK | IM_TWK, 3, 1, 460000.0f, 0, PickRock, "O PICKROCK" },
+	{ IM_TWK, 3, 0, 0.0f, 0, FireBallLauncher, "E FIREBALL" },
+	{ IM_TWK, 3, 1, 460000.0f, 0, HillSeesaw, "O HILLSEESAW" },
+	{ IM_TWK, 3, 1, 640000.0f, 0, HillPole, "O HILLPOLE" },
+	{ IM_TWK, 3, 1, 640000.0f, 0, VinePulley, "O VINEPULLEY" },
+	{ IM_TWK, 3, 1, 1280000.0f, 0, HillPlatform, "O HILLPLATFORM" },
+	{ IM_TWK, 3, 1, 460000.0f, 0, ObjectGroupRing, "O_GRING" },
+	{ IM_TWK, 3, 1, 5280000.0f, 0, GrowLava, "O GROWLAVA" },
+	{ IM_TWK, 3, 1, 1280000.0f, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
+	{ IM_TWK, 2, 0, 0.0f, 0, GrowLavaTrigger, "O GRAWLAVATRIGGER" },
+	{ IM_TWK, 2, 0, 0.0f, 0, KillCeiling, "O KILLCEILING" }
 };
 
-ObjectList HillTopObjectList = { arraylengthandptrT(HillTopObjectList_list, int) };
+_OBJ_ITEMTABLE HillTopObjectList = { LengthOfArray(HillTopObjectList_list), 0, HillTopObjectList_list };
 
-PVMEntry HillTopObjectTextures[] = {
+TEX_PVMTABLE HillTopObjectTextures[] = {
 	{ "OBJ_MOUNTAIN", &OBJ_MOUNTAIN_TEXLIST },
 	{ "OBJ_HILLTOP", &HillTopOBJ_TexList },
 	{ "BG_HILLTOP", &HillTopBG_TexList },
@@ -110,7 +108,7 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "UNI_C_UNIBODY", &UNI_C_UNIBODY_TEXLIST },
 	{ "TOGEBALL_TOGEBALL", &TOGEBALL_TOGEBALL_TEXLIST },
 	{ "MOUNTAIN_E104", &MOUNTAIN_E104_TEXLIST },
-	{ "MOUNTAIN_MEXPLOSION", (TexList*)0x2498810 },
+	{ "MOUNTAIN_MEXPLOSION", (NJS_TEXLIST*)0x2498810 },
 	{ NULL, &b32ascii_TEXLIST },
 	{ "CHAOS_LIFEGAUGE", &CHAOS_LIFEGAUGE_TEXLIST },
 	{ "OUM", &OUM_TEXLIST },
@@ -119,7 +117,6 @@ PVMEntry HillTopObjectTextures[] = {
 	{ "MOGU", &MOGU_TEXLIST },
 	{ "ZOU", &ZOU_TEXLIST },
 	{ "TUBA", &TUBA_TEXLIST },
-
 	{ 0 }
 };
 
@@ -185,11 +182,11 @@ void Objects_Init(const HelperFunctions& helperFunctions)
 	helperFunctions.ReplaceFile("system\\SET0501E_DC.bin", "system\\SETHT01E.bin");
 	helperFunctions.ReplaceFile("system\\SET0502K_DC.bin", "system\\SETHT02K.bin");
 
-	TexLists_Obj[LevelIDs_RedMountain] = HillTopObjectTextures;
-	ObjLists[LevelIDs_RedMountain * 8] = &HillTopObjectList;
-	ObjLists[LevelIDs_RedMountain * 8 + 1] = &HillTopObjectList;
-	ObjLists[LevelIDs_RedMountain * 8 + 2] = &HillTopObjectList;
-	ObjLists[LevelIDs_RedMountain * 8 + 3] = &HillTopObjectList; // custom act
+	ListofPvmList[LevelIDs_RedMountain] = HillTopObjectTextures;
+	objItemTable[LevelIDs_RedMountain * 8] = &HillTopObjectList;
+	objItemTable[LevelIDs_RedMountain * 8 + 1] = &HillTopObjectList;
+	objItemTable[LevelIDs_RedMountain * 8 + 2] = &HillTopObjectList;
+	objItemTable[LevelIDs_RedMountain * 8 + 3] = &HillTopObjectList; // custom act
 
 	ScrollMasterList[LevelIDs_RedMountain] = HillTopZone_SkyBox;
 

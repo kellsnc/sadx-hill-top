@@ -61,7 +61,7 @@ void HillTop_SetViewData()
 #pragma region Level Handler
 void LoadCurrentActMusic()
 {
-	auto musictp = CreateElementalTask(LoadObj_Data1, LEV_1, mt_gdcontrol);
+	auto musictp = CreateElementalTask(IM_TWK, LEV_1, mt_gdcontrol);
 	musictp->twp->mode = ssActNumber == 1 ? MusicIDs_hilltop2 : MusicIDs_hilltop1; // music id
 	musictp->twp->wtimer = 3; // wait time
 }
@@ -145,11 +145,11 @@ void SetScrollTask_r()
 	{
 		if (ssStageNumber == LevelIDs_RedMountain)
 		{
-			CreateElementalTask(LoadObj_Data1, LEV_2, ScrollMasterList[ssStageNumber]); // Put this in object index 2 to fix transparency issues
+			CreateElementalTask(IM_TWK, LEV_2, ScrollMasterList[ssStageNumber]); // Put this in object index 2 to fix transparency issues
 		}
 		else
 		{
-			CreateElementalTask(LoadObj_Data1, LEV_1, ScrollMasterList[ssStageNumber]);
+			CreateElementalTask(IM_TWK, LEV_1, ScrollMasterList[ssStageNumber]);
 		}
 	}
 }

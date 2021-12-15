@@ -462,7 +462,7 @@ void __cdecl Rexon(task* tp)
 	}
 	else
 	{
-		CreateChildTask(LoadObj_Data1, RexonHead, tp);
+		CreateChildTask(IM_TWK, RexonHead, tp);
 		CCL_Init(tp, arrayptrandlength(Rexon_Col), 4);
 
 		// Scale collision:

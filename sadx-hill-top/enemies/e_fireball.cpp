@@ -107,7 +107,7 @@ void __cdecl FireBall(task* tp)
 
 void LoadFireBall(task* tp, NJS_POINT3* pos, Angle angy, Angle angx, Float spd, Float scl, Float grav, int dir)
 {
-	auto ctp = CreateChildTask(LoadObj_Data1, FireBall, tp);
+	auto ctp = CreateChildTask(IM_TWK, FireBall, tp);
 	auto ctwp = ctp->twp;
 
 	ctwp->pos = *pos;

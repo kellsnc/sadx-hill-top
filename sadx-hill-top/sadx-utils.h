@@ -10,6 +10,14 @@ enum ObjectFlags {
     ObjFlag_Held       = 0x1000
 };
 
+enum INITMODEMD : Sint8
+{
+    IM_MWK = 0x1,
+    IM_TWK = 0x2,
+    IM_FWK = 0x4,
+    IM_AWK = 0x8
+};
+
 struct Color3 {
     unsigned int c1, c2, c3;
 };
@@ -41,19 +49,6 @@ FunctionPointer(void, StaticShadow, (taskwk* twp, float ypos), 0x49ED70);
 FunctionPointer(float, Shadow, (taskwk* twp, float scl), 0x49EE30);
 FunctionPointer(float, _DrawShadow, (Angle3* ang, NJS_POINT3* pos, float scl), 0x49EF30);
 FunctionPointer(float, ShadowWithAng, (taskwk* twp, float scl, Angle3* ang), 0x49EFD0);
-FunctionPointer(int, MSetPositionWIgnoreAttribute, (NJS_POINT3* p, NJS_POINT3* v, Angle3* a, int attrmask, float r), 0x439620); // Move position "p" with direction "v" and angle "a"; outputs in "v" and "a"; handles intersection with geo collisions in radius "r" except those whose attributes match attrmask; returns bitmask (1: touched a collision, 2: touched a collision upside down).
-FunctionPointer(BOOL, MSetPosition, (NJS_POINT3* p, NJS_POINT3* v, Angle3* a, float r), 0x43A030); // Move position "p" with direction "v" and angle "a"; outputs in "v" and "a"; handles intersection with any geometry collision in radius "r"; returns whether it touched a collision or not.
-FunctionPointer(BOOL, MSetPositionIgnoreAttribute, (NJS_POINT3* p, NJS_POINT3* v, Angle3* a, int attrmask, float r), 0x43A060); // Move position "p" with direction "v" and angle "a"; outputs in "v" and "a"; handles intersection with geo collisions in radius "r" except those whose attributes match attrmask; returns whether it touched a collision or not.
-FunctionPointer(void, ___dsSetPalette, (int no), 0x412420);
-FunctionPointer(int, AdjustAngle, (__int16 ang0, unsigned __int16 ang1, int dang), 0x438350); // Slowly adjust ang0 to ang1 at dang speed
-FunctionPointer(int, SubAngle, (int ang0, int ang1), 0x4383B0); // Difference
-FunctionPointer(int, DiffAngle, (int ang0, int ang1), 0x4383D0); // Positive difference
-FunctionPointer(int, VectorAngle, (NJS_POINT3* v1, NJS_POINT3* v2, NJS_POINT3* vn), 0x438410); // Calculate Y rotation between two points; "vn" is ground normal to reverse the angle if upside down (optional)
-VoidFunc(EV_CanselOn, 0x42F630);
-FunctionPointer(void, EventSe_Init, (int size), 0x64FC80);
-VoidFunc(EventSe_Close, 0x64FCB0);
-FunctionPointer(void, EV_Wait, (int time), 0x4314D0);
-DataPointer(int, BlockMask, 0x3B36D48); // Mask to show/hide level geometry with blockbit
 
 enum class EVTSTATES : int {
     Init,

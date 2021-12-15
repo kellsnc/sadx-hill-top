@@ -99,7 +99,7 @@ static void __cdecl UnidusSeesawExec(task* tp)
 
 static void LoadUnidusSeesaw(task* tp, taskwk* twp)
 {
-	auto ctp = CreateChildTask(LoadObj_Data1, UnidusSeesawExec, tp);
+	auto ctp = CreateChildTask(IM_TWK, UnidusSeesawExec, tp);
 	auto ctwp = ctp->twp;
 
 	// Calculate initial position of Unidus

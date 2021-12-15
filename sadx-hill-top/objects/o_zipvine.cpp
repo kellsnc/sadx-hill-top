@@ -160,7 +160,7 @@ void __cdecl ZipVineExec(task* tp)
 
 void SpawnPole(task* tp, pathtbl* pt)
 {
-	auto ctp = CreateChildTask(LoadObj_Data1, HillPole, tp);
+	auto ctp = CreateChildTask(IM_TWK, HillPole, tp);
 	ctp->twp->pos = { pt->xpos, pt->ypos - 37.0f, pt->zpos };
 }
 

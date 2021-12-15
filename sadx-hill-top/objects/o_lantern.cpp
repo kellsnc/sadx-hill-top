@@ -59,7 +59,7 @@ void __cdecl FireFly_Load(task* ptp, int count)
 {
 	for (int i = 0; i < count; ++i)
 	{
-		auto ctp = CreateChildTask(LoadObj_Data1, FireFlyExec, ptp);
+		auto ctp = CreateChildTask(IM_TWK, FireFlyExec, ptp);
 		auto twp = ctp->twp;
 		
 		twp->value.f = 4.0f + static_cast<float>(rand() % 5);

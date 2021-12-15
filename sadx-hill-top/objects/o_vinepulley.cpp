@@ -102,7 +102,7 @@ void __cdecl VinePulley(task* tp)
 
 	twp->value.ptr = ht_transporter->getmodel()->child->child;
 
-	auto ctp = CreateChildTask(LoadObj_Data1, VinePulleyTarget, tp);
+	auto ctp = CreateChildTask(IM_TWK, VinePulleyTarget, tp);
 	ctp->twp->pos.y = twp->pos.y - twp->scl.x;
 	CCL_Init(ctp, &VinePulley_Col, 1, 3);
 	FireFly_Load(ctp, 3);
