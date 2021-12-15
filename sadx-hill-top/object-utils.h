@@ -27,7 +27,6 @@ bool CheckJump(int id);
 NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id);
 int GetUVCount(NJS_MESHSET_SADX* meshset);
 int IsPlayerOnGeoCol(task* tp);
-void RemoveGeoCollision(task* tp, NJS_OBJECT* object);
 void MoveGeoCollision(task* tp, NJS_OBJECT* object, NJS_POINT3* pos);
 void RotYGeoCollision(task* tp, NJS_OBJECT* object, Angle y);
 void SetLevelTexture();

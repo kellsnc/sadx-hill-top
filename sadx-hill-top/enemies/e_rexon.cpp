@@ -190,7 +190,7 @@ void __cdecl RexonHead(task* tp)
 		cwp->info->center.y *= ptwp->scl.x;
 	}
 
-	twp->value.ptr = ((NJS_OBJECT*)ptwp->counter.ptr)->child->sibling->sibling->sibling->sibling->child->child->child->child; // head node
+	twp->value.ptr = ((NJS_OBJECT*)ptwp->value.ptr)->child->sibling->sibling->sibling->sibling->child->child->child->child; // head node
 	twp->scl.x = 0; // mouth opening amount
 	twp->wtimer = 0;
 
@@ -236,7 +236,7 @@ inline float Rexon_NeckMovement(int i, int action, float timer)
 
 void Rexon_GetHeadPos(taskwk* twp, NJS_VECTOR* headpos)
 {
-	NJS_OBJECT* object = ((NJS_OBJECT*)twp->counter.ptr)->child->sibling->sibling->sibling->sibling; // neck node
+	NJS_OBJECT* object = ((NJS_OBJECT*)twp->value.ptr)->child->sibling->sibling->sibling->sibling; // neck node
 
 	njPushMatrix(_nj_unit_matrix_);
 	njRotateY_(twp->ang.y);
@@ -270,7 +270,7 @@ void Rexon_GetHeadPos(taskwk* twp, NJS_VECTOR* headpos)
 
 void Rexon_MoveColliNeck(taskwk* twp)
 {
-	NJS_OBJECT* object = ((NJS_OBJECT*)twp->counter.ptr)->child->sibling->sibling->sibling->sibling; // neck node
+	NJS_OBJECT* object = ((NJS_OBJECT*)twp->value.ptr)->child->sibling->sibling->sibling->sibling; // neck node
 
 	njPushMatrix(_nj_unit_matrix_);
 	njScalef(twp->scl.x);
@@ -299,7 +299,7 @@ void RexonMove(task* tp, taskwk* twp)
 	twp->timer.l += 200;
 	twp->pos.y = twp->scl.z + 1.0f + (1.0f * njSin(twp->timer.l));
 
-	auto geocol = (NJS_OBJECT*)twp->value.ptr;
+	auto geocol = (NJS_OBJECT*)twp->counter.ptr;
 
 	MoveGeoCollision(tp, geocol, &twp->pos);
 	RotYGeoCollision(tp, geocol, twp->ang.y);
@@ -358,7 +358,7 @@ void __cdecl RexonDisp(task* tp)
 	if (!MissedFrames)
 	{
 		auto twp = tp->twp;
-		auto object = (NJS_OBJECT*)twp->counter.ptr; // stored model
+		auto object = (NJS_OBJECT*)twp->value.ptr; // stored model
 
 		___dsSetPalette(6);
 		njSetTexture(&REXON_TexList);
@@ -443,12 +443,8 @@ void __cdecl RexonExec(task* tp)
 
 void __cdecl RexonDestroy(task* tp)
 {
-	if (tp->twp)
-	{
-		RemoveGeoCollision(tp, (NJS_OBJECT*)tp->twp->value.ptr);
-	}
-
-	UniDestructor(tp);
+	B_Destructor(tp); // destructor function that removes geo collision in twp->count
+	UniDestructor(tp); // common enemy destructor that does nothing
 }
 
 void __cdecl Rexon(task* tp)
@@ -490,7 +486,7 @@ void __cdecl Rexon(task* tp)
 
 	twp->ang.y -= 0x4000; // correct rotation
 	twp->scl.z = twp->pos.y; // store original height
-	twp->counter.ptr = e_rexon->getmodel(); // store model
+	twp->value.ptr = e_rexon->getmodel(); // store model
 
 	tp->dest = RexonDestroy;
 	tp->exec = RexonExec;
@@ -514,7 +510,7 @@ void __cdecl Rexon(task* tp)
 	object->basicdxmodel = e_rexoncol->getmodel()->basicdxmodel;
 
 	RegisterCollisionEntry(ColFlags_Dynamic | ColFlags_Solid, tp, object);
-	twp->value.ptr = object; // store geo collision
+	twp->counter.ptr = object; // store geo collision
 }
 
 #pragma endregion

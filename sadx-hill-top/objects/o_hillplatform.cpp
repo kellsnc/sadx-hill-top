@@ -13,20 +13,12 @@ RotZ = speed (default to 150)
 
 ModelInfo* ht_platform = nullptr;
 
-static void __cdecl HillPlatformDestroy(task* tp)
-{
-	if (tp->twp)
-	{
-		RemoveGeoCollision(tp, (NJS_OBJECT*)tp->twp->value.ptr);
-	}
-}
-
 static void __cdecl HillPlatformDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
 		auto twp = tp->twp;
-		auto object = (NJS_OBJECT*)twp->value.ptr;
+		auto object = (NJS_OBJECT*)twp->counter.ptr;
 
 		SetLevelTexture();
 		njPushMatrixEx();
@@ -49,7 +41,7 @@ static void __cdecl HillPlatformExec(task* tp)
 
 		// Update geometry collision
 
-		MoveGeoCollision(tp, reinterpret_cast<NJS_OBJECT*>(twp->value.ptr), &twp->pos);
+		MoveGeoCollision(tp, reinterpret_cast<NJS_OBJECT*>(twp->counter.ptr), &twp->pos);
 
 		tp->disp(tp);
 	}
@@ -90,11 +82,11 @@ void __cdecl HillPlatform(task* tp)
 
 	RegisterCollisionEntry(0x4000 | ColFlags_Dynamic | ColFlags_Solid | ColFlags_UseRotation, tp, object);
 
-	twp->value.ptr = object;
+	twp->counter.ptr = object;
 	
 	tp->exec = HillPlatformExec;
 	tp->disp = HillPlatformDisplay;
-	tp->dest = HillPlatformDestroy;
+	tp->dest = B_Destructor; // destructor function that removes geo collision in twp->count
 }
 
 void HillPlatform_LoadAssets()

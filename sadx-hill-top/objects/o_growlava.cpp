@@ -33,20 +33,12 @@ ScaleY: lava (0) or ground (1)
 
 */
 
-void __cdecl GrowLavaDestroy(task* tp)
-{
-	if (tp->twp)
-	{
-		RemoveGeoCollision(tp, (NJS_OBJECT*)tp->twp->value.ptr);
-	}
-}
-
 void __cdecl GrowLavaDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
 		auto twp = tp->twp;
-		auto object = (NJS_OBJECT*)twp->value.ptr;
+		auto object = (NJS_OBJECT*)twp->counter.ptr;
 		auto trigger_id = twp->ang.z;
 		
 		if (twp->scl.y == 1.0f)
@@ -86,7 +78,7 @@ void __cdecl GrowLavaExec(task* tp)
 			twp->pos.y = twp->scl.z;
 		}
 
-		UpdateDynCol(tp, (NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
+		UpdateDynCol(tp, (NJS_OBJECT*)twp->counter.ptr, &twp->pos, trigger_id);
 	}
 
 	tp->disp(tp);
@@ -123,11 +115,11 @@ void __cdecl GrowLava(task* tp)
 		RegisterCollisionEntry(0x4000 | ColFlags_Dynamic | ColFlags_Solid | ColFlags_Hurt, tp, object); // lava
 	}
 
-	twp->value.ptr = object;  // store geometry collision object
+	twp->counter.ptr = object;  // store geometry collision object
 
 	tp->exec = GrowLavaExec;
-	tp->dest = GrowLavaDestroy;
 	tp->disp = GrowLavaDisplay;
+	tp->dest = B_Destructor; // destructor function that removes geo collision in twp->count
 }
 #pragma endregion
 
@@ -144,20 +136,12 @@ ScaleY: movement radius
 
 */
 
-void __cdecl GrowLavaPlatformDestroy(task* tp)
-{
-	if (tp->twp)
-	{
-		RemoveGeoCollision(tp, (NJS_OBJECT*)tp->twp->value.ptr);
-	}
-}
-
 void __cdecl GrowLavaPlatformDisplay(task* tp)
 {
 	if (!MissedFrames)
 	{
 		auto twp = tp->twp;
-		auto object = (NJS_OBJECT*)twp->value.ptr;
+		auto object = (NJS_OBJECT*)twp->counter.ptr;
 		auto trigger_id = twp->ang.x;
 
 		SetLevelTexture();
@@ -191,7 +175,7 @@ void __cdecl GrowLavaPlatformExec(task* tp)
 
 		twp->pos.y = twp->scl.z + (1.0f - powf(njSin(GameTimer * twp->ang.z), 2.0f) * twp->scl.y);
 
-		UpdateDynCol(tp, (NJS_OBJECT*)twp->value.ptr, &twp->pos, trigger_id);
+		UpdateDynCol(tp, (NJS_OBJECT*)twp->counter.ptr, &twp->pos, trigger_id);
 		tp->disp(tp);
 	}
 }
@@ -231,11 +215,11 @@ void __cdecl GrowLavaPlatform(task* tp)
 
 	RegisterCollisionEntry(ColFlags_Dynamic | ColFlags_Solid | ColFlags_UseRotation, tp, object);
 
-	twp->value.ptr = object; // store geometry collision object
+	twp->counter.ptr = object; // store geometry collision object
 	
 	tp->exec = GrowLavaPlatformExec;
 	tp->disp = GrowLavaPlatformDisplay;
-	tp->dest = GrowLavaPlatformDestroy;
+	tp->dest = B_Destructor; // destructor function that removes geo collision in twp->count
 }
 #pragma endregion
 

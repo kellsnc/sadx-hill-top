@@ -5,6 +5,8 @@
 #include "../objects/o_hillplatform.h"
 #include "e_fireball.h"
 
+// Note: this is still using old names
+
 static int HillTopBossMusic;
 
 ModelInfo* e_eggsub = nullptr;
@@ -452,7 +454,7 @@ void __cdecl PlatformsHandler(ObjectMaster* obj)
 		child->Data1->Object = object;
 		child->Data1->Object->basicdxmodel = ht_platform->getmodel()->getbasicdxmodel();
 
-		DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid | ColFlags_UseRotation), obj, object);
+		DynamicCOL_Add((ColFlags)(0x08000000 | ColFlags_Solid | ColFlags_UseRotation), child, object);
 
 		i += 0x1000;
 	}

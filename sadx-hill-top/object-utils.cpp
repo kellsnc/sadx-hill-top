@@ -231,15 +231,6 @@ int IsPlayerOnGeoCol(task* tp, int pnum)
 	return pwp && pwp->ttp == tp;
 }
 
-void RemoveGeoCollision(task* tp, NJS_OBJECT* object)
-{
-	if (object)
-	{
-		WithdrawCollisionEntry(tp, object);  // Destroy the geometry collision
-		ReleaseMobileLandObject(object);     // Release the entry
-	}
-}
-
 // Move collision and players that are on it
 void MoveGeoCollision(task* tp, NJS_OBJECT* object, NJS_POINT3* pos)
 {

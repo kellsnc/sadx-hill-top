@@ -149,7 +149,12 @@ void MovePlatform(TransporterData1* ptwp, TranspPlatformData1* twp, float progre
 void __cdecl TranspPlatformDestroy(task* tp)
 {
 	auto twp = (TranspPlatformData1*)tp->twp;
-	RemoveGeoCollision(tp, twp->DynCol);
+
+	if (twp->DynCol)
+	{
+		WithdrawCollisionEntry(tp, twp->DynCol);  // Destroy the geometry collision
+		ReleaseMobileLandObject(twp->DynCol);     // Release the entry
+	}
 }
 
 void __cdecl TranspPlatformDisplay(task* tp)
