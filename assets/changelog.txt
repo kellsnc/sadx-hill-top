@@ -4,6 +4,7 @@ Version 1.3.1
 - Added vine sound for transporter and zipvine.
 - Reworked Spiker and Rexon enemies.
 - Reworked the zipvine.
+- Fixed Spiker leg texture.
 - General improvements.
 - Internal code changes to use symbol includes and for stability improvements.
 
