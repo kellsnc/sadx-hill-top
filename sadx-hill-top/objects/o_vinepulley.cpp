@@ -13,6 +13,8 @@ Scale Y: distance to where the vine stops
 
 */
 
+#define PNUM(twp) twp->btimer
+
 CCL_INFO VinePulley_Col = { 0, CI_FORM_SPHERE, 0xF0, 0, 0, {0.0f, 0.0f, 0.0f}, 8.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
 
 void __cdecl VinePulleyTarget(task* tp)
@@ -63,8 +65,8 @@ void __cdecl VinePulleyExec(task* tp)
 
 				if (player)
 				{
-					twp->btimer = TASKWK_PLAYERID(player);
-					SetInputP(0, 16);
+					PNUM(twp) = TASKWK_PLAYERID(player);
+					SetInputP(PNUM(twp), PL_OP_PLACEWITHHUNG);
 					dsPlay_oneshot(463, 0, 0, 0);
 					twp->mode = 1;
 				}
@@ -72,7 +74,7 @@ void __cdecl VinePulleyExec(task* tp)
 		}
 		else
 		{
-			int player_id = static_cast<int>(twp->btimer);
+			auto pnum = PNUM(twp);
 
 			if (twp->scl.z > twp->scl.y)
 			{
@@ -80,14 +82,14 @@ void __cdecl VinePulleyExec(task* tp)
 				ctwp->pos.y = twp->pos.y - twp->scl.z;
 			}
 
-			if (CheckJump(player_id))
+			if (CheckJump(pnum))
 			{
 				twp->mode = 0;
 				twp->wtimer = 100;
 			}
 
-			ForcePlayerPos(player_id, &ctwp->pos);
-			playertwp[player_id]->ang.y = twp->ang.y;
+			ForcePlayerPos(pnum, &ctwp->pos);
+			playertwp[pnum]->ang.y = twp->ang.y;
 		}
 
 		tp->disp(tp);
