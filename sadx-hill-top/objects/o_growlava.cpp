@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "multi.h"
 #include "o_growlava.h"
 #include "lava.h"
 
@@ -259,7 +260,7 @@ void __cdecl GrowLavaTriggerExec(task* tp)
 	{
 		if (CheckCollisionP_num(&twp->pos, twp->scl.x, 0))
 		{
-			if (twp->ang.y == 1)
+			if (twp->ang.y == 1 || IsMultiplayerActive())
 			{
 				DeadOut(tp);
 			}
