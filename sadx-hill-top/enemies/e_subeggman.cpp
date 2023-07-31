@@ -487,9 +487,10 @@ void SinkPlatforms()
 #pragma region Camera
 void __cdecl CameraEggSub(_OBJ_CAMERAPARAM* pParam)
 {
-	if (pParam->ulTimer == 0 && camcont_wp->camypos < 0.0f)
+	if (pParam->ulTimer == 0 && camcont_wp->camypos < 5.0f)
 	{
-		*(NJS_VECTOR*)&camcont_wp->camxpos = playertwp[0]->pos;
+		camcont_wp->camypos = 5.0f;
+		camera_twp->pos.y = 5.0f;
 	}
 
 	if (CurrentBoss)
@@ -1309,6 +1310,8 @@ void __cdecl SubEggman_Main(ObjectMaster* obj)
 			SetLavaPoint(0.0f, 0.0f);
 			EnableTimeThing();
 			LoadLifeGauge(600, 0x18, wk->HitPoint);
+			PadReadOn();
+			PadReadOnP(-1);
 			data->Action = 1;
 		}
 
@@ -1366,15 +1369,6 @@ void __cdecl SubEggman(ObjectMaster* obj)
 
 	PlayMusic((MusicIDs)HillTopBossMusic);
 
-	// Set the limit of the arena
-	for (auto& ptwp : playertwp)
-	{
-		if (ptwp)
-		{
-			SetCircleLimit(&ptwp->pos, &data->Position, 405.0f);
-		}
-	}
-
 	obj->UnknownB_ptr = (void*)wk;
 
 	wk->HitPoint = CFG_HardBoss == true ? 10 : 5;
@@ -1394,7 +1388,6 @@ void __cdecl SubEggman(ObjectMaster* obj)
 	SetDisplayBossName((char*)"EGGSUB", -1, 240, 80);
 	Collision_Init(obj, &SubEgg_Col, 1, 2);
 	
-	data->Rotation.y = 0x6000;
 	SetParamCameraChaosStageInit((taskwk*)data, 100.0f, 180.0f, 300);
 	CameraSetEventCamera(CAMMD_CHAOS_STINIT, CAMADJ_NONE);
 
@@ -1431,28 +1424,33 @@ void __cdecl Boss_SubEggman_Init(ObjectMaster* obj)
 {
 	obj->MainSub = Boss_SubEggman_Main;
 
-	DisableTimeThing();
-	LoadSoundList(42);
+	PadReadOff();
+	PadReadOffP(-1);
+	SleepTimer();
+	SetBankDir(42);
 
 	LoadObject(LoadObj_Data1, 2, BossLava);
 	LoadObject(LoadObj_Data1, 2, PlatformsHandler);
 	LoadObject(LoadObj_Data1, 2, SubEggman);
 
-	if (continue_data.pos.y < 0.0f)
+	for (int i = 0; i < MaxPlayers; ++i)
 	{
-		for (auto& pwp : playerpwp)
+		taskwk* ptwp = playertwp[i];
+		playerwk* ppwp = playerpwp[i];
+
+		if (ptwp)
 		{
-			if (pwp)
-			{
-				pwp->spd = { 4.0f, 4.0f, 0 };
-				pwp->nocontimer = 300;
-			}
+			ptwp->pos = { 0.0f, -20.0f, 0.0f };
+			NJS_VECTOR velo = { 4.0f, 4.0f, 0.0f };
+			Angle3 ang = { 0, 0x4000 * i, 0 };
+			SetVelocityAndRotationAndNoconTimeP(i, &velo, &ang, 300);
+			SetCircleLimit(&ptwp->pos, &obj->Data1->Position, 405.0f);
 		}
 	}
 
 	if (IsMultiplayerActive())
 	{
-		continue_data.pos = { 120.0f, 23.0f, 0.0f };
+		continue_data.pos = { 0.0f, 23.0f, 120.0f };
 		SetDefaultNormalCameraMode(CAMMD_KNUCKLES, CAMADJ_NONE);
 	}
 }
