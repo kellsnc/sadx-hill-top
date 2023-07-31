@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "multi.h"
 #include "o_transporter.h"
 #include "o_hillpole.h"
 #include "o_zipvine.h"
@@ -12,6 +13,8 @@ Path object, twp->value contains the path information.
 See paths.cpp for path data.
 
 */
+
+#define PNUM(twp) twp->btimer
 
 enum VineMode
 {
@@ -110,18 +113,33 @@ void __cdecl ZipVineExec(task* tp)
 
 	if (twp->mode == VineMode_Input)
 	{
-		if (CheckCollisionP_num(&twp->pos, 14.0f, 0))
+		if (IsMultiplayerActive())
 		{
-			twp->mode = VineMode_Run;
-			SetInputP(0, 16);
+			int pnum = CheckCollisionP(&twp->pos, 14.0f) - 1;
+			if (pnum >= 0 && pnum < MaxPlayers)
+			{
+				twp->mode = VineMode_Run;
+				SetInputP(pnum, PL_OP_PLACEWITHHUNG);
+				PNUM(twp) = pnum;
+			}
+		}
+		else
+		{
+			// In single player, we don't want AI to steal the vine
+			if (CheckCollisionP_num(&twp->pos, 14.0f, 0))
+			{
+				twp->mode = VineMode_Run;
+				SetInputP(0, PL_OP_PLACEWITHHUNG);
+				PNUM(twp) = 0;
+			}
 		}
 	}
 	else if (twp->mode == VineMode_Run)
 	{
 		if (ZipVineUpdatePos(path, twp))
 		{
-			ForcePlayerPos(0, twp->pos.x, twp->pos.y - 7.5f, twp->pos.z);
-			RotatePlayer(0, twp->ang.y);
+			ForcePlayerPos(PNUM(twp), twp->pos.x, twp->pos.y - 7.5f, twp->pos.z);
+			RotatePlayer(PNUM(twp), twp->ang.y);
 			progress += 5.0f;
 			dsPlay_timer_v(465, 0, 0, 0, 1, twp->pos.x, twp->pos.y, twp->pos.z);
 		}
@@ -130,7 +148,7 @@ void __cdecl ZipVineExec(task* tp)
 			twp->mode = VineMode_Input;
 			progress = 10.0f;
 			ZipVineUpdatePos(path, twp);
-			SetInputP(0, 24);
+			SetInputP(PNUM(twp), PL_OP_LETITGO);
 		}
 
 		if (CheckJump(0))
@@ -138,7 +156,7 @@ void __cdecl ZipVineExec(task* tp)
 			twp->mode = VineMode_Wait;
 		}
 
-		if (GetDistance(&playertwp[0]->pos, &twp->pos) > 300.0f)
+		if (GetDistance(&playertwp[PNUM(twp)]->pos, &twp->pos) > 300.0f)
 		{
 			twp->mode = VineMode_Input;
 			progress = 10.0f;
