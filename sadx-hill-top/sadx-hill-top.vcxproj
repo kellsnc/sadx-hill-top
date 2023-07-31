@@ -101,6 +101,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="lava.h" />
     <ClInclude Include="mod.h" />
+    <ClInclude Include="multi.h" />
     <ClInclude Include="ninja-utils.h" />
     <ClInclude Include="object-utils.h" />
     <ClInclude Include="objects.h" />
@@ -137,6 +138,7 @@
     <ClCompile Include="event.cpp" />
     <ClCompile Include="lava.cpp" />
     <ClCompile Include="level.cpp" />
+    <ClCompile Include="multi.cpp" />
     <ClCompile Include="ninja-utils.cpp" />
     <ClCompile Include="object-utils.cpp" />
     <ClCompile Include="objects.cpp" />

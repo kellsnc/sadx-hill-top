@@ -126,6 +126,9 @@
     <ClInclude Include="mod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="multi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -226,6 +229,9 @@
     </ClCompile>
     <ClCompile Include="enemies\e_subeggman.cpp">
       <Filter>Source Files\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="multi.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
