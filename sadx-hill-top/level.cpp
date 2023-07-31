@@ -97,16 +97,21 @@ void __cdecl HillTopZoneExec(task* tp)
 
 		if (player >= 0)
 		{
-			SetInputP(player, 24);
-
 			// If level has been completed once, go to boss instead
-			if (player == 0 && GetEventFlag(EventFlags_Sonic_RedMountainClear) == true && CFG_NoBoss == false)
+			if (GetEventFlag(EventFlags_Sonic_RedMountainClear) == true && CFG_NoBoss == false)
 			{
 				LandChangeStage(2);
 				AddSetStage(2);
 				AddCameraStage(2);
 				AdvanceAct(2);
-				SetPlayerInitialPosition(playertwp[0]);
+				for (auto& ptwp : playertwp)
+				{
+					if (ptwp)
+					{
+						SetPlayerInitialPosition(ptwp);
+						SetInputP(TASKWK_PLAYERID(ptwp), PL_OP_LETITGO);
+					}
+				}
 				HillTop_SetViewData();
 				Boss_SubEggman_Init((ObjectMaster*)tp);
 			}
@@ -116,6 +121,7 @@ void __cdecl HillTopZoneExec(task* tp)
 				ForcePlayerPos(player, (NJS_POINT3*)&ACT1END_POS);
 				playertwp[player]->ang.y = 0x3E80;
 				playerpwp[player]->spd = { 2.0f, 8.0f, 0.0f };
+				SetInputP(player, PL_OP_LETITGO);
 			}
 		}
 	}
