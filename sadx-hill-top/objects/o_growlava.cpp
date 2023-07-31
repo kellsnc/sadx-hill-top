@@ -89,6 +89,14 @@ void __cdecl GrowLava(task* tp)
 {
 	auto twp = tp->twp;
 
+	NJS_OBJECT* mdl = ht_growlava->getmodel()->getnode((int)(twp->scl.x) + 1);
+
+	if (!mdl || !mdl->basicdxmodel)
+	{
+		FreeTask(tp);
+		return;
+	}
+
 	twp->scl.z = twp->pos.y; // Backup original position
 
 	NJS_OBJECT* object = GetMobileLandObject();
@@ -105,7 +113,7 @@ void __cdecl GrowLava(task* tp)
 	object->scl[1] = 1.0f;
 	object->scl[2] = 1.0f;
 
-	object->basicdxmodel = GetModelSibling(ht_growlava->getmodel()->child, static_cast<int>(twp->scl.x))->basicdxmodel;
+	object->basicdxmodel = mdl->basicdxmodel;
 
 	if (twp->scl.y == 1.0f)
 	{

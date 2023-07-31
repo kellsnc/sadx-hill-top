@@ -181,22 +181,6 @@ bool CheckJump(int id)
 	return false;
 }
 
-NJS_OBJECT* GetModelSibling(NJS_OBJECT* object, int id)
-{
-	int i = 0;
-
-	while (object)
-	{
-		if (i == id)
-		{
-			return object;
-		}
-
-		++i;
-		object = object->sibling;
-	}
-}
-
 int GetUVCount(NJS_MESHSET_SADX* meshset)
 {
 	switch (meshset->type_matId)
