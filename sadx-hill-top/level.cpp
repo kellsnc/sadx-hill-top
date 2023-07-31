@@ -71,15 +71,21 @@ void __cdecl HillTopZoneExec(task* tp)
 	if (ssActNumber == 0)
 	{
 		// Act 1-2 swap
-		if (CheckCollisionP_num((NJS_POINT3*)&ACT0TRIGGER_POS, 100.0f, 0))
+		if (CheckCollisionP((NJS_POINT3*)&ACT0TRIGGER_POS, 100.0f))
 		{
 			ADX_Close();
 			LandChangeStage(1);
 			AddSetStage(1);
 			AddCameraStage(1);
 			AdvanceAct(1);
-			SetPlayerInitialPosition(playertwp[0]);
-			SetInputP(0, 24);
+			for (auto& ptwp : playertwp)
+			{
+				if (ptwp)
+				{
+					SetPlayerInitialPosition(ptwp);
+					SetInputP(TASKWK_PLAYERID(ptwp), PL_OP_LETITGO);
+				}
+			}
 			HillTop_SetViewData();
 			LoadCurrentActMusic();
 		}
