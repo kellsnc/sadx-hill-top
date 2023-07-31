@@ -1441,7 +1441,7 @@ void Boss_SpawnAirItemBox()
 
 void __cdecl Boss_SubEggman_Main(ObjectMaster* obj)
 {
-	SetCameraControlEnabled(0);
+	SetFreeCameraMode(0);
 
 	// Little help from time to time
 	if (GameTimer % 1800 == 0 && IsEggSubAlive() == true)

@@ -111,7 +111,7 @@ static void LoadUnidusSeesaw(task* tp, taskwk* twp)
 	njGetTranslation(0, &ctwp->pos);
 	njPopMatrixEx();
 
-	CCL_Init(ctp, (CCL_INFO*)Unidus_Collision, Unidus_Collision_Length, 4);
+	CCL_Init(ctp, (CCL_INFO*)0x96F424, 2, 4);
 
 	ctwp->wtimer = 0;
 	ctp->disp = UnidusSeesawDisplay;

@@ -161,10 +161,10 @@ void LoadHillTopLandTables()
 	LoadLandTableFile(&HillTopLands[1], "system\\hilltopzone1.sa1lvl", &HillTop_TexList);
 	LoadLandTableFile(&HillTopLands[2], "system\\hilltopzone3.sa1lvl", &HillTop_TexList);
 
-	objLandTable[LevelIDs_RedMountain * 8] = (_OBJ_LANDTABLE*)HillTopLands[0]->getlandtable();
-	objLandTable[LevelIDs_RedMountain * 8 + 1] = (_OBJ_LANDTABLE*)HillTopLands[1]->getlandtable();
-	objLandTable[LevelIDs_RedMountain * 8 + 2] = (_OBJ_LANDTABLE*)HillTopLands[0]->getlandtable();
-	objLandTable[LevelIDs_RedMountain * 8 + 3] = (_OBJ_LANDTABLE*)HillTopLands[2]->getlandtable();
+	objLandTable[STAGE_MOUNTAIN][0] = (_OBJ_LANDTABLE*)HillTopLands[0]->getlandtable();
+	objLandTable[STAGE_MOUNTAIN][1] = (_OBJ_LANDTABLE*)HillTopLands[1]->getlandtable();
+	objLandTable[STAGE_MOUNTAIN][2] = (_OBJ_LANDTABLE*)HillTopLands[0]->getlandtable();
+	objLandTable[STAGE_MOUNTAIN][3] = (_OBJ_LANDTABLE*)HillTopLands[2]->getlandtable();
 }
 
 void FreeHillTopLandTables()

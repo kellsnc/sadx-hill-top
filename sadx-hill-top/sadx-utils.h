@@ -26,7 +26,6 @@ typedef void(__cdecl* VoidFuncPtr)(void);
 
 FunctionPointer(void, ReleaseModule, (unsigned int u32ModuleType), 0x4228F0);
 DataPointer(VoidFuncPtr, ___epilogfunc, 0x3B291B4);
-FunctionPointer(BOOL, EV_CheckCansel, (), 0x42FB00);
 FunctionPointer(void, RedMountain_SetViewData_Clip, (int clipLevel), 0x6007E0);
 VoidFunc(RedMountain_SetViewData, 0x600730);
 DataArray(Color3, BackColorList, 0x90BFE8, 43);
@@ -38,7 +37,6 @@ DataPointer(float, BossHealth, 0x3C58158);
 FunctionPointer(void, SetCameraBossStuff, (EntityData1* data, float y, float x, int rot), 0x4647C0);
 ObjectFunc(ObjectCrash, 0x5A95B0); // position is position, scale is direction, object is the model
 FastcallFunctionPointer(void, DrawChunkModel_, (Sint32* a1, Sint16* a2), 0x7917F0);
-FunctionPointer(void, SetPlayerPosition, (uint8_t pno, uint8_t frame, NJS_POINT3* pos, Angle3* ang), 0x441A40);
 
 // Symbols
 TaskFunc(EnemyMountainE104_execTgt, 0x605A90); // local name: execTgt
@@ -49,6 +47,7 @@ FunctionPointer(void, StaticShadow, (taskwk* twp, float ypos), 0x49ED70);
 FunctionPointer(float, Shadow, (taskwk* twp, float scl), 0x49EE30);
 FunctionPointer(float, _DrawShadow, (Angle3* ang, NJS_POINT3* pos, float scl), 0x49EF30);
 FunctionPointer(float, ShadowWithAng, (taskwk* twp, float scl, Angle3* ang), 0x49EFD0);
+FunctionPointer(void, SetFreeCameraMode, (Sint32 mode), 0x4348A0); // Set current camera mode (script)
 
 enum class EVTSTATES : int {
     Init,
