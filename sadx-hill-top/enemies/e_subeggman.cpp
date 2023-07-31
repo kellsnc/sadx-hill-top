@@ -1,11 +1,13 @@
 #include "pch.h"
+#include "multi.h"
 #include "e_subeggman.h"
-#include "camera.h"
 #include "lava.h"
 #include "../objects/o_hillplatform.h"
 #include "e_fireball.h"
 
 // Note: this is still using old names
+FunctionPointer(void, SetParamCameraChaosStageInit, (taskwk* ttwp, Float height, Float dist, Sint32 time), 0x4647C0);
+DataPointer(Sint8, ccsi_flag, 0x3C4ABB4);
 
 static int HillTopBossMusic;
 
@@ -480,97 +482,61 @@ void SinkPlatforms()
 		SetLavaSpeed(15.0f);
 	}
 }
-
 #pragma endregion
 
-#pragma region Cameras
-void CameraZoom(float zoom)
+#pragma region Camera
+void __cdecl CameraEggSub(_OBJ_CAMERAPARAM* pParam)
 {
-	njPushMatrix(_nj_unit_matrix_);
-	njTranslateEx((NJS_VECTOR*)&cameraControlWork.tgtxpos);
-	njRotateY(0, cameraControlWork.angy);
-	njRotateX(0, cameraControlWork.angx);
-	njTranslateZ(zoom);
-	njGetTranslation(0, (NJS_VECTOR*)&cameraControlWork.camxpos);
-	njPopMatrixEx();
-}
+	if (pParam->ulTimer == 0 && camcont_wp->camypos < 0.0f)
+	{
+		*(NJS_VECTOR*)&camcont_wp->camxpos = playertwp[0]->pos;
+	}
 
-void __cdecl EggSubMainCam(_OBJ_CAMERAPARAM* pParam)
-{
-	EntityData1* bossdata = CurrentBoss->Data1;
-
-	*(NJS_VECTOR**)0x3C6AE14 = &bossdata->Position;
-	CameraE101R(pParam);
-}
-
-void __cdecl EggSubSunkCam(_OBJ_CAMERAPARAM* pParam)
-{
-	CameraSonic(pParam);
-}
-
-void __cdecl EggSubInitCam(_OBJ_CAMERAPARAM* pParam)
-{
 	if (CurrentBoss)
 	{
-		if (bossCam.Action == 0)
+		eggsubwk* bosswk = (eggsubwk*)CurrentBoss->UnknownB_ptr;
+		NJS_POINT3 save = camera_twp->pos;
+
+		if (bosswk->Subs != eggsubmtnacts::sink)
 		{
-			cameraControlWork.angy = bossCam.AngY;
-			cameraControlWork.angx = bossCam.AngX;
-			*(NJS_VECTOR*)&cameraControlWork.tgtxpos = { 0, 0, 0 };
+			taskwk* ptwp = playertwp[0];
+			motionwk2* pmwp = playermwp[0];
+			playerwk* ppwp = playerpwp[0];
 
-			if (bossCam.AngY < bossCam.AngTargetY)
-			{
-				bossCam.AngY += 0x20;
-			}
+			NJS_VECTOR* campos = (NJS_POINT3*)&camcont_wp->camxpos;
+			NJS_VECTOR* camtgt = (NJS_POINT3*)&camcont_wp->tgtxpos;
+			NJS_VECTOR campos_tgt = { 0.0f, 15.0f, -60.0f };
+			NJS_VECTOR camtgt_tgt = CurrentBoss->Data1->Position;
 
-			if (bossCam.AngX < bossCam.AngTargetX)
-			{
-				bossCam.AngX += 0x10;
-			}
+			Angle angy = njArcTan2(camtgt->x - ptwp->pos.x, camtgt->z - ptwp->pos.z);
+			
+			NJS_VECTOR v;
+			v.x = ptwp->pos.x + pmwp->spd.x * 4.0f;
+			v.y = ptwp->pos.y + pmwp->spd.y * 4.0f + ppwp->p.eyes_height;
+			v.z = ptwp->pos.z + pmwp->spd.z * 4.0f;
+			njPushMatrix(_nj_unit_matrix_);
+			njTranslateEx(&v);
+			njRotateY(0, angy);
+			njTranslateZ(-ppwp->p.height);
+			njCalcPoint(0, &campos_tgt, &campos_tgt);
+			njPopMatrix(1);
 
-			CameraZoom(bossCam.Zoom);
-
-			if (njScalor((NJS_VECTOR*)&cameraControlWork.tgtxpos) > bossCam.Limit)
-			{
-				bossCam.Zoom -= bossCam.Speed;
-			}
-			else
-			{
-				bossCam.Action = 1;
-			}
+			Float dist = GetDistance(campos, &campos_tgt) / 2.0f;
+			*campos = LerpPoints(campos, &campos_tgt, 0.01f * dist);
+			*camtgt = LerpPoints(camtgt, &camtgt_tgt, 0.01f);
 		}
 		else
 		{
-			EntityData1* bossdata = CurrentBoss->Data1;
-			eggsubwk* bosswk = (eggsubwk*)CurrentBoss->UnknownB_ptr;
-
-			if (bosswk->Subs == eggsubmtnacts::emerge || bosswk->Subs == eggsubmtnacts::stay)
-			{
-				EggSubMainCam(pParam);
-			}
-			else
-			{
-				EggSubSunkCam(pParam);
-			}
+			SetCameraMode(CAMMD_KNUCKLES);
 		}
+
+		CameraAdditionalCollision((NJS_POINT3*)&camcont_wp->camxpos);
+		CameraCollisitonCheck(&save, (NJS_POINT3*)&camcont_wp->camxpos);
 	}
 	else
 	{
-		CameraSonic(pParam);
+		CameraKnuckle(pParam);
 	}
-}
-
-void EggSubInitCam_Load(Angle y, Angle x, Angle targetY, Angle targetX, float speed, float zoom, float limit)
-{
-	CameraSetEventCameraFunc(EggSubInitCam, ADJMD_NONE, DIRECTMD_TARGET);
-	bossCam.Action = 0;
-	bossCam.AngY = y;
-	bossCam.AngX = x;
-	bossCam.AngTargetY = targetY;
-	bossCam.AngTargetX = targetX;
-	bossCam.Speed = speed;
-	bossCam.Limit = limit;
-	bossCam.Zoom = zoom;
 }
 #pragma endregion
 
@@ -828,6 +794,11 @@ void SubEgg_ChangeSub(eggsubwk* wk, eggsubmtnacts action)
 	if (action == eggsubmtnacts::sink)
 	{
 		SubEgg_ChangeAnimation(wk, ESubAnm_LidClose);
+	}
+
+	if (action == eggsubmtnacts::stay)
+	{
+		CameraSetEventCameraFuncM(CameraEggSub, CAMADJ_RELATIVE4C, CDM_LOOKAT);
 	}
 
 	wk->Subs = action;
@@ -1326,11 +1297,15 @@ void __cdecl SubEggman_Main(ObjectMaster* obj)
 	switch (data->Action)
 	{
 	case eggsubmainact_init:
-		// Necessary to spam the camera after act transition somehow
-		CameraSetEventCameraFunc(EggSubInitCam, ADJMD_NONE, DIRECTMD_TARGET);
-
-		if (player->Status & Status_Ground && pco2->NoControlTime < 150)
+		
+		if (wk->Subs != eggsubmtnacts::stay && SubEgg_Emerge(data, wk, 0.35f))
 		{
+			wk->Subs = eggsubmtnacts::stay;
+		}
+		
+		if (ccsi_flag == 1)
+		{
+			CameraSetEventCameraFuncM(CameraEggSub, CAMADJ_NONE, CDM_LOOKAT);
 			SetLavaPoint(0.0f, 0.0f);
 			EnableTimeThing();
 			LoadLifeGauge(600, 0x18, wk->HitPoint);
@@ -1392,11 +1367,11 @@ void __cdecl SubEggman(ObjectMaster* obj)
 	PlayMusic((MusicIDs)HillTopBossMusic);
 
 	// Set the limit of the arena
-	for (int i = 0; i < MaxPlayers; ++i)
+	for (auto& ptwp : playertwp)
 	{
-		if (EntityData1Ptrs[i])
+		if (ptwp)
 		{
-			SetCircleLimit(&EntityData1Ptrs[i]->Position, &data->Position, 405.0f);
+			SetCircleLimit(&ptwp->pos, &data->Position, 405.0f);
 		}
 	}
 
@@ -1404,7 +1379,7 @@ void __cdecl SubEggman(ObjectMaster* obj)
 
 	wk->HitPoint = CFG_HardBoss == true ? 10 : 5;
 	wk->MaxHealth = wk->HitPoint;
-	wk->Subs = eggsubmtnacts::hidden;
+	wk->Subs = eggsubmtnacts::emerge;
 	wk->Acts = eggsubacts::act1;
 	wk->bwk.plactptr = EggSubAnimList;
 
@@ -1418,8 +1393,10 @@ void __cdecl SubEggman(ObjectMaster* obj)
 	LoadPVM("EGGSUB", &EGGSUB_TEXLIST);
 	SetDisplayBossName((char*)"EGGSUB", -1, 240, 80);
 	Collision_Init(obj, &SubEgg_Col, 1, 2);
-
-	EggSubInitCam_Load(0x1000, -0x2000, 0x4000, -0x1000, 1.0f, 500.0f, 200.0f);
+	
+	data->Rotation.y = 0x6000;
+	SetParamCameraChaosStageInit((taskwk*)data, 100.0f, 180.0f, 300);
+	CameraSetEventCamera(CAMMD_CHAOS_STINIT, CAMADJ_NONE);
 
 	CurrentBoss = obj;
 }
@@ -1452,23 +1429,32 @@ void __cdecl Boss_SubEggman_Main(ObjectMaster* obj)
 
 void __cdecl Boss_SubEggman_Init(ObjectMaster* obj)
 {
+	obj->MainSub = Boss_SubEggman_Main;
+
+	DisableTimeThing();
+	LoadSoundList(42);
+
 	LoadObject(LoadObj_Data1, 2, BossLava);
 	LoadObject(LoadObj_Data1, 2, PlatformsHandler);
 	LoadObject(LoadObj_Data1, 2, SubEggman);
 
-	CharObj2* co2 = CharObj2Ptrs[0];
-
-	DisableTimeThing();
-
-	if (co2)
+	if (continue_data.pos.y < 0.0f)
 	{
-		co2->Speed = { 4, 4, 0 };
-		co2->NoControlTime = 300; // no control timer
-
-		obj->MainSub = Boss_SubEggman_Main;
+		for (auto& pwp : playerpwp)
+		{
+			if (pwp)
+			{
+				pwp->spd = { 4.0f, 4.0f, 0 };
+				pwp->nocontimer = 300;
+			}
+		}
 	}
 
-	LoadSoundList(42);
+	if (IsMultiplayerActive())
+	{
+		continue_data.pos = { 120.0f, 23.0f, 0.0f };
+		SetDefaultNormalCameraMode(CAMMD_KNUCKLES, CAMADJ_NONE);
+	}
 }
 
 void Boss_LoadAssets()

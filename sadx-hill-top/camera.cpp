@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "camera.h"
 
 void Cameras_Init(const HelperFunctions& helperFunctions)
 {

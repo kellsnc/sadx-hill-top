@@ -90,7 +90,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="camera.h" />
     <ClInclude Include="deathzones.h" />
     <ClInclude Include="enemies\e_epsilon.h" />
     <ClInclude Include="enemies\e_fireball.h" />

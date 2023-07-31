@@ -120,9 +120,6 @@
     <ClInclude Include="enemies\e_subeggman.h">
       <Filter>Header Files\Enemies</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="mod.h">
       <Filter>Header Files</Filter>
     </ClInclude>

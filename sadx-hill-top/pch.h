@@ -14,6 +14,5 @@
 #include "ninja-utils.h"
 #include "object-utils.h"
 #include "objects.h"
-#include "camera.h"
 
 #endif
