@@ -9,9 +9,9 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state)
 	{
 	case EVTSTATES::Init:
 		*(int*)0x3C83A08 = 0;
+		HillTop_SetViewData();
 		break;
 	case EVTSTATES::Main:
-		HillTop_SetViewData();
 		EV_CameraOn();
 		PadReadOff();
 		EV_CanselOn();
@@ -52,7 +52,7 @@ void EV_RedMountainChaseEvt_r(EVTSTATES state)
 		EventSe_Close();
 		EV_InitPlayer(0);
 		stopObjectAll();
-		EV_FreeObject(0);
+		//EV_FreeObject(0);
 		EV_SetPos(EV_GetPlayer(0), StartPoses[0].Position.x, StartPoses[0].Position.y, StartPoses[0].Position.z);
 		EV_SetAng(EV_GetPlayer(0), 0, StartPoses[0].YRot, 0);
 		EV_Wait(1);
