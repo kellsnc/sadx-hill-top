@@ -268,7 +268,7 @@ void __cdecl GrowLavaTriggerExec(task* tp)
 	{
 		if (CheckCollisionP_num(&twp->pos, twp->scl.x, 0))
 		{
-			if (twp->ang.y == 1 || IsMultiplayerActive())
+			if (twp->ang.y == 1)
 			{
 				DeadOut(tp);
 			}
