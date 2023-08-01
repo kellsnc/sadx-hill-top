@@ -294,17 +294,6 @@ void Rexon_MoveColliNeck(taskwk* twp)
 
 	njPopMatrixEx();
 }
-void RexonMove(task* tp, taskwk* twp)
-{
-	// Move up and down to simulate floating
-	twp->timer.l += 200;
-	twp->pos.y = twp->scl.z + 1.0f + (1.0f * njSin(twp->timer.l));
-
-	auto geocol = (NJS_OBJECT*)twp->counter.ptr;
-
-	MoveGeoCollision(tp, geocol, &twp->pos);
-	RotYGeoCollision(tp, geocol, twp->ang.y);
-}
 
 void Rexon_DrawFins(taskwk* twp, NJS_OBJECT* object, float timer)
 {
@@ -410,13 +399,18 @@ void __cdecl RexonExec(task* tp)
 					twp->ang.y += 0x8000;
 				}
 
-				// Move forward
-				njPushMatrix(_nj_unit_matrix_);
-				njTranslateEx(&twp->pos);
-				njRotateY(0, twp->ang.y);
-				njTranslateX(twp->scl.y / 1000);
-				njGetTranslation(0, &twp->pos);
-				njPopMatrixEx();
+				// Go forward
+				twp->pos.x += njSin(twp->ang.y + 0x4000) * (twp->scl.y / 1000.0f);
+				twp->pos.z += njCos(twp->ang.y + 0x4000) * (twp->scl.y / 1000.0f);
+
+				// Move up and down to simulate floating
+				twp->timer.l += 200;
+				twp->pos.y = twp->scl.z + 1.0f + (1.0f * njSin(twp->timer.l));
+
+				// Update dyncol
+				auto geocol = (NJS_OBJECT*)twp->counter.ptr;
+				MoveGeoCollision(tp, geocol, &twp->pos);
+				RotYGeoCollision(tp, geocol, twp->ang.y);
 			}
 
 			// If the head is still there
@@ -426,9 +420,10 @@ void __cdecl RexonExec(task* tp)
 				Rexon_GetHeadPos(twp, &tp->ctp->twp->pos); // calc head pos
 				EntryColliList(twp);
 			}
-			else
+			else // Otherwise we're dead
 			{
-				// Otherwise we're dead
+				if (twp->mode == RexonAct_Move)
+					StopGeoCollision(tp);
 				twp->mode = RexonAct_Dead;
 				FreeColliWork(twp);
 			}
@@ -436,8 +431,6 @@ void __cdecl RexonExec(task* tp)
 			LoopTaskC(tp);
 		}
 
-		RexonMove(tp, twp);
-		EntryColliList(twp);
 		tp->disp(tp);
 	}
 }
