@@ -29,5 +29,6 @@ int GetUVCount(NJS_MESHSET_SADX* meshset);
 int IsPlayerOnGeoCol(task* tp);
 void MoveGeoCollision(task* tp, NJS_OBJECT* object, NJS_POINT3* pos);
 void RotYGeoCollision(task* tp, NJS_OBJECT* object, Angle y);
+void StopGeoCollision(task* tp);
 void SetLevelTexture();
 void SetSecondObjectTexture();

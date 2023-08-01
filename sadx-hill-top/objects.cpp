@@ -62,7 +62,7 @@ _OBJ_ITEMENTRY HillTopObjectList_list[] = {
 	{ IM_TWK, 3, 5, 250000.0f, 0, EnemyUniC, "E UNI C" }, // 34
 	{ IM_TWK, 3, 1, 4000000.0f, 0, EnemyMountainE104, "E E_104" },
 	{ IM_TWK, 3, 4, 0.0f, 0, Spiker, "SPIKER" },
-	{ IM_TWK, 3, 4, 0.0f, 0, Rexon, "REXON" },
+	{ IM_TWK | IM_FWK, 3, 4, 0.0f, 0, Rexon, "REXON" },
 	{ IM_TWK | IM_FWK, 3, 1, 640000.0f, 0, ObjectMountainTuribasi1, "O TURI 1" }, // 38
 	{ IM_TWK | IM_FWK, 3, 1, 638400.0f, 0, Object_Mountain_Zako, "O ZAKO" },
 	{ IM_TWK | IM_FWK, 3, 1, 638400.0f, 0, Object_Mountain_ZakoB, "O ZAKO B" },
@@ -82,10 +82,10 @@ _OBJ_ITEMENTRY HillTopObjectList_list[] = {
 	{ IM_TWK, 3, 1, 460000.0f, 0, HillSeesaw, "O HILLSEESAW" },
 	{ IM_TWK, 3, 1, 640000.0f, 0, HillPole, "O HILLPOLE" },
 	{ IM_TWK, 3, 1, 640000.0f, 0, VinePulley, "O VINEPULLEY" },
-	{ IM_TWK, 3, 1, 1280000.0f, 0, HillPlatform, "O HILLPLATFORM" },
+	{ IM_TWK | IM_FWK, 3, 1, 1280000.0f, 0, HillPlatform, "O HILLPLATFORM" },
 	{ IM_TWK, 3, 1, 460000.0f, 0, ObjectGroupRing, "O_GRING" },
-	{ IM_TWK, 3, 1, 5280000.0f, 0, GrowLava, "O GROWLAVA" },
-	{ IM_TWK, 3, 1, 1280000.0f, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
+	{ IM_TWK | IM_FWK, 3, 1, 5280000.0f, 0, GrowLava, "O GROWLAVA" },
+	{ IM_TWK | IM_FWK, 3, 1, 1280000.0f, 0, GrowLavaPlatform, "O GRAWLAVAPLATFORM" },
 	{ IM_TWK, 2, 0, 0.0f, 0, GrowLavaTrigger, "O GRAWLAVATRIGGER" },
 	{ IM_TWK, 2, 0, 0.0f, 0, KillCeiling, "O KILLCEILING" }
 };

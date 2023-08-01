@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "multi.h"
 
 const char* mdlformatstrings[] = {
 	"basic",
@@ -214,51 +215,54 @@ int IsPlayerOnGeoCol(task* tp, int pnum)
 	return pwp && pwp->ttp == tp;
 }
 
-// Move collision and players that are on it
+// Move collision and players that are on it using forcewk
 void MoveGeoCollision(task* tp, NJS_OBJECT* object, NJS_POINT3* pos)
 {
-	NJS_POINT3* prev_pos = (NJS_POINT3*)&object->pos;
+	NJS_POINT3 diff = *(NJS_POINT3*)&object->pos;
 
-	// Ignore if no movement
-	if (!ComparePoints(prev_pos, pos))
+	object->pos[0] = pos->x;
+	object->pos[1] = pos->y;
+	object->pos[2] = pos->z;
+
+	forcewk* fwp = tp->fwp;
+	if (fwp)
 	{
-		// Get difference between previous and current position
-		NJS_VECTOR difference = *pos;
-		njSubVector(&difference, prev_pos);
+		diff.x = pos->x - diff.x;
+		diff.y = pos->y - diff.y;
+		diff.z = pos->z - diff.z;
 
-		for (int i = 0; i < MaxPlayers; ++i)
+		for (int i = 0; i < (IsMultiplayerActive() ? 4 : 2); ++i)
 		{
-			if (IsPlayerOnGeoCol(tp, i))
-			{
-				njAddVector(&playertwp[i]->pos, &difference); // move player by differnce between previous and current pos
-			}
+			fwp[i].pos_spd = diff;
 		}
-
-		// Move collision
-		object->pos[0] += difference.x;
-		object->pos[1] += difference.y;
-		object->pos[2] += difference.z;
 	}
 }
 
 void RotYGeoCollision(task* tp, NJS_OBJECT* object, Angle y)
 {
-	Angle prev_angle = object->ang[1];
-	
-	// Ignore if no change
-	if (prev_angle != y)
+	Angle diff = object->ang[1];
+
+	object->ang[1] = y;
+
+	forcewk* fwp = tp->fwp;
+	if (fwp)
 	{
-		Angle difference = SubAngle(prev_angle, y);
+		diff = SubAngle(diff, y);
 
-		for (int i = 0; i < MaxPlayers; ++i)
+		for (int i = 0; i < (IsMultiplayerActive() ? 4 : 2); ++i)
 		{
-			if (IsPlayerOnGeoCol(tp, i))
-			{
-				playertwp[i]->ang.y += difference;
-			}
+			fwp[i].ang_spd.y = diff;
 		}
+	}
+}
 
-		object->ang[1] += difference;
+void StopGeoCollision(task* tp)
+{
+	forcewk* fwp = tp->fwp;
+	if (fwp)
+	{
+		int count = IsMultiplayerActive() ? 4 : 2;
+		memset(fwp, 0, sizeof(forcewk) * count);
 	}
 }
 

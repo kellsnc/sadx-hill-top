@@ -37,11 +37,11 @@ static void __cdecl HillPlatformExec(task* tp)
 		auto twp = tp->twp;
 
 		// Update height
-		twp->pos.y = twp->scl.z + static_cast<float>(1.0 - pow(njSin(GameTimer * twp->ang.z), 2.0)) * twp->scl.y;
+		twp->pos.y = twp->scl.z + (1.0f - powf(njSin(GameTimer * twp->ang.z), 2.0f)) * twp->scl.y;
 
 		// Update geometry collision
 
-		MoveGeoCollision(tp, reinterpret_cast<NJS_OBJECT*>(twp->counter.ptr), &twp->pos);
+		MoveGeoCollision(tp, (NJS_OBJECT*)twp->counter.ptr, &twp->pos);
 
 		tp->disp(tp);
 	}

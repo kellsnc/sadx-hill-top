@@ -209,7 +209,7 @@ void __cdecl TranspPlatformExec(task* tp)
 	case TranspPlatformActs::Move:
 		dsPlay_timer_v(465, 0, 0, 0, 1, twp->pos.x, twp->pos.y, twp->pos.z);
 
-		twp->progress += 0.001f * (static_cast<float>(ptwp->SpeedParam) / 100.0f); // Speed
+		twp->progress += 0.001f * ((float)ptwp->SpeedParam / 100.0f); // Speed
 		ptwp->progress = twp->progress;	// Hand that to the parent object to bend the vine
 
 		MovePlatform(ptwp, twp, twp->progress);
@@ -218,6 +218,7 @@ void __cdecl TranspPlatformExec(task* tp)
 		// Check if we're at the end, sphere check to detach the object a bit sooner
 		if (twp->progress >= 1.0f || CheckCollisionPointSphere(&ptwp->destination, &twp->pos, 25.0f))
 		{
+			StopGeoCollision(tp);
 			twp->Action = TranspPlatformActs::Fall;
 			twp->scl.y = 0.0f;
 		}
@@ -252,7 +253,7 @@ void __cdecl TranspPlatformExec(task* tp)
 
 void LoadTranspPlatform(task* tp, TransporterData1* twp, float progress)
 {
-	auto ctp = CreateChildTask(IM_TWK, TranspPlatformExec, tp);
+	auto ctp = CreateChildTask(IM_TWK | IM_FWK, TranspPlatformExec, tp);
 	auto ctwp = (TranspPlatformData1*)ctp->twp;
 
 	ctp->disp = TranspPlatformDisplay;
