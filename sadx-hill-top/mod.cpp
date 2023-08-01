@@ -6,6 +6,7 @@ void Level_Init(const HelperFunctions& helperFunctions, const IniFile* config);
 void Objects_Init(const HelperFunctions& helperFunctions);
 void Cameras_Init(const HelperFunctions& helperFunctions);
 void Boss_Init(const HelperFunctions& helperFunctions, const IniFile* config);
+void Graphics_Init(const char* path, const HelperFunctions& helperFunctions);
 
 const HelperFunctions* gHelperFunctions;
 
@@ -21,6 +22,7 @@ extern "C"
 		Objects_Init(helperFunctions);
 		Cameras_Init(helperFunctions);
 		Boss_Init(helperFunctions, config);
+		Graphics_Init(path, helperFunctions);
 
 		delete config;
 	}

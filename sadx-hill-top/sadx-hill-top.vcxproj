@@ -133,6 +133,7 @@
     <ClCompile Include="enemies\e_rexon.cpp" />
     <ClCompile Include="enemies\e_spiker.cpp" />
     <ClCompile Include="enemies\e_subeggman.cpp" />
+    <ClCompile Include="graphics.cpp" />
     <ClCompile Include="mod.cpp" />
     <ClCompile Include="event.cpp" />
     <ClCompile Include="lava.cpp" />
