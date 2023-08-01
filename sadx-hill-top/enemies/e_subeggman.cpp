@@ -81,6 +81,7 @@ enum ESubAnms {
 
 struct eggsubwk {
 	bosswk bwk;
+	task* my_task;
 	int HitPoint;
 	int HitTimer;
 	int InternalTimer;
@@ -794,6 +795,7 @@ void SubEgg_ChangeSub(eggsubwk* wk, eggsubmtnacts action)
 {
 	if (action == eggsubmtnacts::sink)
 	{
+		E102KillCursor(wk->my_task);
 		SubEgg_ChangeAnimation(wk, ESubAnm_LidClose);
 	}
 
@@ -809,19 +811,10 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk)
 {
 	if (wk->HitPoint > 0 && wk->HitTimer == 0)
 	{
-		EntityData1* entity = GetCollidingEntityA(data);
+		auto hit_player = CCL_IsHitPlayer((taskwk*)data);
+		auto hit_bullet = CCL_IsHitBullet((taskwk*)data);
 
-		bool playerHurting = entity && entity->Status & (Status_Attack | Status_Ball);
-
-		if (playerHurting)
-		{
-			NJS_VECTOR spd = { -3.5f, 3.5f, 0.0f };
-			PConvertVector_P2G((taskwk*)entity, &spd);
-			EnemyBounceThing(entity->CharIndex, spd.x, spd.y, spd.z);
-			CharObj2Ptrs[entity->CharIndex]->NoControlTime = 10;
-		}
-
-		if (playerHurting || GetCollidingEntityB(data))
+		if (hit_player || hit_bullet)
 		{
 			wk->HitTimer = 50;
 			wk->HitPoint -= 1;
@@ -855,10 +848,33 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk)
 				EmergePlatforms();
 				SubEgg_ChangeAnimation(wk, ESubAnm_Idle);
 				PlayVoiceCheckSetting(177);
+
+				if (IsMultiplayerActive())
+				{
+					if (hit_player)
+						SetMultiplayerWinner(TASKWK_PLAYERID(hit_player));
+					else if (hit_bullet)
+						SetMultiplayerWinner(hit_bullet->btimer);
+				}
 			}
 			else
 			{
 				PlayVoiceCheckSetting(rand() % 2 == 0 ? 172 : 1230);
+			}
+
+			if (hit_player)
+			{
+				auto pnum = TASKWK_PLAYERID(hit_player);
+
+				NJS_VECTOR spd = { -3.5f, 3.5f, 0.0f };
+				PConvertVector_P2G(hit_player, &spd);
+				SetVelocityP(pnum, spd.x, spd.y, spd.z);
+				playerpwp[pnum]->nocontimer = 10;
+			}
+
+			if (hit_bullet)
+			{
+				E102KillCursor(wk->my_task);
 			}
 
 			BossHealth = static_cast<float>(wk->HitPoint);
@@ -881,7 +897,7 @@ void SubEgg_UpdateStatus(EntityData1* data, eggsubwk* wk)
 
 	if (wk->HitPoint)
 	{
-		float p = static_cast<float>(wk->HitPoint) / static_cast<float>(wk->MaxHealth);
+		float p = (float)wk->HitPoint / (float)wk->MaxHealth;
 
 		if (p >= 1.0f)
 		{
@@ -1367,9 +1383,11 @@ void __cdecl SubEggman(ObjectMaster* obj)
 	EntityData1* data = obj->Data1;
 	eggsubwk* wk = (eggsubwk*)BInitialize((taskwk*)data, sizeof(eggsubwk));
 
+	EnemyInitialize((task*)obj, (taskwk*)data);
 	PlayMusic((MusicIDs)HillTopBossMusic);
 
 	obj->UnknownB_ptr = (void*)wk;
+	wk->my_task = (task*)obj;
 
 	wk->HitPoint = CFG_HardBoss == true ? 10 : 5;
 	wk->MaxHealth = wk->HitPoint;

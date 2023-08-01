@@ -3,12 +3,21 @@
 #include "multi.h"
 
 bool(*multi_is_active)() = nullptr;
+void(*multi_set_winner)(uint32_t pnum) = nullptr;
 void(*camera_set_event_camera)(uint32_t pnum, uint32_t ssCameraMode, uint32_t ucAdjustType) = nullptr;
 void(*camera_set_event_camera_func)(uint32_t pnum, CamFuncPtr fnCamera, uint32_t ucAdjustType, uint32_t scCameraDirect) = nullptr;
 
 bool IsMultiplayerActive()
 {
 	return multi_is_active ? multi_is_active() : false;
+}
+
+void SetMultiplayerWinner(int pnum)
+{
+	if (multi_set_winner)
+	{
+		multi_set_winner(pnum);
+	}
 }
 
 void CameraSetEventCameraM(uint32_t ssCameraMode, uint32_t ucAdjustType)
@@ -53,6 +62,7 @@ void Multi_Init(const HelperFunctions& helperFunctions)
 	if (multi_mod)
 	{
 		multi_is_active = multi_mod->GetDllExport<decltype(multi_is_active)>("multi_is_active");
+		multi_set_winner = multi_mod->GetDllExport<decltype(multi_set_winner)>("multi_set_winner");
 		camera_set_event_camera = multi_mod->GetDllExport<decltype(camera_set_event_camera)>("camera_set_event_camera");
 		camera_set_event_camera_func = multi_mod->GetDllExport<decltype(camera_set_event_camera_func)>("camera_set_event_camera_func");
 	}
