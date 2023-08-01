@@ -20,7 +20,7 @@ enum VineMode
 {
 	VineMode_Input,
 	VineMode_Run,
-	VineMode_Wait
+	VineMode_Reset
 };
 
 CCL_INFO ZipVine_Col = { 0, CI_FORM_SPHERE, 0xF0, 0, 0, { 0.0f, 0.0f, 0.0f }, 10.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0 };
@@ -138,38 +138,41 @@ void __cdecl ZipVineExec(task* tp)
 	{
 		if (ZipVineUpdatePos(path, twp))
 		{
-			ForcePlayerPos(PNUM(twp), twp->pos.x, twp->pos.y - 7.5f, twp->pos.z);
-			RotatePlayer(PNUM(twp), twp->ang.y);
+			if (!twp->smode)
+			{
+				ForcePlayerPos(PNUM(twp), twp->pos.x, twp->pos.y - 7.5f, twp->pos.z);
+				RotatePlayer(PNUM(twp), twp->ang.y);
+			}
 			progress += 5.0f;
 			dsPlay_timer_v(465, 0, 0, 0, 1, twp->pos.x, twp->pos.y, twp->pos.z);
 		}
 		else
 		{
-			twp->mode = VineMode_Input;
-			progress = 10.0f;
-			ZipVineUpdatePos(path, twp);
+			twp->mode = VineMode_Reset;
 			SetInputP(PNUM(twp), PL_OP_LETITGO);
 		}
 
-		if (CheckJump(0))
+		if (twp->wtimer)
 		{
-			twp->mode = VineMode_Wait;
+			--twp->wtimer;
+		}
+		else if (CheckJump(PNUM(twp)))
+		{
+			twp->smode = 1;
+			twp->wtimer = 50;
 		}
 
 		if (GetDistance(&playertwp[PNUM(twp)]->pos, &twp->pos) > 300.0f)
 		{
-			twp->mode = VineMode_Input;
-			progress = 10.0f;
-			ZipVineUpdatePos(path, twp);
+			twp->mode = VineMode_Reset;
 		}
 	}
 	else
 	{
-		if (++twp->wtimer > 50)
-		{
-			twp->wtimer = 0;
-			twp->mode = VineMode_Input;
-		}
+		twp->smode = 0;
+		progress = 10.0f;
+		ZipVineUpdatePos(path, twp);
+		twp->mode = VineMode_Input;
 	}
 	
 	LoopTaskC(tp);
