@@ -1314,6 +1314,8 @@ void __cdecl SubEggman_Main(ObjectMaster* obj)
 	switch (data->Action)
 	{
 	case eggsubmainact_init:
+		if (GetCameraMode() != CAMMD_CHAOS_STINIT)
+			CameraSetEventCamera(CAMMD_CHAOS_STINIT, CAMADJ_NONE);
 		
 		if (wk->Subs != eggsubmtnacts::stay && SubEgg_Emerge(data, wk, 0.35f))
 		{
