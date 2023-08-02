@@ -1,16 +1,16 @@
-[Code, models, animations, textures]
-- Kell @conankell
+Author:
+- Kell
 
-[Musics]
-- Act1, Boss: Snakeshroom @snakeshroom
-- Act2: BlazeHedghehog @blazehedghehog
+Contributors:
+- Snakeshroom (music for Act 1)
+- BlazeHedgehog (music for Act 2)
+- Jesus_PK (UI textures using Sonikko's PSDs)
 
-[Copyrights]
-- SEGA & SONICTEAM (all textures and some models are based on game assets)
-
-[Help]
+Other:
 - The SA TOOLS team (tools)
 - Justin113D (Blender add-on)
 - MainMemory (Mod Loader libraries)
 - Sora @Sora_yxow (general help)
 - Dexterity @ItsDexterity (adx music conversion)
+
+(c) SEGA, SONIC TEAM for all repurposed assets
