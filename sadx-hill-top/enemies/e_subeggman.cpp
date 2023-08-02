@@ -183,7 +183,7 @@ void CalcLavaAnim(lavawk* wk)
 
 	for (int i = 0; i < wk->nbPoint; ++i)
 	{
-		wk->Object->basicdxmodel->points[i].y = (1.0f - njSin(wk->Timer * 100 * wk->Offsets[i] + j)) * wk->Offsets[i];
+		wk->Object->basicdxmodel->points[i].y = (1.0f - njSin(wk->Timer * 100 * (int)wk->Offsets[i] + j)) * wk->Offsets[i];
 
 		if (wk->Offsets[i] > 3.0f)
 		{
@@ -288,8 +288,8 @@ void __cdecl BossLava_Main(ObjectMaster* obj)
 
 		break;
 	}
-
-	wk->Timer += static_cast<int>(wk->Speed);
+	
+	wk->Timer += (short)(wk->Speed);
 
 	obj->DisplaySub(obj);
 }
@@ -379,7 +379,7 @@ void __cdecl PlatformChild_Main(ObjectMaster* obj)
 	{
 		if (IsEggSubAlive() == true)
 		{
-			data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(GameTimer * data->Scale.z), 2.0f)) * data->Scale.y;
+			data->Object->pos[1] = parent->Position.y + (1.0f - powf(njSin(GameTimer * (int)data->Scale.z), 2.0f)) * data->Scale.y;
 		}
 
 		obj->DisplaySub(obj);
@@ -435,10 +435,10 @@ void __cdecl PlatformsHandler(ObjectMaster* obj)
 		child->Data1->Position.x = njCos(i) * 225;
 		child->Data1->Position.z = njSin(i) * 225;
 
-		child->Data1->Scale.x = static_cast<float>(60 + rand() % 25) / 100;
-		child->Data1->Scale.y = static_cast<float>(5 + rand() % 30);
-		child->Data1->Scale.z = static_cast<float>(60 + rand() % 60);
-		child->Data1->Rotation.y = static_cast<Angle>(atan2f(child->Data1->Position.x, child->Data1->Position.z) * 65536.0f * 0.1591549762031479f);
+		child->Data1->Scale.x = (float)(60 + rand() % 25) / 100.0f;
+		child->Data1->Scale.y = (float)(5 + rand() % 30);
+		child->Data1->Scale.z = (float)(60 + rand() % 60);
+		child->Data1->Rotation.y = njArcTan2(child->Data1->Position.x, child->Data1->Position.z);
 
 		NJS_OBJECT* object = ObjectArray_GetFreeObject();
 
@@ -488,7 +488,7 @@ void SinkPlatforms()
 #pragma region Camera
 void __cdecl CameraEggSub(_OBJ_CAMERAPARAM* pParam)
 {
-	if (pParam->ulTimer == 0 && camcont_wp->camypos < 5.0f)
+	if (pParam->ulTimer < 5 && camcont_wp->camypos < 5.0f)
 	{
 		camcont_wp->camypos = 5.0f;
 		camera_twp->pos.y = 5.0f;
@@ -578,9 +578,9 @@ void __cdecl EggBombInit(ObjectMaster* obj)
 
 	// This is the velocity direction of the bomb, we add some flavour to it
 	ObjectData2* data2 = (ObjectData2*)obj->Data2;
-	data2->field_4.y = 3.0f + static_cast<float>(rand() % 100) / 100.0f;
-	data2->field_4.x *= 1.0f + static_cast<float>(rand() % 100) / 100.0f;
-	data2->field_4.z *= 1.0f + static_cast<float>(rand() % 100) / 100.0f;
+	data2->field_4.y = 3.0f + (float)(rand() % 100) / 100.0f;
+	data2->field_4.x *= 1.0f + (float)(rand() % 100) / 100.0f;
+	data2->field_4.z *= 1.0f + (float)(rand() % 100) / 100.0f;
 }
 
 void EggSub_Bomb(EntityData1* data)
@@ -724,8 +724,8 @@ void EggSub_Fire(EntityData1* data, eggsubwk* wk, int count)
 		EntityData1* child = obj->Data1;
 
 		child->Position = pos;
-		child->Scale.x = 1.0f + static_cast<float>(rand() % 100) / 100;
-		child->Scale.y = 0.50 + static_cast<float>(rand() % 25) / 25;
+		child->Scale.x = 1.0f + (float)(rand() % 100) / 100;
+		child->Scale.y = 0.5f + (float)(rand() % 25) / 25;
 		child->Scale.z = 2.0f;
 		child->Rotation.x = -(rand() % 1000);
 		child->Rotation.y += (rand() % 500) - 250;
@@ -751,7 +751,7 @@ void SubEgg_PlayAnimation(eggsubwk* wk)
 	bool Loop = pl->mtnmode == AnimProp_Loop;
 	bool Next = pl->mtnmode == AnimProp_OnceT || pl->mtnmode == AnimProp_ReverseT;
 	bool Reverse = pl->mtnmode == AnimProp_Reverse || pl->mtnmode == AnimProp_ReverseT;
-	float frame = static_cast<float>(pl->actptr->motion->nbFrame) - 1;
+	float frame = (float)(pl->actptr->motion->nbFrame - 1);
 
 	if (Reverse)
 	{
@@ -877,7 +877,7 @@ bool SubEgg_CheckDamage(EntityData1* data, eggsubwk* wk)
 				E102KillCursor(wk->my_task);
 			}
 
-			BossHealth = static_cast<float>(wk->HitPoint);
+			BossHealth = (float)(wk->HitPoint);
 
 			return true;
 		}
@@ -987,7 +987,7 @@ void SubEgg_GetRandomPosition(EntityData1* data, eggsubwk* wk)
 		data->Position.z = fabsf(data->Position.z);
 	}
 
-	data->Rotation.y = static_cast<Angle>(atan2f(data->Position.x, data->Position.z) * 65536.0f * 0.1591549762031479f);
+	data->Rotation.y = njArcTan2(data->Position.x, data->Position.z);
 	if (dist == 190) data->Rotation.y += 0x8000;
 }
 
@@ -1099,7 +1099,7 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk)
 			break;
 		}
 
-		speed = wk->Level == 1 ? 80 : 40;
+		speed = wk->Level == 1 ? 90 : 60;
 
 		if (CFG_HardBoss == true)
 		{
@@ -1149,15 +1149,15 @@ void SubEgg_Act2(EntityData1* data, eggsubwk* wk)
 	}
 }
 
-inline void SubEggAct3Attack(EntityData1* data, eggsubwk* wk)
+void SubEggAct3Attack(EntityData1* data, eggsubwk* wk)
 {
 	++wk->InternalTimer;
 
-	int speed = wk->InternalTimer * 10;
+	Angle speed = wk->InternalTimer * 8;
 
 	if (CFG_HardBoss == true)
 	{
-		speed *= 1.5f;
+		speed *= 2;
 	}
 
 	data->Rotation.y += speed > 0x500 ? 0x500 : speed;
@@ -1192,7 +1192,7 @@ void SubEgg_Act3(EntityData1* data, eggsubwk* wk)
 		break;
 	case eggsubmtnacts::emerge:
 	default:
-		if (SubEgg_Emerge(data, wk, 0.7))
+		if (SubEgg_Emerge(data, wk, 0.7f))
 		{
 			SubEgg_ChangeSub(wk, eggsubmtnacts::stay);
 			SubEgg_ChangeAnimation(wk, ESubAnm_AttackSpree);
@@ -1321,6 +1321,8 @@ void __cdecl SubEggman_Main(ObjectMaster* obj)
 		{
 			wk->Subs = eggsubmtnacts::stay;
 		}
+
+		SubEgg_LookAtPlayer(data, wk);
 		
 		if (ccsi_flag == 1)
 		{
@@ -1423,10 +1425,10 @@ void Boss_SpawnAirItemBox()
 	int ang = rand() % 0x10000;
 
 	data->Position.x = rand() % 2 ? -(njCos(ang) * 230.0f) : njCos(ang) * 230.0f;
-	data->Position.y = 50.0f + static_cast<float>(rand() % 20);
+	data->Position.y = 50.0f + (float)(rand() % 20);
 	data->Position.z = rand() % 2 ? -(njSin(ang) * 230.0f) : njSin(ang) * 230.0f;
 
-	data->Scale.x = rand() % 4;
+	data->Scale.x = (float)(rand() % 4);
 }
 
 void __cdecl Boss_SubEggman_Main(ObjectMaster* obj)
