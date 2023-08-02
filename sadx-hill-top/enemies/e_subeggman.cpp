@@ -612,7 +612,7 @@ void EggSubDeflarg_Display(ObjectMaster* obj)
 
 		njColorBlendingMode(NJD_SOURCE_COLOR, NJD_COLOR_BLENDING_SRCALPHA);
 		njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_ONE);
-		njDrawSprite3D(&DEFLARG_SPRITE, data->Index, NJD_SPRITE_ALPHA);
+		late_DrawSprite3D(&DEFLARG_SPRITE, data->Index, NJD_SPRITE_ALPHA, LATE_MAT);
 		njColorBlendingMode(NJD_SOURCE_COLOR, NJD_COLOR_BLENDING_SRCALPHA);
 		njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_INVSRCALPHA);
 
@@ -1316,7 +1316,7 @@ void __cdecl SubEggman_Main(ObjectMaster* obj)
 	case eggsubmainact_init:
 		if (GetCameraMode() != CAMMD_CHAOS_STINIT)
 			CameraSetEventCamera(CAMMD_CHAOS_STINIT, CAMADJ_NONE);
-		
+
 		if (wk->Subs != eggsubmtnacts::stay && SubEgg_Emerge(data, wk, 0.35f))
 		{
 			wk->Subs = eggsubmtnacts::stay;
