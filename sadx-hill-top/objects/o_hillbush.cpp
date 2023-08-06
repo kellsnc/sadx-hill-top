@@ -33,8 +33,8 @@ void __cdecl HillBushDisplay(task* tp)
 		njTranslateY(object->child->pos[1]);
 
 		// Some animation
-		njRotateX_(static_cast<int>(1.0f - njSin(twp->wtimer * 0x200) * 300.0f));
-		njScaleY(1.0f + (1.0f - njSin(twp->wtimer * 0x5DC)) / 50.0f);
+		njRotateX_(twp->timer.l);
+		njScaleY(twp->scl.y);
 
 		dsDrawModel(object->child->basicdxmodel); // draw bush
 
@@ -48,7 +48,9 @@ void __cdecl HillBushExec(task* tp)
 	{
 		auto twp = tp->twp;
 
-		twp->wtimer += 1; // Animate
+		twp->timer.l = (Angle)(1.0f + (1.0f - njSin(twp->wtimer * 0x5DC)) / 50.0f);
+		twp->scl.z = 1.0f - njSin(twp->wtimer * 0x200) * 300.0f;
+		++twp->wtimer; // Animate
 
 		tp->disp(tp);
 	}
@@ -58,7 +60,7 @@ void __cdecl HillBush(task* tp)
 {
 	auto twp = tp->twp;
 
-	twp->wtimer = static_cast<unsigned short>(rand()); // Randomize animation start
+	twp->wtimer = (Uint16)rand(); // Randomize animation start
 	twp->value.ptr = ht_bush->getmodel(); // Store model in twp->value
 
 	tp->exec = HillBushExec;

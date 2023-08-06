@@ -28,7 +28,7 @@ void __cdecl HillGrassDisplay(task* tp)
 		njScaleY(1.0f + twp->scl.y);
 
 		// Only process animation if close enough
-		if (CheckCollisionP(&twp->pos, 400.0f))
+		if (twp->btimer)
 		{
 			njAction(&Grass0_Action, twp->scl.z);
 		}
@@ -47,7 +47,9 @@ void __cdecl HillGrassExec(task* tp)
 	{
 		auto twp = tp->twp;
 
-		twp->scl.z += 0.5f; // Animate
+		twp->btimer = CheckCollisionP(&twp->pos, ClipLevel > 0 ? 200.0f : 300.0f);
+		if (twp->btimer)
+			twp->scl.z += 0.5f; // Animate
 		
 		tp->disp(tp);
 	}

@@ -34,7 +34,7 @@ void __cdecl VinePulleyDisplay(task* tp)
 		SetSecondObjectTexture();
 		njPushMatrixEx();
 		njTranslateEx(&ctwp->pos);
-		njScaleY(twp->scl.z / 23);
+		njScaleY(twp->scl.z / 23.0f);
 		dsDrawModel(object->basicdxmodel);
 		njPopMatrixEx();
 	}

@@ -37,7 +37,7 @@ void __cdecl HillFlowersDisplay(task* tp)
 
 		njScale(nullptr, twp->scl.x, twp->scl.x + twp->scl.y, twp->scl.x);
 
-		njScaleY(1.0f + (1.0f - njSin(twp->wtimer * 0x7D0)) / 50.0f); // bouncy animation
+		njScaleY(twp->counter.f); // bouncy animation
 
 		if (twp->value.ptr != nullptr) // If there is an animation
 		{ 
@@ -57,6 +57,8 @@ void __cdecl HillFlowersExec(task* tp)
 	if (!CheckRangeOut(tp))
 	{
 		auto twp = tp->twp;
+
+		twp->counter.f = 1.0f + (1.0f - njSin(twp->wtimer * 0x7D0)) / 50.0f; // Bouncy animation
 
 		if (twp->value.ptr != nullptr) // If there is an animation
 		{
