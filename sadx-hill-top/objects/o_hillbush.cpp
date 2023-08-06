@@ -34,7 +34,7 @@ void __cdecl HillBushDisplay(task* tp)
 
 		// Some animation
 		njRotateX_(twp->timer.l);
-		njScaleY(twp->scl.y);
+		njScaleY(twp->scl.z);
 
 		dsDrawModel(object->child->basicdxmodel); // draw bush
 
@@ -48,8 +48,8 @@ void __cdecl HillBushExec(task* tp)
 	{
 		auto twp = tp->twp;
 
-		twp->timer.l = (Angle)(1.0f + (1.0f - njSin(twp->wtimer * 0x5DC)) / 50.0f);
-		twp->scl.z = 1.0f - njSin(twp->wtimer * 0x200) * 300.0f;
+		twp->timer.l = (Angle)(1.0f - njSin(twp->wtimer * 0x200) * 300.0f);
+		twp->scl.z = 1.0f + (1.0f - njSin(twp->wtimer * 0x5DC)) / 50.0f;
 		++twp->wtimer; // Animate
 
 		tp->disp(tp);
