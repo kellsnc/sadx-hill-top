@@ -51,9 +51,7 @@ void Load_TitleCards(const char* path, const HelperFunctions& helperFunctions, b
 	}
 }
 
-bool dc = false;
-
-void Load_StageCredits(const char* path, const HelperFunctions& helperFunctions, bool hd)
+void Load_StageCredits(const char* path, const HelperFunctions& helperFunctions, bool hd, bool dc)
 {	
 	if (hd)
 	{
@@ -102,9 +100,9 @@ void Load_StageThumbnails(const char* path, const HelperFunctions& helperFunctio
 void Graphics_Init(const char* path, const HelperFunctions& helperFunctions)
 {
 	bool hd = helperFunctions.Mods->find("sadx-hd-gui") != nullptr;
-	dc = helperFunctions.Mods->find("sadx-dreamcast-conversion") != nullptr;
+	bool dc = helperFunctions.Mods->find("sadx-dreamcast-conversion") != nullptr;
 	Load_StageNames(path, helperFunctions, hd);
     Load_TitleCards(path, helperFunctions, hd);
-	Load_StageCredits(path, helperFunctions, hd);
+	Load_StageCredits(path, helperFunctions, hd, dc);
 	Load_StageThumbnails(path, helperFunctions);
 }
